@@ -76,7 +76,7 @@ As principais questões ainda abertas são:
 
 ```text
 1. Verificação de e-mail
-2. Mecanismo definitivo de autenticação/sessão
+2. ~~Mecanismo definitivo de autenticação/sessão~~ (DECIDIDA → DEC-021)
 3. Endereço definitivo do ecoponto
 4. Coordenadas definitivas do ecoponto
 5. Horários de funcionamento do ecoponto
@@ -139,7 +139,13 @@ testes
 
 # 6. OQ-002 — Mecanismo Definitivo de Sessão/Token
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decisão:** `DEC-021` (2026-09-24) — sessão no servidor com `express-session`, store no MongoDB e cookie HttpOnly `SameSite=Lax`. Topologia em `DEC-063`.
+
+Permanecem abertas: `OQ-060` (sessões simultâneas) e `OQ-062` (expiração).
+
+O texto abaixo é mantido como registro histórico.
 
 ## Questão
 
@@ -378,7 +384,7 @@ Afeta:
 
 ```text
 Collection
-wasteItems
+itensDescarte
 formulários
 filtros
 relatórios
@@ -457,7 +463,7 @@ mas a unidade de medida ainda não foi formalmente definida.
 Afeta:
 
 ```text
-Collection.wasteItems
+Collection.itensDescarte
 formulário
 relatórios
 agregações
@@ -1935,6 +1941,40 @@ Não alterar o domínio apenas com base em uma necessidade implícita.
 
 ---
 
+# 71.1 OQ-069 — Endereço no Cadastro do Usuário
+
+**Status:** ABERTA
+
+## Questão
+
+O usuário deverá possuir um endereço cadastrado no perfil?
+
+O `DEC-008` menciona que "o cliente pode alterar seu endereço cadastrado", mas o schema de `users` (`07_DATABASE_MONGODB.md`) não possui campo de endereço.
+
+Possibilidades:
+
+```text
+A) Sem endereço no perfil; o endereço é informado a cada coleta
+B) Endereço no perfil, copiado como sugestão para a coleta
+C) Vários endereços salvos no perfil
+```
+
+Independentemente da decisão, o endereço da coleta continua sendo um snapshot embutido (`DEC-008`).
+
+Enquanto a questão estiver aberta, a implementação segue o schema atual: sem endereço no perfil.
+
+## Impactos
+
+```text
+users
+perfil
+formulário de solicitação
+API /profile
+seed
+```
+
+---
+
 # 72. OQ-068 — Critério para Encerramento das Questões
 
 **Status:** ABERTA
@@ -2089,9 +2129,6 @@ No momento, as questões consideradas especialmente importantes para a próxima 
 ```text
 OQ-001
 Verificação de e-mail
-
-OQ-002
-Mecanismo definitivo de sessão/token
 
 OQ-003
 Endereço definitivo do ecoponto

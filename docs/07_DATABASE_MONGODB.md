@@ -139,7 +139,10 @@ users
 collections
 ecopoints
 notifications
+sessions
 ```
+
+A coleção `sessions` armazena as sessões de autenticação (`DEC-021`). Ela é gerenciada pelo store de sessão (`connect-mongo`), possui expiração automática e não é acessada diretamente pelos services.
 
 ---
 
@@ -158,12 +161,12 @@ Armazenar os usuários do sistema.
   "_id": "ObjectId",
   "nome": "Nome do usuário",
   "email": "usuario@email.com",
-  "senha_hash": "HASH_DA_SENHA",
+  "senhaHash": "HASH_DA_SENHA",
   "telefone": "11999999999",
   "documento": "DOCUMENTO",
   "role": "CLIENTE",
-  "tipo_cadastro": "PF",
-  "dados_empresa": null,
+  "tipoCadastro": "PF",
+  "dadosEmpresa": null,
   "status": "ATIVO",
   "createdAt": "Date",
   "updatedAt": "Date"
@@ -179,12 +182,12 @@ Armazenar os usuários do sistema.
 | `_id` | ObjectId | Sim | Identificador do usuário |
 | `nome` | String | Sim | Nome do usuário |
 | `email` | String | Sim | E-mail único |
-| `senha_hash` | String | Sim | Hash da senha |
+| `senhaHash` | String | Sim | Hash da senha |
 | `telefone` | String | Conforme cadastro | Telefone |
 | `documento` | String | Conforme cadastro | CPF/CNPJ conforme tipo |
 | `role` | Enum | Sim | `CLIENTE`, `COLETOR`, `ADMIN` |
-| `tipo_cadastro` | Enum | Para cliente | `PF`, `PJ` |
-| `dados_empresa` | Object/null | Para PJ | Dados específicos da empresa |
+| `tipoCadastro` | Enum | Para cliente | `PF`, `PJ` |
+| `dadosEmpresa` | Object/null | Para PJ | Dados específicos da empresa |
 | `status` | Enum | Sim | `ATIVO`, `INATIVO` |
 | `createdAt` | Date | Sim | Data de criação |
 | `updatedAt` | Date | Sim | Última atualização |
@@ -207,7 +210,7 @@ COLETOR
 ADMIN
 ```
 
-Não utilizar `tipo_cadastro` para controlar permissões.
+Não utilizar `tipoCadastro` para controlar permissões.
 
 ---
 
@@ -216,7 +219,7 @@ Não utilizar `tipo_cadastro` para controlar permissões.
 O campo:
 
 ```text
-tipo_cadastro
+tipoCadastro
 ```
 
 deve aceitar:
@@ -237,7 +240,7 @@ Exemplo válido:
 ```json
 {
   "role": "CLIENTE",
-  "tipo_cadastro": "PF"
+  "tipoCadastro": "PF"
 }
 ```
 
@@ -246,7 +249,7 @@ Outro exemplo:
 ```json
 {
   "role": "CLIENTE",
-  "tipo_cadastro": "PJ"
+  "tipoCadastro": "PJ"
 }
 ```
 
@@ -258,7 +261,7 @@ Para clientes PJ, o documento pode conter:
 
 ```json
 {
-  "dados_empresa": {
+  "dadosEmpresa": {
     "razaoSocial": "Empresa Exemplo Ltda.",
     "nomeFantasia": "Empresa Exemplo"
   }
@@ -270,7 +273,7 @@ Os campos definitivos devem seguir os requisitos aprovados do projeto.
 Para clientes PF:
 
 ```text
-dados_empresa = null
+dadosEmpresa = null
 ```
 
 ou campo ausente, conforme a convenção adotada.
@@ -324,7 +327,7 @@ Exemplos possíveis:
 ```text
 role
 status
-tipo_cadastro
+tipoCadastro
 ```
 
 Não criar índices indiscriminadamente.
@@ -336,7 +339,7 @@ Não criar índices indiscriminadamente.
 O campo:
 
 ```text
-senha_hash
+senhaHash
 ```
 
 deve armazenar somente o hash da senha.
@@ -366,6 +369,7 @@ Armazenar as solicitações de coleta de lixo eletrônico.
   "_id": "ObjectId",
   "usuarioId": "ObjectId",
   "coletorId": null,
+  "ecopontoId": null,
   "enderecoColeta": {
     "logradouro": "Rua Exemplo",
     "numero": "100",
@@ -411,6 +415,7 @@ Armazenar as solicitações de coleta de lixo eletrônico.
 | `_id` | ObjectId | Sim | Identificador da coleta |
 | `usuarioId` | ObjectId | Sim | Referência ao cliente |
 | `coletorId` | ObjectId/null | Não inicialmente | Referência ao coletor |
+| `ecopontoId` | ObjectId/null | Não inicialmente | Referência ao ecoponto; preenchido na entrega (`DEC-053`) |
 | `enderecoColeta` | Object | Sim | Endereço histórico |
 | `itensDescarte` | Array | Sim | Itens da coleta |
 | `dataAgendada` | Date | Conforme fluxo | Data da coleta |
@@ -775,6 +780,7 @@ Ao confirmar a entrega:
 ```text
 status = ENTREGUE_ECOPONTO
 deliveredAt = data/hora atual
+ecopontoId = ID do ecoponto central ativo
 ```
 
 ---
@@ -1058,6 +1064,7 @@ Devem permanecer como referências:
 ```text
 usuarioId
 coletorId
+ecopontoId
 usuarioId de notifications
 ```
 
@@ -1143,7 +1150,7 @@ Possíveis índices adicionais:
 ```text
 role
 status
-tipo_cadastro
+tipoCadastro
 ```
 
 ---
@@ -1521,10 +1528,10 @@ MongoDB
 │ _id                  │
 │ nome                 │
 │ email                │
-│ senha_hash           │
+│ senhaHash           │
 │ role                 │
-│ tipo_cadastro        │
-│ dados_empresa        │
+│ tipoCadastro        │
+│ dadosEmpresa        │
 │ status               │
 └──────────┬───────────┘
            │
@@ -1595,6 +1602,7 @@ users
 collections
 ecopoints
 notifications
+sessions
 ```
 
 Campos de domínio:
@@ -1602,12 +1610,18 @@ Campos de domínio:
 ```text
 usuarioId
 coletorId
+ecopontoId
 enderecoColeta
 itensDescarte
 dataAgendada
-senha_hash
-tipo_cadastro
+senhaHash
+tipoCadastro
+dadosEmpresa
 ```
+
+A convenção completa (português camelCase, timestamps em inglês, enums em maiúsculas) está definida em `DEC-061`.
+
+A coleção `sessions` é criada e gerenciada pelo store de sessão (`DEC-021`); a aplicação não a acessa diretamente.
 
 Caso o projeto adote outra convenção posteriormente, a alteração deve ser registrada e aplicada de maneira consistente em toda a aplicação.
 
@@ -1746,7 +1760,7 @@ Evitar registrar:
 
 ```text
 senha
-senha_hash
+senhaHash
 tokens
 credenciais
 ```

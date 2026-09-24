@@ -263,7 +263,7 @@ EcoByte.
 
 Não criar um marketplace ou mapa de ecopontos terceiros.
 
-A coleção MongoDB `ecopontos` existe para representar o ecoponto central e permitir expansão futura.
+A coleção MongoDB `ecopoints` existe para representar o ecoponto central e permitir expansão futura.
 
 ---
 
@@ -343,3 +343,15 @@ COERENTE COM A DOCUMENTAÇÃO.
 Não implementar "porque seria legal".
 
 Implementar porque existe uma necessidade documentada.
+
+## Regra de investigação
+
+Antes de modificar qualquer parte do projeto, consulte a documentação relevante e inspecione o código existente.
+
+Nunca especule sobre arquivos, arquitetura, dependências ou comportamentos que ainda não foram verificados.
+
+Quando uma questão estiver registrada em `docs/OPEN_QUESTIONS.md`, não transforme essa questão em uma decisão sem autorização explícita.
+
+Quando uma decisão estiver registrada em `docs/DECISIONS.md`, siga essa decisão até que ela seja formalmente substituída.
+
+Quando documentação e implementação divergirem, investigue a divergência e informe o problema antes de realizar mudanças estruturais.

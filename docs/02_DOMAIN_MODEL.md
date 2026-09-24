@@ -34,12 +34,12 @@ A entidade `Usuario` representa qualquer pessoa autenticada no sistema.
 _id
 nome
 email
-senha_hash
+senhaHash
 telefone
 documento
 role
-tipo_cadastro
-dados_empresa
+tipoCadastro
+dadosEmpresa
 status
 createdAt
 updatedAt
@@ -55,7 +55,7 @@ COLETOR
 ADMIN
 ```
 
-### `tipo_cadastro`
+### `tipoCadastro`
 
 Define a natureza do cadastro:
 
@@ -64,7 +64,7 @@ PF
 PJ
 ```
 
-`tipo_cadastro` e `role` são propriedades diferentes e não devem ser combinadas em um único campo.
+`tipoCadastro` e `role` são propriedades diferentes e não devem ser combinadas em um único campo.
 
 ---
 
@@ -73,7 +73,7 @@ PJ
 Quando:
 
 ```text
-tipo_cadastro = PF
+tipoCadastro = PF
 ```
 
 o cadastro representa uma pessoa física.
@@ -93,7 +93,7 @@ Os campos definitivos devem seguir os requisitos funcionais do projeto.
 Quando:
 
 ```text
-tipo_cadastro = PJ
+tipoCadastro = PJ
 ```
 
 o cadastro representa uma empresa ou instituição.
@@ -106,7 +106,7 @@ Informações específicas podem incluir:
 - responsável;
 - telefone.
 
-Esses dados podem ser organizados em um objeto `dados_empresa`.
+Esses dados podem ser organizados em um objeto `dadosEmpresa`.
 
 ---
 
@@ -139,6 +139,7 @@ A entidade `Coleta` representa uma solicitação de recolhimento de lixo eletrô
 _id
 usuarioId
 coletorId
+ecopontoId
 enderecoColeta
 itensDescarte
 dataAgendada
@@ -202,14 +203,14 @@ Exemplo:
 ```json
 {
   "enderecoColeta": {
-    "rua": "Exemplo",
+    "logradouro": "Rua Exemplo",
     "numero": "100",
     "complemento": "Apto 12",
     "bairro": "Centro",
     "cidade": "Diadema",
     "estado": "SP",
-    "cep": "09900-000",
-    "coordenadas": {
+    "cep": "09900000",
+    "localizacao": {
       "type": "Point",
       "coordinates": [
         -46.000000,
@@ -264,17 +265,19 @@ Exemplo:
 ```json
 [
   {
-    "categoria": "notebook",
+    "categoria": "INFORMATICA",
     "quantidade": 1,
-    "condicao": "sucata"
+    "condicao": "USADO"
   },
   {
-    "categoria": "cabos",
+    "categoria": "CABOS",
     "quantidade": 5,
-    "condicao": "inservivel"
+    "condicao": "DANIFICADO"
   }
 ]
 ```
+
+Os valores de `categoria` e `condicao` acima são provisórios (`OQ-007`, `OQ-010`).
 
 ### Informações mínimas
 
@@ -328,6 +331,8 @@ Conceitualmente:
 ```text
 Coleta N ─── 1 Ecoponto
 ```
+
+A referência é registrada no campo `ecopontoId`, preenchido na transição `RECOLHIDA → ENTREGUE_ECOPONTO` com o ecoponto central ativo (`DEC-053`). Antes disso, `ecopontoId = null`.
 
 Como o MVP possui apenas um ecoponto, a implementação não deve introduzir complexidade desnecessária para seleção entre vários pontos.
 
@@ -432,7 +437,7 @@ O modelo deve garantir, no backend:
 
 - e-mail único para usuários;
 - `role` válido;
-- `tipo_cadastro` válido;
+- `tipoCadastro` válido;
 - quantidade de itens maior que zero;
 - referências válidas;
 - status de coleta válido;

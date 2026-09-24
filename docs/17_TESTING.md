@@ -355,20 +355,20 @@ Não é necessário criar benchmarks para todas as funcionalidades.
 
 # 16. Ferramentas
 
-A escolha definitiva de ferramentas deve seguir a stack final do projeto.
-
-Uma combinação possível é:
+Ferramentas adotadas (`DEC-062`):
 
 ```text
-Vitest
-Testing Library
-Supertest
-Playwright
-MongoDB/Mongoose
-axe
+Vitest                 → testes unitários (frontend e backend)
+Supertest              → testes de API
+mongodb-memory-server  → testes de integração com MongoDB/Mongoose
+Testing Library        → testes de componentes
+Playwright             → testes E2E
+axe                    → testes de acessibilidade
 ```
 
-A ferramenta pode variar sem alterar a estratégia descrita neste documento.
+Trocar uma ferramenta exige nova decisão em `DECISIONS.md`, mas não altera a estratégia descrita neste documento.
+
+Observação: o teste de concorrência da aceitação deve rodar contra um MongoDB real (memory-server ou local), nunca contra mocks, pois valida a atomicidade de `findOneAndUpdate`.
 
 ---
 
@@ -1074,7 +1074,7 @@ não deve existir no documento persistido.
 Validar:
 
 ```text
-senha_hash existe
+senhaHash existe
 senha não existe
 ```
 
@@ -1923,7 +1923,7 @@ Verificar que respostas não contenham:
 
 ```text
 senha
-senha_hash
+senhaHash
 connection string
 session secret
 tokens internos
@@ -3996,7 +3996,7 @@ Verificar que logs não contenham:
 
 ```text
 senha
-senha_hash
+senhaHash
 tokens
 segredos
 connection strings

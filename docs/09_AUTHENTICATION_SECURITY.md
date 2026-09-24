@@ -66,23 +66,19 @@ e-mail
 senha
 ```
 
-O mecanismo exato de persistência da sessão deve ser escolhido conforme a arquitetura definitiva do backend.
-
-A preferência do projeto é utilizar um mecanismo seguro baseado em:
+A sessão é mantida no servidor (`DEC-021`):
 
 ```text
-cookie HTTP-only
+express-session
++
+store no MongoDB (connect-mongo, coleção sessions)
++
+cookie HttpOnly contendo somente o identificador da sessão
 ```
 
-ou solução equivalente que não exponha credenciais de sessão desnecessariamente ao JavaScript do frontend.
+Nenhuma credencial de sessão fica acessível ao JavaScript do frontend.
 
-A decisão final deve ser registrada em:
-
-```text
-docs/DECISIONS.md
-```
-
-quando definida.
+O navegador acessa a API pela mesma origem do frontend, via proxy do Next.js (`DEC-063`).
 
 ---
 
@@ -154,7 +150,7 @@ PJ
 Não utilizar:
 
 ```text
-tipo_cadastro
+tipoCadastro
 ```
 
 como substituto de:
@@ -318,7 +314,7 @@ A senha original nunca deve ser armazenada.
 Campo persistido:
 
 ```text
-senha_hash
+senhaHash
 ```
 
 Preferência:
@@ -361,7 +357,7 @@ senha informada
       ↓
 algoritmo de verificação
       ↓
-senha_hash armazenado
+senhaHash armazenado
 ```
 
 A senha original não deve ser armazenada após a comparação.
@@ -452,19 +448,26 @@ revogação quando aplicável
 proteção contra acesso indevido
 ```
 
+Implementação (`DEC-021`):
+
+- a sessão armazena somente o identificador do usuário;
+- o identificador da sessão é regenerado no login, evitando fixação de sessão;
+- a cada requisição protegida, o backend carrega o usuário e verifica `status = ATIVO`;
+- o logout destrói a sessão no store e remove o cookie.
+
 ---
 
-# 21. Preferência por cookie HTTP-only
+# 21. Cookie de sessão
 
-Quando cookies forem utilizados para manter a sessão, preferir:
+Configuração adotada (`DEC-021`):
 
 ```text
-HttpOnly
-Secure
-SameSite
+HttpOnly = true
+SameSite = Lax
+Secure   = true em produção
 ```
 
-conforme o ambiente e a arquitetura.
+`SameSite=Lax` é possível porque frontend e API compartilham a mesma origem (`DEC-063`).
 
 ---
 
@@ -522,13 +525,13 @@ Não transmitir credenciais por HTTP não criptografado em produção.
 
 A sessão deve possuir política de expiração.
 
-O tempo exato depende da arquitetura escolhida e deve ser configurado fora do código.
-
-Exemplo conceitual:
+O tempo é configurado fora do código:
 
 ```text
 SESSION_MAX_AGE
 ```
+
+O valor definitivo permanece em aberto em `OQ-062`.
 
 ---
 
@@ -579,7 +582,7 @@ Nunca retornar:
 
 ```text
 senha
-senha_hash
+senhaHash
 segredos internos
 ```
 
@@ -950,7 +953,7 @@ Nunca registrar:
 
 ```text
 senha
-senha_hash
+senhaHash
 tokens completos
 cookies de sessão
 chaves privadas
@@ -1071,7 +1074,7 @@ não deve ser recuperável.
 O novo valor deve gerar um novo:
 
 ```text
-senha_hash
+senhaHash
 ```
 
 ---
@@ -1136,6 +1139,8 @@ Exemplo:
 FRONTEND_URL=https://dominio-do-frontend
 ```
 
+Com a topologia de proxy (`DEC-063`), o navegador não faz requisições cross-origin à API. Mesmo assim, o backend não deve habilitar CORS aberto; a política definitiva permanece listada na seção 104.
+
 ---
 
 # 58. CSRF
@@ -1155,6 +1160,15 @@ SameSite
 CSRF token
 validação de Origin
 ```
+
+Já adotado (`DEC-021`, `DEC-063`):
+
+```text
+SameSite = Lax
+operações que alteram estado nunca utilizam GET
+```
+
+Mecanismos complementares (CSRF token ou validação de Origin) ainda não foram decididos.
 
 A implementação definitiva deve ser registrada em:
 
@@ -1227,7 +1241,6 @@ Nunca armazenar no Git:
 
 ```text
 MONGODB_URI real
-JWT_SECRET
 SESSION_SECRET
 API keys
 SMTP credentials
@@ -1251,12 +1264,12 @@ Exemplo:
 
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=4000
 
 MONGODB_URI=mongodb://localhost:27017/ecobyte
 
 SESSION_SECRET=CHANGE_ME
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 ```
 
 Os valores são apenas ilustrativos.
@@ -1535,7 +1548,7 @@ Evitar:
 ```json
 {
   "user": {
-    "senha_hash": "...",
+    "senhaHash": "...",
     "tokenInterno": "...",
     "secret": "..."
   }
@@ -1848,10 +1861,9 @@ Mesmo em mensagens de erro, nunca expor:
 ```text
 MONGODB_URI
 SESSION_SECRET
-JWT_SECRET
 API_KEY
 senha
-senha_hash
+senhaHash
 tokens
 ```
 
@@ -1928,7 +1940,7 @@ Antes de considerar autenticação concluída:
 [ ] .env.example criado
 [ ] MongoDB protegido
 [ ] Senhas nunca armazenadas em texto puro
-[ ] senha_hash nunca retornado
+[ ] senhaHash nunca retornado
 [ ] CORS configurado
 [ ] Cookies configurados corretamente
 [ ] CSRF avaliado quando necessário
@@ -2042,8 +2054,6 @@ acessa funções administrativas
 Os seguintes pontos permanecem dependentes de decisão do projeto:
 
 ```text
-mecanismo exato de sessão
-cookie vs outro mecanismo equivalente
 tempo de expiração da sessão
 política de múltiplas sessões
 confirmação de e-mail

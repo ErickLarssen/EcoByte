@@ -223,19 +223,23 @@ Pages não devem concentrar toda a lógica visual em um único arquivo.
 Estrutura conceitual recomendada:
 
 ```text
-src/
+frontend/src/
+├── app/            (rotas do Next.js App Router: page.tsx e layout.tsx)
+│
 ├── components/
-│   ├── ui/
+│   ├── ui/         (primitivos shadcn/ui)
 │   ├── common/
 │   ├── domain/
 │   └── features/
 │
-├── pages/
-│
-├── layouts/
-│
-└── ...
+├── hooks/
+├── lib/            (cliente da API, formatação, utilitários)
+└── assets/
 ```
+
+No Next.js App Router, as "Pages" e "Layouts" descritos neste documento correspondem aos arquivos `page.tsx` e `layout.tsx` dentro de `app/` (`DEC-062`).
+
+Os arquivos de `app/` não implementam regras de negócio: consomem a API e compõem componentes.
 
 Uma implementação pode utilizar outra organização caso a arquitetura definitiva do frontend determine uma estrutura diferente.
 
