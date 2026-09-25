@@ -47,21 +47,21 @@ Exemplo:
 
 ```text
 role = CLIENTE
-tipo_cadastro = PF
+tipoCadastro = PF
 ```
 
 ou:
 
 ```text
 role = CLIENTE
-tipo_cadastro = PJ
+tipoCadastro = PJ
 ```
 
 ---
 
 ## BR-003 — Separação entre role e tipo de cadastro
 
-Não utilizar `tipo_cadastro` para determinar permissões.
+Não utilizar `tipoCadastro` para determinar permissões.
 
 As permissões devem ser baseadas exclusivamente na `role`.
 
@@ -71,7 +71,7 @@ role:
     COLETOR
     ADMIN
 
-tipo_cadastro:
+tipoCadastro:
     PF
     PJ
 ```
@@ -127,7 +127,7 @@ O sistema deve armazenar somente um hash seguro da senha.
 Campo esperado:
 
 ```text
-senha_hash
+senhaHash
 ```
 
 Preferência:
@@ -166,7 +166,7 @@ Clientes `PF` devem possuir os dados específicos definidos para pessoa física.
 Exemplo:
 
 ```text
-tipo_cadastro = PF
+tipoCadastro = PF
 documento = CPF
 ```
 
@@ -179,9 +179,9 @@ Clientes `PJ` devem possuir os dados específicos definidos para pessoa jurídic
 Exemplo:
 
 ```text
-tipo_cadastro = PJ
+tipoCadastro = PJ
 documento = CNPJ
-dados_empresa:
+dadosEmpresa:
     razaoSocial
     nomeFantasia
 ```
@@ -480,7 +480,10 @@ Ao registrar a entrega:
 ```text
 status = ENTREGUE_ECOPONTO
 deliveredAt = data/hora atual
+ecopontoId = ID do ecoponto central ativo
 ```
+
+Se não existir ecoponto com `status = ATIVO`, a entrega não deve ser registrada (`DEC-053`, `BR-038`).
 
 ---
 

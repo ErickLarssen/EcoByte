@@ -515,6 +515,7 @@ Após confirmação:
 ```text
 status = ENTREGUE_ECOPONTO
 deliveredAt = data/hora atual
+ecopontoId = ID do ecoponto central ativo
 ```
 
 ---
@@ -679,6 +680,14 @@ quando esses critérios forem definidos.
 # 38. Lista de coletas atribuídas
 
 O coletor deve poder visualizar suas próprias coletas operacionais.
+
+Endpoint (`DEC-064`):
+
+```http
+GET /api/v1/collections/assigned
+```
+
+Os agrupamentos e os status exibidos em cada um permanecem dependentes de `OQ-047`.
 
 A lista pode separar:
 

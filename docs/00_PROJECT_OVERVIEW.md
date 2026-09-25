@@ -53,7 +53,7 @@ O EcoByte disponibiliza uma plataforma onde pessoas físicas e jurídicas podem:
 - solicitar coleta;
 - informar endereço;
 - informar materiais;
-- selecionar data/horário;
+- selecionar data/horário, quando o agendamento for definido (`OQ-020`, `OQ-006`);
 - acompanhar solicitações;
 - consultar histórico;
 - receber atualizações.
@@ -161,21 +161,26 @@ Informar Resíduos
    ↓
 Informar Endereço
    ↓
-Escolher Data/Horário
+Escolher Data/Horário (dependente de OQ-020)
    ↓
 Confirmar Solicitação
    ↓
 PENDENTE
    ↓
-Coletor assume
+Coletor aceita
    ↓
-A CAMINHO
+ACEITA
+   ↓
+A_CAMINHO
    ↓
 RECOLHIDA
    ↓
-ENTREGUE NO ECOPONTO
+ENTREGUE_ECOPONTO
    ↓
-CONCLUÍDA
+CONCLUIDA
+```
+
+Os estados oficiais e suas transições estão definidos em `docs/14_STATE_MACHINE.md`.
 
 ## 10. Escopo do MVP
 

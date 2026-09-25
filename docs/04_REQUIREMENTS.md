@@ -329,6 +329,8 @@ Caso uma tentativa ocorra depois que outro coletor tenha assumido a coleta, a AP
 
 O coletor deve poder visualizar as coletas que estão associadas ao seu usuário.
 
+Endpoint: `GET /api/v1/collections/assigned` (`DEC-064`).
+
 ---
 
 ## RF-029 — Iniciar rota
@@ -636,12 +638,18 @@ GET  /api/v1/collections/:id
 A API deve possuir estrutura equivalente a:
 
 ```text
-GET   /api/v1/collections/available
-POST  /api/v1/collections/:id/accept
-PATCH /api/v1/collections/:id/status
+GET  /api/v1/collections/available
+GET  /api/v1/collections/assigned
+POST /api/v1/collections/:id/accept
+POST /api/v1/collections/:id/start
+POST /api/v1/collections/:id/collect
+POST /api/v1/collections/:id/deliver
+POST /api/v1/collections/:id/complete
 ```
 
 A implementação deve respeitar rigorosamente as transições permitidas.
+
+Não existe endpoint genérico de alteração de status (`DEC-064`).
 
 ---
 

@@ -201,19 +201,22 @@ Arquitetura conceitual:
 
 # 6. Frontend
 
-O frontend deve ser publicado utilizando os artefatos gerados pelo processo de build da stack adotada.
-
-Quando Vite for utilizado:
+O frontend é uma aplicação Next.js (App Router, `DEC-062`) executada como servidor Node.js:
 
 ```bash
-npm run build
+npm run build --workspace frontend
+npm run start --workspace frontend
 ```
 
-O resultado normalmente será um diretório equivalente a:
+O build gera o diretório:
 
 ```text
-dist/
+frontend/.next/
 ```
+
+O servidor Next.js também atua como proxy de `/api/v1/*` para o backend (`DEC-063`), portanto o frontend precisa alcançar o backend pela rede interna configurada em `API_INTERNAL_URL`.
+
+Os rewrites do Next.js são avaliados durante o `next build`. Por isso `API_INTERNAL_URL` deve estar definida **no momento do build** de produção; sem ela, o build é interrompido com erro. Alterar a URL do backend exige novo build do frontend.
 
 ---
 
@@ -267,7 +270,7 @@ Exemplo de backend:
 
 ```env
 NODE_ENV=production
-PORT=3000
+PORT=4000
 MONGODB_URI=
 FRONTEND_URL=
 SESSION_SECRET=
@@ -276,8 +279,10 @@ SESSION_SECRET=
 Exemplo de frontend:
 
 ```env
-VITE_API_URL=
+API_INTERNAL_URL=
 ```
+
+`API_INTERNAL_URL` é lida somente no servidor Next.js para o proxy (`DEC-063`) e não é exposta ao navegador.
 
 Os nomes finais devem seguir a implementação real.
 
@@ -290,7 +295,6 @@ Nunca versionar:
 ```text
 MONGODB_URI com credenciais
 SESSION_SECRET
-JWT_SECRET
 API keys
 SMTP credentials
 tokens
@@ -348,6 +352,7 @@ Exemplo:
 node_modules/
 logs/
 dist/
+.next/
 ```
 
 A configuração final deve refletir as necessidades reais do projeto.
@@ -466,21 +471,21 @@ Nem todos precisam existir em cada pacote, desde que a necessidade da stack seja
 
 # 20. Configuração do frontend
 
-Quando Vite for utilizado:
+O frontend utiliza:
 
 ```env
-VITE_API_URL=https://api.exemplo.com
+API_INTERNAL_URL=http://backend-interno:4000
 ```
 
-A variável será incorporada ao bundle.
+lida somente no servidor Next.js para o proxy (`DEC-063`).
 
-Portanto:
+Variáveis com prefixo:
 
 ```text
-VITE_*
+NEXT_PUBLIC_*
 ```
 
-nunca deve conter secrets.
+são incorporadas ao bundle do navegador e nunca devem conter secrets.
 
 ---
 
@@ -1112,22 +1117,13 @@ controle de acesso
 
 ---
 
-# 61. Frontend SPA
+# 61. Rotas do frontend
 
-Quando o frontend utilizar roteamento client-side, o hosting deve suportar fallback para o documento principal.
+O frontend Next.js é servido pelo próprio servidor Next.js, que resolve as rotas de página (App Router).
 
-Exemplos de rotas:
+Não é necessário fallback de SPA em servidor estático.
 
-```text
-/
- /login
- /register
- /dashboard
- /collections
- /admin
-```
-
-A requisição direta para uma rota válida da SPA não deve resultar em 404 do servidor estático.
+O mapa definitivo de páginas do frontend ainda não está documentado e deve ser definido antes da implementação das telas.
 
 ---
 
@@ -1251,9 +1247,8 @@ Nunca registrar:
 
 ```text
 senha
-senha_hash
+senhaHash
 session secret
-JWT secret
 tokens completos
 connection string com credencial
 API keys privadas
@@ -1445,18 +1440,17 @@ Nunca colocar no frontend:
 ```text
 MONGODB_URI
 SESSION_SECRET
-JWT_SECRET
 private API key
 ```
 
 ---
 
-# 83. Variáveis `VITE_*`
+# 83. Variáveis `NEXT_PUBLIC_*`
 
-Quando Vite for utilizado:
+No Next.js:
 
 ```text
-VITE_*
+NEXT_PUBLIC_*
 ```
 
 deve ser tratado como informação potencialmente pública.
@@ -1687,8 +1681,8 @@ Não inventar infraestrutura definitiva para lacunas não decididas.
 
 ```text
 [ ] Build
-[ ] SPA fallback
-[ ] API URL
+[ ] Proxy /api/v1 → backend
+[ ] API_INTERNAL_URL
 [ ] Assets
 [ ] Favicon
 [ ] Responsividade

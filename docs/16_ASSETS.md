@@ -1265,21 +1265,21 @@ para a mesma categoria de asset.
 
 ---
 
-# 80. Vite
+# 80. Next.js
 
-Caso Vite seja utilizado:
-
-```text
-src/assets
-```
-
-pode conter assets processados pelo bundler.
+O frontend utiliza Next.js (`DEC-062`).
 
 ```text
-public/
+frontend/src/assets
 ```
 
-pode conter arquivos que precisem ser servidos diretamente.
+pode conter assets importados pelos componentes e processados pelo bundler (por exemplo, com `next/image`).
+
+```text
+frontend/public/
+```
+
+pode conter arquivos que precisem ser servidos diretamente por URL.
 
 A escolha deve possuir motivo claro.
 

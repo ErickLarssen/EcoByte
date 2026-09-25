@@ -343,7 +343,7 @@ Impedir que uma mesma coleta seja atribuída a múltiplos coletores.
 
 ```text
 06_API.md
-08_MONGO_QUERIES.md
+08_MONGODB_QUERIES.md
 14_STATE_MACHINE.md
 17_TESTING.md
 ```
@@ -412,10 +412,12 @@ Exemplo:
 
 ```text
 Collection
-├── clientId
-├── address
-└── wasteItems
+├── usuarioId
+├── enderecoColeta
+└── itensDescarte
 ```
+
+Nomes de campos conforme `DEC-061`.
 
 O endereço da coleta representa um snapshot dos dados no momento da solicitação.
 
@@ -445,7 +447,7 @@ Estrutura conceitual:
 
 ```json
 {
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "...",
       "quantidade": 0,
@@ -454,6 +456,8 @@ Estrutura conceitual:
   ]
 }
 ```
+
+Nomes de campos conforme `DEC-061`.
 
 ## Motivo
 
@@ -492,7 +496,7 @@ O sistema deverá demonstrar explicitamente conceitos de banco documental, inclu
 
 ```text
 07_DATABASE_MONGODB.md
-08_MONGO_QUERIES.md
+08_MONGODB_QUERIES.md
 ```
 
 ---
@@ -520,8 +524,8 @@ Será utilizado quando os dados:
 Exemplos:
 
 ```text
-Collection.address
-Collection.wasteItems
+Collection.enderecoColeta
+Collection.itensDescarte
 ```
 
 ### Referências
@@ -531,10 +535,12 @@ Serão utilizadas para entidades independentes e compartilhadas.
 Exemplos:
 
 ```text
-Collection.clientId
+Collection.usuarioId
 Collection.coletorId
 Collection.ecopontoId
 ```
+
+Nomes de campos conforme `DEC-061`.
 
 ---
 
@@ -832,38 +838,89 @@ A escolha definitiva do algoritmo deve permanecer consistente em toda a aplicaç
 
 # 23. DEC-021 — Mecanismo de Sessão/Token
 
-**Status:** PENDENTE
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+**Histórico:** permaneceu PENDENTE até 2026-09-24. Resolve `OQ-002`.
 
 ## Contexto
 
 O projeto precisa definir o mecanismo concreto utilizado para manter a autenticação.
 
-## Diretriz
+A diretriz original priorizava mecanismos seguros, preferencialmente utilizando cookie HTTP-only, para evitar exposição desnecessária de credenciais no JavaScript do navegador.
 
-A solução deverá priorizar mecanismos seguros, preferencialmente utilizando:
-
-```text
-cookie HTTP-only
-```
-
-para evitar exposição desnecessária de credenciais no JavaScript do navegador.
-
-A implementação definitiva ainda deve ser escolhida conforme a arquitetura do backend.
-
-## Opções a avaliar
+Opções avaliadas:
 
 ```text
-Sessão tradicional
+Sessão tradicional no servidor
 ou
-Token de autenticação protegido adequadamente
+Token de autenticação (JWT) em cookie HTTP-only
 ```
 
-Essa decisão deverá ser atualizada quando a implementação for definida.
+## Decisão
 
-## Documento relacionado
+A autenticação utilizará **sessão no servidor**:
 
 ```text
+express-session
++
+store de sessões no MongoDB (connect-mongo)
++
+cookie HttpOnly contendo somente o identificador da sessão
+```
+
+Configuração do cookie:
+
+```text
+HttpOnly = true
+SameSite = Lax
+Secure   = true em produção
+```
+
+O segredo de assinatura do cookie será fornecido por:
+
+```text
+SESSION_SECRET
+```
+
+O tempo de expiração será configurado por variável de ambiente:
+
+```text
+SESSION_MAX_AGE
+```
+
+O valor definitivo da expiração permanece em aberto em `OQ-062`.
+
+## Motivo
+
+- o logout invalida a sessão no servidor, e não apenas no navegador;
+- a desativação de um usuário (`INATIVO`) pode ser verificada a cada requisição sem depender da expiração de um token;
+- nenhuma credencial fica acessível ao JavaScript do frontend;
+- o store no MongoDB reaproveita o banco oficial do projeto.
+
+## Impacto
+
+- nova coleção `sessions`, gerenciada pelo store de sessão;
+- o middleware de autenticação lê a sessão e carrega o usuário no backend;
+- a topologia frontend/backend segue `DEC-063`, permitindo `SameSite=Lax`;
+- `JWT_SECRET` não faz parte da configuração do projeto.
+
+## Continuam em aberto
+
+```text
+OQ-060  sessões simultâneas
+OQ-062  tempo de expiração
+política complementar de CSRF além de SameSite
+```
+
+## Documentos relacionados
+
+```text
+07_DATABASE_MONGODB.md
 09_AUTHENTICATION_SECURITY.md
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
 ```
 
 ---
@@ -1437,7 +1494,7 @@ docs/
 ├── 05_ROUTES.md
 ├── 06_API.md
 ├── 07_DATABASE_MONGODB.md
-├── 08_MONGO_QUERIES.md
+├── 08_MONGODB_QUERIES.md
 ├── 09_AUTHENTICATION_SECURITY.md
 ├── 10_DESIGN_SYSTEM.md
 ├── 11_COMPONENTS.md
@@ -1762,6 +1819,30 @@ deve ser preenchido em estados que representem entrega ou conclusão.
 
 Isso permite consultar posteriormente onde a coleta foi processada.
 
+## Momento do preenchimento
+
+**Data:** 2026-09-24
+
+O campo `ecopontoId` é preenchido na transição:
+
+```text
+RECOLHIDA → ENTREGUE_ECOPONTO
+```
+
+com o identificador do ecoponto central com `status = ATIVO`.
+
+Por estado:
+
+```text
+PENDENTE, ACEITA, A_CAMINHO, RECOLHIDA
+→ ecopontoId = null
+
+ENTREGUE_ECOPONTO, CONCLUIDA
+→ ecopontoId preenchido
+```
+
+Se não existir ecoponto ativo, a entrega deve falhar em vez de registrar uma coleta sem destino.
+
 ---
 
 # 56. DEC-054 — Escopo do MVP Deve Permanecer Controlado
@@ -1974,14 +2055,388 @@ identificar
 
 ---
 
-# 63. Registro Atual de Decisões Pendentes
+# 63. DEC-061 — Convenção de Nomes de Campos
+
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+## Contexto
+
+Os documentos utilizavam três convenções diferentes para os mesmos campos:
+
+```text
+português camelCase   → usuarioId, enderecoColeta, itensDescarte
+português snake_case  → senha_hash, tipo_cadastro, dados_empresa
+inglês camelCase      → clientId, address, wasteItems, passwordHash, zipCode
+```
+
+Isso impedia a definição consistente de models, API e seed.
+
+## Decisão
+
+Os campos de domínio utilizarão **português em camelCase**, idênticos no MongoDB, na API e no seed.
+
+### Usuário (`users`)
+
+```text
+nome
+email
+senhaHash
+telefone
+documento
+role
+tipoCadastro
+dadosEmpresa
+status
+```
+
+### Coleta (`collections`)
+
+```text
+usuarioId
+coletorId
+ecopontoId
+enderecoColeta
+itensDescarte
+dataAgendada
+status
+observacoes
+```
+
+### Ecoponto (`ecopoints`)
+
+```text
+nome
+descricao
+endereco
+localizacao
+horarios
+status
+```
+
+### Notificação (`notifications`)
+
+```text
+usuarioId
+tipo
+titulo
+mensagem
+referencia
+lida
+```
+
+### Endereço (embutido)
+
+```text
+logradouro
+numero
+complemento
+bairro
+cidade
+estado
+cep
+localizacao
+```
+
+### Item de descarte (embutido)
+
+```text
+categoria
+quantidade
+condicao
+```
+
+### Exceções
+
+Timestamps permanecem em inglês, seguindo a convenção do Mongoose:
+
+```text
+createdAt
+updatedAt
+acceptedAt
+startedAt
+collectedAt
+deliveredAt
+completedAt
+```
+
+Valores de enum permanecem em maiúsculas:
+
+```text
+CLIENTE, COLETOR, ADMIN
+PF, PJ
+ATIVO, INATIVO
+PENDENTE, ACEITA, A_CAMINHO, RECOLHIDA, ENTREGUE_ECOPONTO, CONCLUIDA
+```
+
+Nomes das coleções MongoDB permanecem em inglês:
+
+```text
+users
+collections
+ecopoints
+notifications
+sessions
+```
+
+Na API, `_id` é exposto como `id` (06_API §40).
+
+Nomes de código (models, services, componentes) podem utilizar inglês, por exemplo `User`, `Collection`, `Ecopoint`, `CollectionStatusBadge`.
+
+## Motivo
+
+- a maior parte da documentação de domínio já utilizava português camelCase;
+- o body da API já utilizava `tipoCadastro`;
+- elimina mapeamentos entre nomes diferentes para o mesmo dado.
+
+## Impacto
+
+Atualizados:
+
+```text
+02_DOMAIN_MODEL.md
+03_BUSINESS_RULES.md
+07_DATABASE_MONGODB.md
+08_MONGODB_QUERIES.md
+09_AUTHENTICATION_SECURITY.md
+20_SEED_DATA.md
+```
+
+---
+
+# 64. DEC-062 — Stack Tecnológico e Ferramentas
+
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+## Contexto
+
+O stack estava descrito somente no `CLAUDE.md`. Documentos de assets, desenvolvimento e deploy presumiam Vite e SPA, divergindo do stack adotado.
+
+## Decisão
+
+### Organização
+
+```text
+Monorepo com npm workspaces
+
+Ecobyte/
+├── package.json      (workspaces: frontend, backend)
+├── frontend/
+├── backend/
+└── docs/
+```
+
+### Runtime e gerenciador
+
+```text
+Node.js 22 LTS (mínimo; engines ">=22")
+npm
+concurrently (execução simultânea de frontend e backend em desenvolvimento)
+```
+
+### Qualidade de código
+
+```text
+ESLint (flat config; eslint-config-next no frontend, typescript-eslint no backend)
+TypeScript em modo strict
+```
+
+### Frontend
+
+```text
+Next.js (App Router)
+React
+TypeScript
+Tailwind CSS
+shadcn/ui
+Framer Motion
+Lucide React
+```
+
+### Backend
+
+```text
+Node.js
+Express
+TypeScript
+Mongoose
+Zod (validação de entrada)
+express-session + connect-mongo (DEC-021)
+tsx (execução de TypeScript em desenvolvimento e scripts)
+```
+
+### Testes
+
+```text
+Vitest                 → unitários (frontend e backend)
+Supertest              → API
+mongodb-memory-server  → integração com MongoDB
+Testing Library        → componentes
+Playwright             → E2E
+axe                    → acessibilidade
+```
+
+## Regras
+
+- O frontend Next.js não implementa regras de negócio em Route Handlers, Server Actions ou equivalentes (`DEC-015`).
+- Vite não faz parte do stack.
+- Não alternar gerenciador de pacotes sem nova decisão.
+
+## Documentos relacionados
+
+```text
+01_ARCHITECTURE.md
+11_COMPONENTS.md
+16_ASSETS.md
+17_TESTING.md
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 65. DEC-063 — Topologia Frontend → API via Proxy
+
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+## Contexto
+
+Com sessão em cookie (`DEC-021`), frontend e backend em origens diferentes exigiriam CORS com credenciais, `SameSite=None` e proteção CSRF adicional.
+
+## Decisão
+
+O navegador acessa somente a origem do frontend.
+
+O Next.js encaminha as requisições da API ao Express utilizando `rewrites`:
+
+```text
+Navegador
+    ↓
+https://frontend/api/v1/*
+    ↓  (rewrite do Next.js)
+Express /api/v1/*
+    ↓
+MongoDB
+```
+
+A URL interna do backend é configurada no frontend por variável somente de servidor:
+
+```text
+API_INTERNAL_URL
+```
+
+## Regras
+
+- O rewrite é exclusivamente roteamento: não contém autenticação, autorização nem regra de negócio.
+- O Express continua sendo a API oficial e valida tudo (`DEC-015`, `DEC-038`).
+- O cookie de sessão é first-party, permitindo `SameSite=Lax`.
+
+## Documentos relacionados
+
+```text
+01_ARCHITECTURE.md
+09_AUTHENTICATION_SECURITY.md
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 66. DEC-064 — Endpoints Operacionais de Coleta
+
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+## Contexto
+
+`RF-057` exigia `PATCH /collections/:id/status`, enquanto `DEC-041` definia endpoints por ação. Além disso, `RF-028` exigia que o coletor visse suas coletas, mas não havia endpoint para isso.
+
+## Decisão
+
+### Transições
+
+As transições de status ocorrem exclusivamente pelos endpoints de ação:
+
+```text
+POST /api/v1/collections/:id/accept
+POST /api/v1/collections/:id/start
+POST /api/v1/collections/:id/collect
+POST /api/v1/collections/:id/deliver
+POST /api/v1/collections/:id/complete
+```
+
+O endpoint:
+
+```text
+PATCH /api/v1/collections/:id/status
+```
+
+não faz parte do contrato e não deve ser implementado.
+
+### Coletas atribuídas ao coletor
+
+```text
+GET /api/v1/collections/assigned
+```
+
+- acesso: `COLETOR`;
+- retorna somente coletas com `coletorId = usuário autenticado`.
+
+`GET /api/v1/collections` continua exclusivo do `CLIENTE`.
+
+Quais status aparecem em cada agrupamento da tela permanece em aberto em `OQ-047`.
+
+## Motivo
+
+Uma única forma de transicionar o estado e uma rota por caso de uso.
+
+## Documentos relacionados
+
+```text
+04_REQUIREMENTS.md
+05_ROUTES.md
+06_API.md
+13_COLLECTOR_FLOW.md
+14_STATE_MACHINE.md
+```
+
+---
+
+# 67. DEC-065 — Atualização do Ecoponto via PATCH
+
+**Status:** ACEITA
+
+**Data:** 2026-09-24
+
+## Decisão
+
+A atualização administrativa do ecoponto utilizará:
+
+```text
+PATCH /api/v1/ecopoint
+```
+
+em vez de `PUT`, representando alteração parcial.
+
+Acesso: `ADMIN`.
+
+## Motivo
+
+Coerência com os métodos HTTP definidos em `01_ARCHITECTURE.md`.
+
+---
+
+# 68. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
 ```text
-DEC-021
-Mecanismo definitivo de sessão/token
-
 DEC-023
 Verificação de e-mail
 ```
@@ -1996,7 +2451,7 @@ até serem formalmente decididas.
 
 ---
 
-# 64. Como Adicionar uma Nova Decisão
+# 69. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2034,7 +2489,7 @@ arquivo2.md
 
 ---
 
-# 65. Regra Final
+# 70. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

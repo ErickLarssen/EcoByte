@@ -480,7 +480,7 @@ status
 ## 7.2 Atualizar ecoponto
 
 ```http
-PUT /api/v1/ecopoint
+PATCH /api/v1/ecopoint
 ```
 
 ### Objetivo
@@ -677,6 +677,44 @@ PENDENTE
 
 ---
 
+## 9.1.1 Coletas atribuídas
+
+```http
+GET /api/v1/collections/assigned
+```
+
+### Objetivo
+
+Listar as coletas atribuídas ao coletor autenticado (`RF-028`, `DEC-064`).
+
+### Autenticação
+
+```text
+Sim
+```
+
+### Role
+
+```text
+COLETOR
+```
+
+### Regra
+
+Retornar somente coletas com:
+
+```text
+coletorId = usuário autenticado
+```
+
+Os agrupamentos exibidos na interface permanecem dependentes de `OQ-047`.
+
+### Observação de implementação
+
+As rotas `/available` e `/assigned` devem ser registradas antes de `/:id` para não serem interpretadas como identificador.
+
+---
+
 ## 9.2 Aceitar coleta
 
 ```http
@@ -834,7 +872,10 @@ RECOLHIDA → ENTREGUE_ECOPONTO
 ```text
 status = ENTREGUE_ECOPONTO
 deliveredAt = data/hora atual
+ecopontoId = ID do ecoponto central ativo
 ```
+
+Somente o coletor responsável pode executar esta operação.
 
 ---
 
@@ -910,41 +951,15 @@ CONCLUIDA
 
 # 11. Rota genérica de atualização de status
 
-Uma alternativa de implementação pode utilizar:
+Não existe rota genérica de atualização de status (`DEC-064`).
 
 ```http
 PATCH /api/v1/collections/:id/status
 ```
 
-### Objetivo
+não deve ser implementada.
 
-Atualizar o estado de uma coleta respeitando a máquina de estados.
-
-### Autenticação
-
-```text
-Sim
-```
-
-### Importante
-
-Se esta rota for implementada, ela não deve permitir que o cliente envie qualquer status arbitrário.
-
-Exemplo inválido:
-
-```json
-{
-  "status": "CONCLUIDA"
-}
-```
-
-quando a coleta estiver:
-
-```text
-PENDENTE
-```
-
-O backend deve validar a transição.
+As transições ocorrem exclusivamente pelas rotas de ação da seção 9, cada uma validando o estado de origem, a role e o coletor responsável.
 
 ---
 
@@ -1252,6 +1267,7 @@ PATCH /api/v1/profile
 GET /api/v1/ecopoint
 
 GET  /api/v1/collections/available
+GET  /api/v1/collections/assigned
 GET  /api/v1/collections/:id
 
 POST /api/v1/collections/:id/accept
@@ -1278,7 +1294,7 @@ GET   /api/v1/profile
 PATCH /api/v1/profile
 
 GET /api/v1/ecopoint
-PUT /api/v1/ecopoint
+PATCH /api/v1/ecopoint
 
 GET /api/v1/admin/users
 GET /api/v1/admin/users/:id
@@ -1301,6 +1317,7 @@ DELETE /collections/:id
 POST /collections/:id/cancel
 POST /collections/:id/reopen
 POST /collections/:id/reassign
+PATCH /collections/:id/status
 ```
 
 a menos que essas funcionalidades sejam oficialmente definidas nos requisitos e nas regras de negócio.
@@ -1426,17 +1443,17 @@ A escolha deve representar corretamente o motivo da falha.
 | GET | `/api/v1/profile` | Autenticado | Visualizar perfil |
 | PATCH | `/api/v1/profile` | Autenticado | Atualizar perfil |
 | GET | `/api/v1/ecopoint` | Público/definido pelo fluxo | Visualizar ecoponto |
-| PUT | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
+| PATCH | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
 | POST | `/api/v1/collections` | CLIENTE | Criar coleta |
 | GET | `/api/v1/collections` | CLIENTE | Minhas coletas |
 | GET | `/api/v1/collections/:id` | Conforme recurso | Detalhes da coleta |
 | GET | `/api/v1/collections/available` | COLETOR | Coletas disponíveis |
+| GET | `/api/v1/collections/assigned` | COLETOR | Coletas atribuídas ao coletor |
 | POST | `/api/v1/collections/:id/accept` | COLETOR | Aceitar coleta |
 | POST | `/api/v1/collections/:id/start` | COLETOR | Iniciar rota |
 | POST | `/api/v1/collections/:id/collect` | COLETOR | Confirmar recolhimento |
 | POST | `/api/v1/collections/:id/deliver` | COLETOR | Confirmar entrega |
 | POST | `/api/v1/collections/:id/complete` | COLETOR | Concluir coleta |
-| PATCH | `/api/v1/collections/:id/status` | Conforme regra | Atualizar status |
 | GET | `/api/v1/admin/users` | ADMIN | Listar usuários |
 | GET | `/api/v1/admin/users/:id` | ADMIN | Detalhes do usuário |
 | PATCH | `/api/v1/admin/users/:id/status` | ADMIN | Ativar/desativar usuário |

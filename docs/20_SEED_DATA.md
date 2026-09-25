@@ -136,9 +136,9 @@ Dados conceituais:
 
 ```json
 {
-  "name": "Administrador EcoByte",
+  "nome": "Administrador EcoByte",
   "email": "admin@ecobyte.local",
-  "password": "SenhaAdmin123!",
+  "senha": "SenhaAdmin123!",
   "role": "ADMIN",
   "tipoCadastro": "PF",
   "status": "ATIVO"
@@ -174,9 +174,9 @@ Dados conceituais:
 
 ```json
 {
-  "name": "Mariana Oliveira",
+  "nome": "Mariana Oliveira",
   "email": "mariana@ecobyte.local",
-  "password": "ClientePF123!",
+  "senha": "ClientePF123!",
   "role": "CLIENTE",
   "tipoCadastro": "PF",
   "status": "ATIVO"
@@ -213,9 +213,9 @@ Dados conceituais:
 
 ```json
 {
-  "name": "Tech Verde Soluções",
+  "nome": "Tech Verde Soluções",
   "email": "empresa@ecobyte.local",
-  "password": "ClientePJ123!",
+  "senha": "ClientePJ123!",
   "role": "CLIENTE",
   "tipoCadastro": "PJ",
   "status": "ATIVO"
@@ -267,9 +267,9 @@ Dados conceituais:
 
 ```json
 {
-  "name": "Carlos Mendes",
+  "nome": "Carlos Mendes",
   "email": "coletor@ecobyte.local",
-  "password": "Coletor123!",
+  "senha": "Coletor123!",
   "role": "COLETOR",
   "tipoCadastro": "PF",
   "status": "ATIVO"
@@ -310,7 +310,7 @@ Exemplo conceitual:
 
 ```json
 {
-  "passwordHash": "<HASH_GERADO_PELO_ALGORITMO_DE_HASH>"
+  "senhaHash": "<HASH_GERADO_PELO_ALGORITMO_DE_HASH>"
 }
 ```
 
@@ -379,20 +379,19 @@ Exemplo conceitual:
 
 ```json
 {
-  "name": "Ecoponto Central EcoByte",
-  "description": "Centro de recebimento e destinação de resíduos eletrônicos da EcoByte.",
+  "nome": "Ecoponto Central EcoByte",
+  "descricao": "Centro de recebimento e destinação de resíduos eletrônicos da EcoByte.",
   "status": "ATIVO",
-  "address": {
-    "street": "Avenida EcoByte",
-    "number": "100",
-    "complement": null,
-    "neighborhood": "Centro",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-000",
-    "reference": "Próximo ao centro"
+  "endereco": {
+    "logradouro": "Avenida EcoByte",
+    "numero": "100",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900000"
   },
-  "location": {
+  "localizacao": {
     "type": "Point",
     "coordinates": [
       -46.6228,
@@ -459,19 +458,18 @@ Exemplo conceitual:
 ```json
 {
   "status": "PENDENTE",
-  "clientId": "<ID_CLIENTE_PF>",
+  "usuarioId": "<ID_CLIENTE_PF>",
   "coletorId": null,
-  "address": {
-    "street": "Rua das Palmeiras",
-    "number": "120",
-    "complement": "Casa 2",
-    "neighborhood": "Centro",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-001",
-    "reference": "Próximo à praça"
+  "enderecoColeta": {
+    "logradouro": "Rua das Palmeiras",
+    "numero": "120",
+    "complemento": "Casa 2",
+    "bairro": "Centro",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900001"
   },
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "INFORMATICA",
       "quantidade": 2,
@@ -516,19 +514,18 @@ Exemplo conceitual:
 ```json
 {
   "status": "ACEITA",
-  "clientId": "<ID_CLIENTE_PF>",
+  "usuarioId": "<ID_CLIENTE_PF>",
   "coletorId": "<ID_COLETOR>",
-  "address": {
-    "street": "Rua Verde",
-    "number": "250",
-    "complement": null,
-    "neighborhood": "Jardim Eco",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-002",
-    "reference": "Em frente ao mercado"
+  "enderecoColeta": {
+    "logradouro": "Rua Verde",
+    "numero": "250",
+    "complemento": null,
+    "bairro": "Jardim Eco",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900002"
   },
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "INFORMATICA",
       "quantidade": 1,
@@ -561,19 +558,18 @@ Exemplo conceitual:
 ```json
 {
   "status": "A_CAMINHO",
-  "clientId": "<ID_CLIENTE_PJ>",
+  "usuarioId": "<ID_CLIENTE_PJ>",
   "coletorId": "<ID_COLETOR>",
-  "address": {
-    "street": "Avenida Tecnologia",
-    "number": "500",
-    "complement": "Bloco A",
-    "neighborhood": "Distrito Industrial",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-003",
-    "reference": "Portaria principal"
+  "enderecoColeta": {
+    "logradouro": "Avenida Tecnologia",
+    "numero": "500",
+    "complemento": "Bloco A",
+    "bairro": "Distrito Industrial",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900003"
   },
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "INFORMATICA",
       "quantidade": 8,
@@ -609,19 +605,18 @@ Exemplo conceitual:
 ```json
 {
   "status": "RECOLHIDA",
-  "clientId": "<ID_CLIENTE_PF>",
+  "usuarioId": "<ID_CLIENTE_PF>",
   "coletorId": "<ID_COLETOR>",
-  "address": {
-    "street": "Rua dos Eletrônicos",
-    "number": "80",
-    "complement": null,
-    "neighborhood": "Vila Nova",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-004",
-    "reference": null
+  "enderecoColeta": {
+    "logradouro": "Rua dos Eletrônicos",
+    "numero": "80",
+    "complemento": null,
+    "bairro": "Vila Nova",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900004"
   },
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "CELULARES",
       "quantidade": 4,
@@ -657,10 +652,10 @@ Exemplo:
 ```json
 {
   "status": "ENTREGUE_ECOPONTO",
-  "clientId": "<ID_CLIENTE_PJ>",
+  "usuarioId": "<ID_CLIENTE_PJ>",
   "coletorId": "<ID_COLETOR>",
   "ecopontoId": "<ID_ECOPONTO>",
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "MONITORES",
       "quantidade": 2,
@@ -696,20 +691,19 @@ Exemplo conceitual:
 ```json
 {
   "status": "CONCLUIDA",
-  "clientId": "<ID_CLIENTE_PF>",
+  "usuarioId": "<ID_CLIENTE_PF>",
   "coletorId": "<ID_COLETOR>",
   "ecopontoId": "<ID_ECOPONTO>",
-  "address": {
-    "street": "Rua da Reciclagem",
-    "number": "45",
-    "complement": null,
-    "neighborhood": "Centro",
-    "city": "Diadema",
-    "state": "SP",
-    "zipCode": "09900-005",
-    "reference": "Ao lado da biblioteca"
+  "enderecoColeta": {
+    "logradouro": "Rua da Reciclagem",
+    "numero": "45",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "cep": "09900005"
   },
-  "wasteItems": [
+  "itensDescarte": [
     {
       "categoria": "COMPUTADORES",
       "quantidade": 2,
@@ -744,12 +738,12 @@ Exemplo:
 
 ```json
 {
-  "address": {
-    "street": "Rua da Reciclagem",
-    "number": "45",
-    "neighborhood": "Centro",
-    "city": "Diadema",
-    "state": "SP"
+  "enderecoColeta": {
+    "logradouro": "Rua da Reciclagem",
+    "numero": "45",
+    "bairro": "Centro",
+    "cidade": "Diadema",
+    "estado": "SP"
   }
 }
 ```
@@ -1029,7 +1023,7 @@ O seed deve permitir testar operações como:
 
 ```js
 db.ecopoints.find({
-  location: {
+  localizacao: {
     $near: {
       $geometry: {
         type: "Point",
@@ -1047,7 +1041,7 @@ db.ecopoints.find({
 Para validar as consultas definidas em:
 
 ```text
-docs/08_MONGO_QUERIES.md
+docs/08_MONGODB_QUERIES.md
 ```
 
 o seed deve possuir variedade suficiente de documentos.
@@ -1454,23 +1448,18 @@ Consultar relatórios
 Uma possível organização:
 
 ```text
-src/
+backend/src/
 └── database/
     └── seed/
-        ├── index.js
-        ├── users.seed.js
-        ├── ecopoints.seed.js
-        ├── collections.seed.js
-        ├── notifications.seed.js
-        └── helpers.js
+        ├── index.ts
+        ├── users.seed.ts
+        ├── ecopoints.seed.ts
+        ├── collections.seed.ts
+        ├── notifications.seed.ts
+        └── helpers.ts
 ```
 
-Outra estrutura igualmente válida:
-
-```text
-scripts/
-└── seed.js
-```
+O seed é escrito em TypeScript e reutiliza os models Mongoose do backend (`DEC-062`).
 
 A estrutura física definitiva deve seguir:
 
@@ -1573,30 +1562,28 @@ Seed completed successfully.
 
 Os comandos definitivos dependem da configuração do `package.json`.
 
-Sugestão:
+Sugestão para `backend/package.json`:
 
 ```json
 {
   "scripts": {
-    "seed": "node scripts/seed.js",
-    "seed:full": "node scripts/seed-full.js"
+    "seed": "tsx src/database/seed/index.ts",
+    "seed:full": "tsx src/database/seed/index.ts --full"
   }
 }
 ```
 
-Execução:
+Execução a partir da raiz do monorepo:
 
 ```bash
-npm run seed
+npm run seed --workspace backend
 ```
 
 ou:
 
 ```bash
-npm run seed:full
+npm run seed:full --workspace backend
 ```
-
-Caso seja utilizado TypeScript, o comando deve seguir a ferramenta adotada no projeto.
 
 ---
 
@@ -1639,7 +1626,7 @@ docs/07_DATABASE_MONGODB.md
 e as consultas descritas em:
 
 ```text
-docs/08_MONGO_QUERIES.md
+docs/08_MONGODB_QUERIES.md
 ```
 
 Não criar campos arbitrários que contrariem o modelo documentado.
@@ -1808,7 +1795,7 @@ docs/03_BUSINESS_RULES.md
 docs/05_ROUTES.md
 docs/06_API.md
 docs/07_DATABASE_MONGODB.md
-docs/08_MONGO_QUERIES.md
+docs/08_MONGODB_QUERIES.md
 docs/09_AUTHENTICATION_SECURITY.md
 docs/13_COLLECTOR_FLOW.md
 docs/14_STATE_MACHINE.md

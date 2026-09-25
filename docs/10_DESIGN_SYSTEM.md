@@ -865,7 +865,7 @@ quando aplicável.
 Os campos devem aparecer de acordo com:
 
 ```text
-tipo_cadastro
+tipoCadastro
 ```
 
 ---

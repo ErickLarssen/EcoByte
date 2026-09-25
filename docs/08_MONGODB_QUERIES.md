@@ -134,12 +134,12 @@ db.users.find(
 db.users.find(
   {},
   {
-    senha_hash: 0
+    senhaHash: 0
   }
 )
 ```
 
-Nunca retornar `senha_hash` para o frontend.
+Nunca retornar `senhaHash` para o frontend.
 
 ---
 
@@ -200,7 +200,7 @@ db.users.find({
 ```javascript
 db.users.find({
   role: "CLIENTE",
-  tipo_cadastro: "PF"
+  tipoCadastro: "PF"
 })
 ```
 
@@ -211,7 +211,7 @@ db.users.find({
 ```javascript
 db.users.find({
   role: "CLIENTE",
-  tipo_cadastro: "PJ"
+  tipoCadastro: "PJ"
 })
 ```
 
@@ -254,7 +254,7 @@ Buscar clientes PF ou PJ:
 
 ```javascript
 db.users.find({
-  tipo_cadastro: {
+  tipoCadastro: {
     $in: ["PF", "PJ"]
   }
 })
@@ -296,7 +296,7 @@ Buscar documentos que possuem dados empresariais:
 
 ```javascript
 db.users.find({
-  dados_empresa: {
+  dadosEmpresa: {
     $exists: true
   }
 })
@@ -1061,6 +1061,7 @@ db.collections.findOneAndUpdate(
   {
     $set: {
       status: "ENTREGUE_ECOPONTO",
+      ecopontoId: ObjectId("ECOPONTO_ATIVO_ID"),
       deliveredAt: new Date(),
       updatedAt: new Date()
     }
@@ -1070,6 +1071,14 @@ db.collections.findOneAndUpdate(
   }
 )
 ```
+
+O identificador do ecoponto é obtido antes da atualização (`DEC-053`):
+
+```javascript
+db.ecopoints.findOne({ status: "ATIVO" }, { _id: 1 })
+```
+
+Se nenhum ecoponto ativo for encontrado, a entrega não deve ser registrada.
 
 ---
 
@@ -1097,11 +1106,13 @@ db.collections.findOneAndUpdate(
 
 ---
 
-# 33. Atualização genérica de status
+# 33. Padrão das transições de status
 
-Se a aplicação utilizar uma rota genérica para alteração de status, o backend deve validar a transição antes da atualização.
+A API não possui rota genérica de alteração de status (`DEC-064`).
 
-Exemplo conceitual:
+Todas as transições seguem o mesmo padrão: o filtro inclui o estado de origem e o coletor responsável, garantindo atomicidade.
+
+Exemplo conceitual (`start`):
 
 ```javascript
 db.collections.findOneAndUpdate(
@@ -1954,12 +1965,12 @@ Exemplo de usuário fictício:
 db.users.insertOne({
   nome: "Cliente Demo",
   email: "cliente.demo@example.com",
-  senha_hash: "HASH_DE_DESENVOLVIMENTO",
+  senhaHash: "HASH_DE_DESENVOLVIMENTO",
   telefone: "11900000000",
   documento: "00000000000",
   role: "CLIENTE",
-  tipo_cadastro: "PF",
-  dados_empresa: null,
+  tipoCadastro: "PF",
+  dadosEmpresa: null,
   status: "ATIVO",
   createdAt: new Date(),
   updatedAt: new Date()
@@ -2487,6 +2498,17 @@ db.collections.find({
 db.collections.find({
   status: "ENTREGUE_ECOPONTO",
   deliveredAt: null
+})
+```
+
+---
+
+## Entregue ou concluída sem `ecopontoId`
+
+```javascript
+db.collections.find({
+  status: { $in: ["ENTREGUE_ECOPONTO", "CONCLUIDA"] },
+  ecopontoId: null
 })
 ```
 

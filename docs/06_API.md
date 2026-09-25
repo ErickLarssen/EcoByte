@@ -87,18 +87,12 @@ Utilizado para alterações parciais.
 
 ```http
 PATCH /api/v1/profile
-PATCH /api/v1/collections/:id/status
+PATCH /api/v1/ecopoint
 ```
 
 ### PUT
 
-Utilizado quando o recurso inteiro ou uma configuração completa estiver sendo substituída.
-
-Exemplo:
-
-```http
-PUT /api/v1/ecopoint
-```
+Não utilizado no contrato atual (`DEC-065`).
 
 ---
 
@@ -133,6 +127,10 @@ docs/09_AUTHENTICATION_SECURITY.md
 ```
 
 A API deve utilizar o mecanismo oficial definido pelo projeto e não aceitar identificadores de usuário arbitrários enviados pelo frontend para substituir a identidade autenticada.
+
+Mecanismo adotado (`DEC-021`): sessão no servidor identificada por cookie HttpOnly enviado automaticamente pelo navegador. Não há header `Authorization` nem token no body das respostas.
+
+O navegador acessa a API pela mesma origem do frontend, via proxy do Next.js (`DEC-063`).
 
 ---
 
@@ -188,6 +186,8 @@ COLLECTION_ALREADY_ACCEPTED
 USER_INACTIVE
 INVALID_TOKEN
 TOKEN_EXPIRED
+PAYLOAD_TOO_LARGE
+INTERNAL_SERVER_ERROR
 ```
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
@@ -210,6 +210,7 @@ A API deve utilizar códigos HTTP semanticamente adequados.
 | `403 Forbidden` | Usuário autenticado sem permissão |
 | `404 Not Found` | Recurso não encontrado |
 | `409 Conflict` | Conflito de estado ou recurso existente |
+| `413 Payload Too Large` | Corpo da requisição acima do limite (09 §89) |
 | `422 Unprocessable Entity` | Dados sintaticamente válidos, mas semanticamente inválidos |
 | `429 Too Many Requests` | Excesso de requisições |
 | `500 Internal Server Error` | Erro interno inesperado |
@@ -327,7 +328,7 @@ Nunca retornar:
 
 ```text
 senha
-senha_hash
+senhaHash
 ```
 
 ---
@@ -551,7 +552,7 @@ GET /api/v1/ecopoint
 ## 12.2 Atualizar ecoponto
 
 ```http
-PUT /api/v1/ecopoint
+PATCH /api/v1/ecopoint
 ```
 
 ### Acesso
@@ -559,6 +560,8 @@ PUT /api/v1/ecopoint
 ```text
 ADMIN
 ```
+
+Alteração parcial: somente os campos enviados são atualizados (`DEC-065`).
 
 ### Body conceitual
 
@@ -700,6 +703,30 @@ Regra principal:
 ```text
 status = PENDENTE
 ```
+
+---
+
+## 14.2 Listar coletas atribuídas
+
+```http
+GET /api/v1/collections/assigned
+```
+
+### Acesso
+
+```text
+COLETOR
+```
+
+### Regra
+
+Retornar somente coletas com:
+
+```text
+coletorId = usuário autenticado
+```
+
+Referência: `RF-028`, `DEC-064`.
 
 ---
 
@@ -861,7 +888,12 @@ RECOLHIDA → ENTREGUE_ECOPONTO
 ```text
 status
 deliveredAt
+ecopontoId
 ```
+
+`ecopontoId` recebe o identificador do ecoponto central com `status = ATIVO` (`DEC-053`).
+
+Se não existir ecoponto ativo, a operação falha e nenhum campo é alterado.
 
 ---
 
@@ -903,39 +935,15 @@ completedAt
 
 # 20. Atualização genérica de status
 
-## 20.1 Endpoint
+Não existe endpoint genérico de atualização de status (`DEC-064`).
 
 ```http
 PATCH /api/v1/collections/:id/status
 ```
 
-Esta rota somente deve ser implementada caso seja necessária na arquitetura final.
+não faz parte do contrato e não deve ser implementado.
 
-Se existir, ela deve utilizar a mesma máquina de estados oficial.
-
-### Body
-
-```json
-{
-  "status": "A_CAMINHO"
-}
-```
-
-### Regra
-
-Nunca aceitar uma alteração arbitrária.
-
-A API deve validar:
-
-```text
-estado atual
-+
-novo estado
-+
-role
-+
-identidade do usuário
-```
+As transições ocorrem exclusivamente pelos endpoints de ação das seções 15 a 19.
 
 ---
 
@@ -1356,7 +1364,7 @@ A API nunca deve retornar:
 
 ```text
 senha
-senha_hash
+senhaHash
 tokens privados
 segredos internos
 credenciais de infraestrutura
@@ -1674,17 +1682,17 @@ CONCLUIDA
 | GET | `/api/v1/profile` | Autenticado | Perfil |
 | PATCH | `/api/v1/profile` | Autenticado | Atualização do perfil |
 | GET | `/api/v1/ecopoint` | Público/definido pelo fluxo | Consultar ecoponto |
-| PUT | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
+| PATCH | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
 | POST | `/api/v1/collections` | CLIENTE | Criar coleta |
 | GET | `/api/v1/collections` | CLIENTE | Listar minhas coletas |
 | GET | `/api/v1/collections/:id` | Conforme recurso | Consultar coleta |
 | GET | `/api/v1/collections/available` | COLETOR | Coletas disponíveis |
+| GET | `/api/v1/collections/assigned` | COLETOR | Coletas atribuídas |
 | POST | `/api/v1/collections/:id/accept` | COLETOR | Aceitar |
 | POST | `/api/v1/collections/:id/start` | COLETOR | Iniciar rota |
 | POST | `/api/v1/collections/:id/collect` | COLETOR | Confirmar recolhimento |
 | POST | `/api/v1/collections/:id/deliver` | COLETOR | Confirmar entrega |
 | POST | `/api/v1/collections/:id/complete` | COLETOR | Concluir |
-| PATCH | `/api/v1/collections/:id/status` | Conforme regra | Atualização controlada |
 | GET | `/api/v1/admin/users` | ADMIN | Listar usuários |
 | GET | `/api/v1/admin/users/:id` | ADMIN | Consultar usuário |
 | PATCH | `/api/v1/admin/users/:id/status` | ADMIN | Alterar status |

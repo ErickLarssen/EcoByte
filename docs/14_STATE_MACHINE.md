@@ -797,6 +797,7 @@ usuário ativo
 coleta existente
 status = RECOLHIDA
 coletorId = usuário autenticado
+existe ecoponto com status = ATIVO
 ```
 
 ## Efeitos
@@ -804,8 +805,11 @@ coletorId = usuário autenticado
 ```text
 status = ENTREGUE_ECOPONTO
 deliveredAt = data/hora atual
+ecopontoId = ID do ecoponto central ativo
 updatedAt = data/hora atual
 ```
+
+`ecopontoId` permanece `null` nos estados anteriores e preenchido em `ENTREGUE_ECOPONTO` e `CONCLUIDA` (`DEC-053`).
 
 ---
 
@@ -1051,6 +1055,21 @@ O responsável histórico deve permanecer associado à coleta após sua conclus�
 
 ---
 
+# 31.1 `ecopontoId` por estado
+
+```text
+PENDENTE           → ecopontoId = null
+ACEITA             → ecopontoId = null
+A_CAMINHO          → ecopontoId = null
+RECOLHIDA          → ecopontoId = null
+ENTREGUE_ECOPONTO  → ecopontoId preenchido
+CONCLUIDA          → ecopontoId preenchido
+```
+
+Referência: `DEC-053`.
+
+---
+
 # 32. Regra de imutabilidade do responsável
 
 Depois de:
@@ -1223,28 +1242,24 @@ Cada endpoint deve executar somente a transição correspondente.
 
 # 42. Rota genérica de status
 
-Se existir:
+Não existe rota genérica de status (`DEC-064`).
 
 ```http
 PATCH /api/v1/collections/:id/status
 ```
 
-ela deve respeitar exatamente a mesma máquina de estados.
-
-Não utilizar a rota genérica para permitir:
-
-```text
-status arbitrário
-```
+não deve ser implementada.
 
 ---
 
-# 43. Exemplo de request genérico
+# 43. Request por evento
 
-```json
-{
-  "status": "A_CAMINHO"
-}
+Cada transição é solicitada pelo endpoint do seu evento, sem body de status.
+
+Exemplo: para `ACEITA → A_CAMINHO`:
+
+```http
+POST /api/v1/collections/:id/start
 ```
 
 Esse pedido só é válido quando:

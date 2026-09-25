@@ -87,7 +87,7 @@ Exemplo:
 ```text
 Frontend
    ↓
-POST /api/v1/coletas
+POST /api/v1/collections
    ↓
 Express
    ↓
@@ -111,7 +111,7 @@ As requisições e respostas devem utilizar JSON quando aplicável.
 Utilizar:
 
 - `GET` — consulta;
-- `POST` — criação;
+- `POST` — criação e ações de domínio (ex.: `/collections/:id/accept`);
 - `PATCH` — alteração parcial;
 - `DELETE` — somente quando a exclusão física for realmente necessária.
 
@@ -177,15 +177,19 @@ MongoDB
 ```text
 Ecobyte/
 │
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── hooks/
-│   ├── lib/
-│   ├── data/
+├── package.json          (npm workspaces: frontend, backend)
+│
+├── frontend/             (Next.js App Router + TypeScript)
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── data/
+│   │   └── assets/
 │   └── public/
 │
-├── backend/
+├── backend/              (Express + TypeScript)
 │   └── src/
 │       ├── routes/
 │       ├── controllers/
@@ -193,12 +197,31 @@ Ecobyte/
 │       ├── models/
 │       ├── middlewares/
 │       ├── validators/
+│       ├── database/
 │       └── config/
 │
 └── docs/
 ```
 
+Stack e ferramentas: `DEC-062`.
+
 A estrutura poderá evoluir conforme o projeto crescer, mas novas camadas não devem ser criadas sem necessidade.
+
+---
+
+## 9.1 Topologia de execução
+
+O navegador acessa somente a origem do frontend. O Next.js encaminha `/api/v1/*` ao Express por `rewrites` (`DEC-063`):
+
+```text
+Navegador
+   ↓ HTTPS (mesma origem)
+Next.js  ── rewrite /api/v1/* ──→  Express
+                                      ↓
+                                   MongoDB
+```
+
+O rewrite é somente roteamento. Autenticação, autorização e regras de negócio permanecem no Express.
 
 ---
 
@@ -218,6 +241,8 @@ O tipo de cadastro é uma informação separada do role:
 - `PJ`
 
 O frontend pode ocultar opções que o usuário não pode utilizar, mas toda autorização deve ser validada novamente pelo backend.
+
+A sessão é mantida no servidor, identificada por cookie HttpOnly (`DEC-021`).
 
 ---
 
