@@ -2232,8 +2232,16 @@ Ecobyte/
 ### Runtime e gerenciador
 
 ```text
-Node.js 22 LTS
+Node.js 22 LTS (mínimo; engines ">=22")
 npm
+concurrently (execução simultânea de frontend e backend em desenvolvimento)
+```
+
+### Qualidade de código
+
+```text
+ESLint (flat config; eslint-config-next no frontend, typescript-eslint no backend)
+TypeScript em modo strict
 ```
 
 ### Frontend

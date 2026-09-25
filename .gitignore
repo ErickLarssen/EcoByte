@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Testes
+coverage/
+test-results/
+playwright-report/
+
+# Ambiente (DEC-037)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

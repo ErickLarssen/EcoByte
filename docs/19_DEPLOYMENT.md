@@ -216,6 +216,8 @@ frontend/.next/
 
 O servidor Next.js também atua como proxy de `/api/v1/*` para o backend (`DEC-063`), portanto o frontend precisa alcançar o backend pela rede interna configurada em `API_INTERNAL_URL`.
 
+Os rewrites do Next.js são avaliados durante o `next build`. Por isso `API_INTERNAL_URL` deve estar definida **no momento do build** de produção; sem ela, o build é interrompido com erro. Alterar a URL do backend exige novo build do frontend.
+
 ---
 
 # 7. Backend

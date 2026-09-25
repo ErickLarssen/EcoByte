@@ -186,6 +186,8 @@ COLLECTION_ALREADY_ACCEPTED
 USER_INACTIVE
 INVALID_TOKEN
 TOKEN_EXPIRED
+PAYLOAD_TOO_LARGE
+INTERNAL_SERVER_ERROR
 ```
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
@@ -208,6 +210,7 @@ A API deve utilizar códigos HTTP semanticamente adequados.
 | `403 Forbidden` | Usuário autenticado sem permissão |
 | `404 Not Found` | Recurso não encontrado |
 | `409 Conflict` | Conflito de estado ou recurso existente |
+| `413 Payload Too Large` | Corpo da requisição acima do limite (09 §89) |
 | `422 Unprocessable Entity` | Dados sintaticamente válidos, mas semanticamente inválidos |
 | `429 Too Many Requests` | Excesso de requisições |
 | `500 Internal Server Error` | Erro interno inesperado |

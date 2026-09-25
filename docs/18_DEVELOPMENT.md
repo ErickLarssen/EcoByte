@@ -163,6 +163,8 @@ API_INTERNAL_URL=http://localhost:4000
 |---|---|
 | `API_INTERNAL_URL` | Destino do proxy `/api/v1/*` do Next.js (`DEC-063`); lida somente no servidor |
 
+Fora de produção, se `API_INTERNAL_URL` não estiver definida, o proxy usa `http://localhost:4000`. Em produção ela é obrigatória já no `next build` (`docs/19_DEPLOYMENT.md` §6).
+
 Variáveis `NEXT_PUBLIC_*` são expostas ao navegador e nunca devem conter segredos.
 
 ---
@@ -190,7 +192,7 @@ Não chamar `localhost:4000` diretamente a partir do código do navegador: isso 
 ## 6.3 Comandos
 
 ```bash
-npm run dev                         # frontend + backend
+npm run dev                         # frontend + backend (concurrently)
 npm run dev --workspace backend     # somente backend
 npm run dev --workspace frontend    # somente frontend
 ```
@@ -219,7 +221,7 @@ O backend em desenvolvimento é executado com `tsx` em modo watch.
 | `build` | Compilação TypeScript |
 | `start` | Executa o build compilado |
 | `test` | Vitest (unitários e integração) |
-| `lint` | Lint |
+| `lint` | ESLint (typescript-eslint) |
 | `typecheck` | `tsc --noEmit` |
 | `seed` | Seed mínimo (`docs/20_SEED_DATA.md`) |
 | `seed:full` | Seed completo |
@@ -233,7 +235,7 @@ O backend em desenvolvimento é executado com `tsx` em modo watch.
 | `start` | `next start` |
 | `test` | Vitest + Testing Library |
 | `test:e2e` | Playwright |
-| `lint` | Lint |
+| `lint` | ESLint (eslint-config-next) |
 | `typecheck` | `tsc --noEmit` |
 
 Os nomes finais devem corresponder aos `package.json` reais.
@@ -359,6 +361,7 @@ decisões novas foram registradas
 | Backend não inicia | Variável obrigatória ausente no `backend/.env` |
 | Seed recusa execução | `NODE_ENV=production` |
 | Erro de conexão com o banco | MongoDB local não está em execução ou `MONGODB_URI` incorreta |
+| Primeiro `npm test` do backend demora vários minutos | Download único do binário do MongoDB (~780 MB) pelo `mongodb-memory-server`, guardado em `~/.cache/mongodb-binaries` |
 
 ---
 
