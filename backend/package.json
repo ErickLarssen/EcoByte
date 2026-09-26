@@ -10,9 +10,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx --env-file-if-exists=.env src/database/seed/index.ts"
   },
   "dependencies": {
+    "argon2": "^0.45.1",
     "express": "^5.2.1",
     "mongoose": "^9.10.2",
     "zod": "^4.6.5"

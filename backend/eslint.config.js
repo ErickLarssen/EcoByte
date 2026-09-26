@@ -11,9 +11,9 @@ export default tseslint.config(
       globals: globals.node,
     },
     rules: {
-      // Parâmetros prefixados com "_" são obrigatórios pela assinatura
-      // (ex.: o 4º argumento do error handler do Express).
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      // Nomes prefixados com "_" são intencionalmente não usados
+      // (ex.: o 4º argumento do error handler do Express, campos descartados em desestruturação).
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
 );

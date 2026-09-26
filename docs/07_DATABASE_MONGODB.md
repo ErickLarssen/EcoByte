@@ -665,6 +665,8 @@ O banco não deve ser considerado a única camada responsável por validar as tr
 
 A validação principal da máquina de estados deve ocorrer no service/backend.
 
+Como defesa em profundidade, o model Mongoose de `collections` verifica em `save()`/`create()` a coerência do documento: `coletorId`, `ecopontoId` e timestamps compatíveis com o status (`backend/src/domain/collection-invariants.ts`). Essa verificação não substitui a validação da transição no service e não é executada em atualizações atômicas (`findOneAndUpdate`), que devem filtrar pelo estado de origem (§57).
+
 Fluxo obrigatório:
 
 ```text

@@ -2377,6 +2377,10 @@ enum CollectionStatus {
 
 A implementação pode utilizar outro mecanismo equivalente.
 
+Implementação (Fase 2): `backend/src/domain/collection-status.ts` define `COLLECTION_STATUSES` como tupla `as const`, com o tipo `CollectionStatus` derivado, os eventos T1–T5 (`COLLECTION_EVENTS`) e a matriz `COLLECTION_TRANSITIONS`, derivada dos eventos para que não possam divergir.
+
+A coerência entre status, `coletorId`, `ecopontoId` e timestamps (§29–§31.1) é verificada por `backend/src/domain/collection-invariants.ts`.
+
 ---
 
 # 94. Transições centralizadas

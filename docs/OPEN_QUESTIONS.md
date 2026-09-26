@@ -369,6 +369,8 @@ CABOS
 
 Esses valores são provisórios para desenvolvimento.
 
+**Comportamento enquanto aberta (2026-09-25):** `categoria` aceita qualquer texto não vazio, normalizado em maiúsculas. O enum oficial será aplicado no schema e na API quando esta questão for decidida.
+
 ## Questões a definir
 
 ```text
@@ -493,6 +495,8 @@ OBSOLETO
 ```
 
 Esses valores devem ser confirmados antes da implementação final.
+
+**Comportamento enquanto aberta (2026-09-25):** `condicao` é obrigatória e aceita qualquer texto não vazio, normalizado em maiúsculas. Nenhuma lista fechada é imposta pelo schema.
 
 ## Questões adicionais
 

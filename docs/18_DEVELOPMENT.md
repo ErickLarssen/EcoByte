@@ -224,7 +224,7 @@ O backend em desenvolvimento é executado com `tsx` em modo watch.
 | `lint` | ESLint (typescript-eslint) |
 | `typecheck` | `tsc --noEmit` |
 | `seed` | Seed mínimo (`docs/20_SEED_DATA.md`) |
-| `seed:full` | Seed completo |
+| `seed:full` | Seed completo (ainda não implementado; `20_SEED_DATA.md` §41) |
 
 ## 7.3 Frontend
 

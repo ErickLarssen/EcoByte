@@ -834,6 +834,22 @@ bcrypt
 
 A escolha definitiva do algoritmo deve permanecer consistente em toda a aplicação.
 
+## Escolha definitiva
+
+**Data:** 2026-09-25
+
+O algoritmo adotado é:
+
+```text
+Argon2id
+```
+
+Implementação: pacote `argon2` (bindings nativos), com os parâmetros padrão da biblioteca (`m = 64 MiB`, `t = 3`, `p = 4`).
+
+O hash é gerado em um único módulo do backend, reutilizado pelo cadastro, pela redefinição de senha e pelo seed (`20_SEED_DATA.md` §5).
+
+bcrypt não é utilizado.
+
 ---
 
 # 23. DEC-021 — Mecanismo de Sessão/Token
