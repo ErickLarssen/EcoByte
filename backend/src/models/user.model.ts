@@ -12,6 +12,13 @@ const dadosEmpresaSchema = new Schema(
   { _id: false },
 );
 
+// Função nomeada (e não inline) para não interferir na inferência de tipos do schema.
+function userToJson(doc: unknown, ret: Record<string, unknown>): Record<string, unknown> {
+  const json = toJsonTransform(doc, ret);
+  delete json.senhaHash;
+  return json;
+}
+
 // Coleção `users` (07_DATABASE_MONGODB §7, DEC-061).
 // telefone e documento: obrigatoriedade em aberto (OQ-043, OQ-044, OQ-045).
 const userSchema = new Schema(
@@ -48,13 +55,7 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
-    toJSON: {
-      transform: (doc, ret) => {
-        const json = toJsonTransform(doc, ret);
-        delete json.senhaHash;
-        return json;
-      },
-    },
+    toJSON: { transform: userToJson },
   },
 );
 

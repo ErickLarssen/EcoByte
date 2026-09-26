@@ -1,7 +1,7 @@
 import express from "express";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createApp } from "../../src/app.js";
+import { createTestApp } from "../helpers/test-app.js";
 import { errorHandler } from "../../src/middlewares/error-handler.js";
 import { AppError } from "../../src/utils/app-error.js";
 
@@ -20,7 +20,7 @@ describe("envelope de erro (DEC-017)", () => {
   });
 
   it("retorna 404 RESOURCE_NOT_FOUND para rota inexistente", async () => {
-    const response = await request(createApp()).get("/api/v1/rota-inexistente");
+    const response = await request(createTestApp()).get("/api/v1/rota-inexistente");
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
@@ -32,7 +32,7 @@ describe("envelope de erro (DEC-017)", () => {
   });
 
   it("retorna 400 VALIDATION_ERROR para JSON malformado", async () => {
-    const response = await request(createApp())
+    const response = await request(createTestApp())
       .post("/api/v1/health")
       .set("Content-Type", "application/json")
       .send("{ invalido");
@@ -43,7 +43,7 @@ describe("envelope de erro (DEC-017)", () => {
   });
 
   it("retorna 413 PAYLOAD_TOO_LARGE acima do limite de payload", async () => {
-    const response = await request(createApp())
+    const response = await request(createTestApp())
       .post("/api/v1/health")
       .set("Content-Type", "application/json")
       .send(JSON.stringify({ texto: "a".repeat(200 * 1024) }));

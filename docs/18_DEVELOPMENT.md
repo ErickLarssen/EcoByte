@@ -137,19 +137,29 @@ O arquivo `.env` local é criado a partir do exemplo e nunca é versionado (`DEC
 NODE_ENV=development
 PORT=4000
 MONGODB_URI=mongodb://localhost:27017/ecobyte
-SESSION_SECRET=
-SESSION_MAX_AGE=
 FRONTEND_URL=http://localhost:3000
+SESSION_SECRET=
+SESSION_MAX_AGE=604800
+TRUST_PROXY=0
 ```
 
-| Variável | Uso |
-|---|---|
-| `NODE_ENV` | Ambiente (`development`, `test`, `production`) |
-| `PORT` | Porta do Express |
-| `MONGODB_URI` | Conexão com o MongoDB |
-| `SESSION_SECRET` | Assinatura do cookie de sessão (`DEC-021`) |
-| `SESSION_MAX_AGE` | Expiração da sessão; valor definitivo em aberto (`OQ-062`) |
-| `FRONTEND_URL` | Origem do frontend para configuração de segurança |
+| Variável | Obrigatória | Uso |
+|---|---|---|
+| `NODE_ENV` | Não (padrão `development`) | Ambiente (`development`, `test`, `production`) |
+| `PORT` | Não (padrão `4000`) | Porta do Express |
+| `MONGODB_URI` | Sim | Conexão com o MongoDB |
+| `FRONTEND_URL` | Em produção | Origem aceita na validação de Origin (`DEC-069`); padrão `http://localhost:3000` |
+| `SESSION_SECRET` | Sim | Assinatura do cookie de sessão, mínimo 32 caracteres (`DEC-021`) |
+| `SESSION_MAX_AGE` | Não (padrão `604800`) | Expiração da sessão em segundos, renovada a cada uso (`DEC-021`) |
+| `TRUST_PROXY` | Em produção | Proxies confiáveis à frente do backend (`DEC-068`); `0` em desenvolvimento |
+
+Para gerar um `SESSION_SECRET` local:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+```
+
+Em desenvolvimento, com `TRUST_PROXY=0`, todas as requisições que passam pelo proxy do Next.js compartilham o mesmo IP para o rate limiting (`DEC-067`). Muitas tentativas de login seguidas podem gerar `429` por até 15 minutos; reiniciar o backend zera os contadores.
 
 O backend valida as variáveis obrigatórias no startup e interrompe a inicialização com erro claro quando alguma estiver ausente.
 

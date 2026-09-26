@@ -188,7 +188,13 @@ INVALID_TOKEN
 TOKEN_EXPIRED
 PAYLOAD_TOO_LARGE
 INTERNAL_SERVER_ERROR
+RATE_LIMIT_EXCEEDED
+INVALID_ORIGIN
 ```
+
+`RATE_LIMIT_EXCEEDED` (429): limite de requisições excedido (`DEC-067`).
+
+`INVALID_ORIGIN` (403): requisição de alteração vinda de origem diferente do frontend (`DEC-069`).
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
 
@@ -296,10 +302,32 @@ POST /api/v1/auth/register
   "senha": "Senha@123",
   "confirmacaoSenha": "Senha@123",
   "telefone": "11999999999",
-  "documento": "00000000000",
   "tipoCadastro": "PF"
 }
 ```
+
+Para `PJ`, `dadosEmpresa.razaoSocial` é obrigatório e `dadosEmpresa.nomeFantasia` é opcional (`DEC-066`). Para `PF`, `dadosEmpresa` não é aceito.
+
+| Campo | Obrigatório | Regra |
+|---|---|---|
+| `nome` | Sim | texto, até 120 caracteres |
+| `email` | Sim | formato válido; normalizado em minúsculas; único |
+| `senha` | Sim | 8 a 128 caracteres; maiúscula, minúscula, número e caractere especial (`DEC-019`) |
+| `confirmacaoSenha` | Sim | igual a `senha` |
+| `tipoCadastro` | Sim | `PF` ou `PJ` |
+| `telefone` | Não | texto, até 20 caracteres (formato em aberto, `OQ-045`) |
+| `dadosEmpresa` | Somente PJ | `razaoSocial` obrigatório, `nomeFantasia` opcional |
+
+Campos não previstos no contrato (incluindo `role` e `status`) são ignorados: o cadastro público sempre cria `CLIENTE` `ATIVO`.
+
+### Respostas
+
+| Status | Código | Situação |
+|---|---|---|
+| `201` | — | Cadastro realizado; sessão criada (usuário já autenticado) |
+| `400` | `VALIDATION_ERROR` | Campo ausente ou inválido; `error.fields` indica cada campo |
+| `409` | `EMAIL_ALREADY_EXISTS` | E-mail já cadastrado |
+| `429` | `RATE_LIMIT_EXCEEDED` | Limite de cadastros por IP (`DEC-067`) |
 
 ---
 
@@ -372,6 +400,18 @@ O mecanismo de sessão/token deve seguir:
 ```text
 docs/09_AUTHENTICATION_SECURITY.md
 ```
+
+### Respostas
+
+| Status | Código | Situação |
+|---|---|---|
+| `200` | — | Login realizado; cookie de sessão emitido |
+| `400` | `VALIDATION_ERROR` | E-mail ou senha ausentes ou com formato inválido |
+| `401` | `INVALID_CREDENTIALS` | E-mail inexistente ou senha incorreta (mensagem única: "Credenciais inválidas.") |
+| `403` | `USER_INACTIVE` | Credenciais corretas, mas usuário `INATIVO` |
+| `429` | `RATE_LIMIT_EXCEEDED` | Limite de tentativas por IP (`DEC-067`) |
+
+`USER_INACTIVE` só é informado após a senha ser verificada, para não revelar o status de contas a quem não conhece a senha (09 §81, §87).
 
 ---
 
@@ -1239,6 +1279,16 @@ Quando o usuário estiver autenticado, mas não possuir a role ou permissão nec
 ```text
 403 Forbidden
 ```
+
+Código: `FORBIDDEN`.
+
+---
+
+## 27.3 Usuário desativado com sessão ativa
+
+Se um usuário for desativado (`INATIVO`) enquanto possui sessão, a próxima requisição protegida retorna `403` com `USER_INACTIVE` e a sessão é encerrada no servidor (09 §19, `DEC-021`).
+
+Se o usuário da sessão não existir mais, a sessão é encerrada e a resposta é `401 UNAUTHORIZED`.
 
 ---
 

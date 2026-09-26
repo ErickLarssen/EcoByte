@@ -199,12 +199,29 @@ Não
   "senha": "Senha@123",
   "confirmacaoSenha": "Senha@123",
   "telefone": "11999999999",
-  "documento": "00000000000",
   "tipoCadastro": "PF"
 }
 ```
 
-Para PJ, o body deve contemplar os dados empresariais aplicáveis.
+Para PJ:
+
+```json
+{
+  "nome": "Nome do responsável",
+  "email": "empresa@email.com",
+  "senha": "Senha@123",
+  "confirmacaoSenha": "Senha@123",
+  "tipoCadastro": "PJ",
+  "dadosEmpresa": {
+    "razaoSocial": "Empresa Exemplo Ltda.",
+    "nomeFantasia": "Empresa Exemplo"
+  }
+}
+```
+
+Campos obrigatórios e opcionais: `DEC-066`. CPF/CNPJ não são coletados enquanto `OQ-044` estiver aberta.
+
+Após o cadastro, o usuário já fica autenticado (sessão criada, `CA-001`).
 
 ### Regras importantes
 
@@ -221,6 +238,7 @@ Para PJ, o body deve contemplar os dados empresariais aplicáveis.
 201 Created
 400 Bad Request
 409 Conflict
+429 Too Many Requests
 ```
 
 ---
@@ -257,6 +275,7 @@ Não
 400 Bad Request
 401 Unauthorized
 403 Forbidden
+429 Too Many Requests
 ```
 
 ---

@@ -390,14 +390,18 @@ Validar formato
         ↓
 Localizar usuário
         ↓
-Verificar status
-        ↓
 Verificar senha
+        ↓
+Verificar status
         ↓
 Criar sessão/token
         ↓
 Retornar resposta segura
 ```
+
+A senha é verificada antes do status (ajuste de 2026-09-25): assim, `USER_INACTIVE` só é revelado a quem conhece a senha, evitando enumerar contas desativadas (§81, §87).
+
+Quando o e-mail não existe, o backend ainda executa uma verificação de hash de referência, para que o tempo de resposta não revele se a conta existe.
 
 ---
 
@@ -996,6 +1000,10 @@ POST /api/v1/auth/reset-password
 
 Os limites exatos devem ser configurados conforme o ambiente e a infraestrutura.
 
+Limites adotados (`DEC-067`): login 10 requisições a cada 15 minutos e cadastro 5 por hora, por IP, com resposta `429 RATE_LIMIT_EXCEEDED`.
+
+O IP do cliente só é confiável quando a infraestrutura o fornece: ver `DEC-068` e a variável `TRUST_PROXY`.
+
 ---
 
 # 49. Proteção contra brute force
@@ -1168,15 +1176,15 @@ SameSite = Lax
 operações que alteram estado nunca utilizam GET
 ```
 
-Mecanismos complementares (CSRF token ou validação de Origin) ainda não foram decididos.
-
-A implementação definitiva deve ser registrada em:
+Complemento adotado (`DEC-069`): validação do header `Origin`.
 
 ```text
-docs/DECISIONS.md
+POST, PUT, PATCH ou DELETE
+com Origin diferente de FRONTEND_URL
+→ 403 INVALID_ORIGIN
 ```
 
-quando definida.
+Requisições sem `Origin` (clientes que não são navegadores) seguem permitidas. CSRF token não é utilizado.
 
 ---
 
@@ -2054,17 +2062,19 @@ acessa funções administrativas
 Os seguintes pontos permanecem dependentes de decisão do projeto:
 
 ```text
-tempo de expiração da sessão
 política de múltiplas sessões
 confirmação de e-mail
 provedor de recuperação de senha
-política definitiva de CSRF
 política definitiva de CORS
-limites exatos de rate limiting
+limites de rate limiting para recuperação de senha
 criação administrativa de COLETOR
 criação administrativa de ADMIN
 auditoria detalhada
 ```
+
+Decididos em 2026-09-25: expiração da sessão (`DEC-021`), CSRF complementar (`DEC-069`), limites de login e cadastro (`DEC-067`) e identificação do cliente atrás de proxies (`DEC-068`).
+
+CORS: até a decisão definitiva, o backend não emite headers CORS. Como o navegador acessa a API pela mesma origem (`DEC-063`), CORS não é necessário para o frontend oficial.
 
 Não inventar valores definitivos para esses itens sem registrar a decisão.
 
