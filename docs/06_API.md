@@ -190,11 +190,17 @@ PAYLOAD_TOO_LARGE
 INTERNAL_SERVER_ERROR
 RATE_LIMIT_EXCEEDED
 INVALID_ORIGIN
+ECOPOINT_UNAVAILABLE
+CONFLICT
 ```
 
 `RATE_LIMIT_EXCEEDED` (429): limite de requisições excedido (`DEC-067`).
 
 `INVALID_ORIGIN` (403): requisição de alteração vinda de origem diferente do frontend (`DEC-069`).
+
+`ECOPOINT_UNAVAILABLE` (409): entrega sem ecoponto `ATIVO` para receber o material (`DEC-053`, `DEC-070`).
+
+`CONFLICT` (409): o recurso foi alterado por outra operação entre a tentativa e a verificação; a requisição pode ser repetida.
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
 
@@ -660,15 +666,28 @@ CLIENTE
   },
   "itensDescarte": [
     {
-      "categoria": "NOTEBOOK",
+      "categoria": "INFORMATICA",
       "quantidade": 1,
-      "condicao": "FUNCIONANDO"
+      "condicao": "USADO"
     }
   ],
-  "dataAgendada": "2026-10-10",
   "observacoes": "Retirar no período da manhã."
 }
 ```
+
+| Campo | Obrigatório | Regra |
+|---|---|---|
+| `enderecoColeta.logradouro`, `numero`, `bairro`, `cidade` | Sim | texto, até 120 caracteres (`numero` até 20) |
+| `enderecoColeta.complemento` | Não | texto, até 120 caracteres |
+| `enderecoColeta.estado` | Sim | sigla da UF, 2 letras |
+| `enderecoColeta.cep` | Sim | 8 dígitos; hífen e pontos são removidos |
+| `enderecoColeta.localizacao` | Não | GeoJSON `Point`, `[longitude, latitude]` dentro dos limites |
+| `itensDescarte` | Sim | pelo menos 1 item |
+| `itensDescarte[].categoria`, `condicao` | Sim | texto, até 60 caracteres, normalizado em maiúsculas (`OQ-007`, `OQ-010`) |
+| `itensDescarte[].quantidade` | Sim | número maior que zero (unidade em aberto, `OQ-009`) |
+| `observacoes` | Não | texto, até 1000 caracteres |
+
+`dataAgendada` não é aceito enquanto `OQ-020` estiver aberta; se enviado, é ignorado. Campos não previstos também são ignorados, inclusive `status`, `usuarioId` e `coletorId`.
 
 ### Regras
 
@@ -692,12 +711,21 @@ coletorId = null
 
 quando a coleta ainda não estiver atribuída.
 
+### Respostas
+
+| Status | Código | Situação |
+|---|---|---|
+| `201` | — | Coleta criada; `data.collection` na visão do cliente (§13.4) |
+| `400` | `VALIDATION_ERROR` | Campo ausente ou inválido |
+| `401` | `UNAUTHORIZED` | Sem sessão |
+| `403` | `FORBIDDEN` | Usuário não é `CLIENTE` |
+
 ---
 
 ## 13.2 Listar minhas coletas
 
 ```http
-GET /api/v1/collections
+GET /api/v1/collections?page=1&limit=20
 ```
 
 ### Acesso
@@ -708,6 +736,8 @@ CLIENTE
 
 A API deve filtrar os resultados pelo usuário autenticado.
 
+Resposta paginada (§7.1), mais recentes primeiro. `page` padrão `1`; `limit` padrão `20`, máximo `100`. Valores inválidos retornam `400 VALIDATION_ERROR`.
+
 ---
 
 ## 13.3 Consultar coleta
@@ -717,6 +747,46 @@ GET /api/v1/collections/:id
 ```
 
 O backend deve verificar se o usuário possui permissão para visualizar o recurso.
+
+| Perfil | Pode consultar |
+|---|---|
+| `CLIENTE` | as próprias coletas |
+| `COLETOR` | coletas `PENDENTE` e as atribuídas a ele |
+| `ADMIN` | não utiliza esta rota (`403`); usa `/admin/collections/:id` |
+
+Coleta inexistente, fora do alcance do usuário ou com `:id` inválido: `404 RESOURCE_NOT_FOUND` (`DEC-070`).
+
+---
+
+## 13.4 Representação da coleta
+
+A API retorna visões diferentes conforme o perfil (`DEC-070`).
+
+Campos comuns:
+
+```json
+{
+  "id": "COLLECTION_ID",
+  "status": "ACEITA",
+  "enderecoColeta": {},
+  "itensDescarte": [],
+  "dataAgendada": null,
+  "observacoes": null,
+  "createdAt": "2026-09-26T10:00:00.000Z",
+  "updatedAt": "2026-09-26T10:30:00.000Z",
+  "acceptedAt": "2026-09-26T10:30:00.000Z",
+  "startedAt": null,
+  "collectedAt": null,
+  "deliveredAt": null,
+  "completedAt": null
+}
+```
+
+Visão do cliente: acrescenta `coletor`, com `{ "nome": "..." }` ou `null` enquanto não houver coletor.
+
+Visão do coletor: acrescenta `cliente`, com `{ "nome": "...", "telefone": "..." }` somente nas coletas atribuídas a ele; nas coletas `PENDENTE`, `cliente` é `null`.
+
+Identificadores internos (`usuarioId`, `coletorId`, `ecopontoId`), e-mails e documentos não fazem parte da resposta.
 
 ---
 
@@ -744,6 +814,8 @@ Regra principal:
 status = PENDENTE
 ```
 
+Resposta paginada (§7.1) na visão do coletor, mais antigas primeiro (ordem de solicitação, `DEC-070`).
+
 ---
 
 ## 14.2 Listar coletas atribuídas
@@ -767,6 +839,26 @@ coletorId = usuário autenticado
 ```
 
 Referência: `RF-028`, `DEC-064`.
+
+Resposta paginada (§7.1) na visão do coletor, mais recentes primeiro, em todos os status.
+
+---
+
+## 14.3 Respostas comuns das ações do coletor (§15–§19)
+
+Todas as ações exigem `COLETOR` e respondem `200` com `data.collection` na visão do coletor.
+
+| Status | Código | Situação |
+|---|---|---|
+| `401` | `UNAUTHORIZED` | Sem sessão |
+| `403` | `FORBIDDEN` | Usuário não é `COLETOR` |
+| `404` | `RESOURCE_NOT_FOUND` | Coleta inexistente, `:id` inválido ou coleta atribuída a outro coletor |
+| `409` | `COLLECTION_ALREADY_ACCEPTED` | `accept` em coleta que não está mais `PENDENTE` |
+| `409` | `ECOPOINT_UNAVAILABLE` | `deliver` sem ecoponto `ATIVO` |
+| `422` | `INVALID_STATUS_TRANSITION` | Evento incompatível com o status atual; `error.fields` traz `currentStatus` e `requestedStatus` |
+| `409` | `CONFLICT` | O estado mudou durante a operação (concorrência); a ação pode ser repetida |
+
+Repetir uma ação já concluída (por exemplo, `start` em coleta `A_CAMINHO`) responde `422` e não altera status nem timestamps.
 
 ---
 

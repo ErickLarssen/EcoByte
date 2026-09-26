@@ -1084,6 +1084,8 @@ Se um coletor tentar executar uma ação sobre uma coleta atribuída a outro col
 
 O código de resposta deve seguir o contrato da API e a estratégia de exposição de recursos adotada.
 
+Estratégia adotada (`DEC-070`): a resposta é `404 RESOURCE_NOT_FOUND`, sem revelar que a coleta existe e pertence a outro coletor.
+
 ---
 
 # 63. Mobile First

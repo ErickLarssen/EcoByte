@@ -574,15 +574,16 @@ CLIENTE
   },
   "itensDescarte": [
     {
-      "categoria": "NOTEBOOK",
+      "categoria": "INFORMATICA",
       "quantidade": 1,
-      "condicao": "FUNCIONANDO"
+      "condicao": "USADO"
     }
   ],
-  "dataAgendada": "2026-10-10",
   "observacoes": "Retirar no período da manhã."
 }
 ```
+
+`dataAgendada` não é aceito enquanto `OQ-020` estiver aberta. Regras de cada campo: `06_API.md` §13.1.
 
 ### Comportamento
 

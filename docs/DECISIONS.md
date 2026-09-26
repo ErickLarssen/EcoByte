@@ -2625,7 +2625,78 @@ Requisições sem header `Origin` (clientes que não são navegadores, como test
 
 ---
 
-# 72. Registro Atual de Decisões Pendentes
+# 72. DEC-070 — Visibilidade e Dados Expostos nas Coletas
+
+**Status:** ACEITA
+
+**Data:** 2026-09-26
+
+## Contexto
+
+`OQ-047` deixava em aberto quais coletas o coletor pode ver. `09 §70`, `13 §21` e `13 §82` exigem expor somente os dados pessoais necessários, sem definir quais.
+
+## Decisão
+
+### Quem consulta o quê
+
+| Perfil | `GET /collections/:id` e listagens |
+|---|---|
+| `CLIENTE` | somente as próprias coletas |
+| `COLETOR` | qualquer coleta `PENDENTE` (para avaliar antes de aceitar, 13 §11) e as atribuídas a ele, em qualquer status |
+| `ADMIN` | não usa `/collections/:id`; utiliza as rotas `/admin/collections` (`DEC-033`) |
+
+Coleta inexistente, de outro cliente ou atribuída a outro coletor responde `404 RESOURCE_NOT_FOUND`, sem revelar se ela existe.
+
+### Dados pessoais
+
+| Quem vê | Dados da outra parte |
+|---|---|
+| Coletor, em coleta `PENDENTE` | nenhum dado do cliente: somente endereço da coleta, itens e observações |
+| Coletor, em coleta atribuída a ele | `nome` e `telefone` do cliente |
+| Cliente | `nome` do coletor responsável, quando houver |
+
+E-mail, documentos, dados empresariais e identificadores internos da outra parte não são expostos.
+
+### Respostas das ações do coletor
+
+| Situação | Resposta |
+|---|---|
+| `accept` em coleta que não está mais `PENDENTE` | `409 COLLECTION_ALREADY_ACCEPTED` |
+| Ação em coleta atribuída a outro coletor | `404 RESOURCE_NOT_FOUND` |
+| Evento incompatível com o status atual | `422 INVALID_STATUS_TRANSITION` |
+| `deliver` sem ecoponto `ATIVO` | `409 ECOPOINT_UNAVAILABLE` |
+
+Toda transição é uma atualização atômica filtrada pelo status de origem (e, após o aceite, pelo coletor responsável). Repetir uma ação já concluída não altera status nem timestamps (14 §65–§67).
+
+### Ordenação das listagens
+
+| Listagem | Ordem |
+|---|---|
+| Coletas do cliente | mais recentes primeiro (`createdAt` decrescente) |
+| Coletas disponíveis | mais antigas primeiro (`createdAt` crescente, ordem de solicitação) |
+| Coletas atribuídas | mais recentes primeiro (`createdAt` decrescente) |
+
+Nenhuma outra prioridade operacional é aplicada (13 §84).
+
+## Continuam em aberto
+
+```text
+OQ-047  agrupamentos da interface do coletor e tempo de visibilidade das concluídas
+OQ-048  limite de coletas simultâneas por coletor (hoje, sem limite)
+```
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+09_AUTHENTICATION_SECURITY.md
+13_COLLECTOR_FLOW.md
+```
+
+---
+
+# 73. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2644,7 +2715,7 @@ até serem formalmente decididas.
 
 ---
 
-# 73. Como Adicionar uma Nova Decisão
+# 74. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2682,7 +2753,7 @@ arquivo2.md
 
 ---
 
-# 74. Regra Final
+# 75. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 
