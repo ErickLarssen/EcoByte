@@ -1,1 +1,149 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Tema escuro fora do escopo atual (DEC-071). A variante permanece
+   declarada porque os componentes do shadcn a utilizam. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-green: var(--brand-green);
+
+  /* Estados semânticos (10 §9) */
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
+  --color-error: var(--error);
+  --color-error-surface: var(--error-surface);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Raio: sm inputs menores, md botões, lg cards, xl destaques (10 §21) */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Paleta derivada da logo oficial (DEC-071). Contrastes documentados na decisão. */
+:root {
+  --background: #ffffff;
+  --foreground: #1e2a33;
+  --card: #ffffff;
+  --card-foreground: #1e2a33;
+  --popover: #ffffff;
+  --popover-foreground: #1e2a33;
+
+  --primary: #226891;
+  --primary-hover: #1b5676;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e6f4ef;
+  --secondary-foreground: #1f6b57;
+
+  --muted: #f4f6f8;
+  --muted-foreground: #5b6670;
+
+  --accent: #e8f1f7;
+  --accent-foreground: #1b5676;
+
+  --destructive: #c0392b;
+  --border: #dde3e8;
+  --input: #85929e;
+  --ring: #226891;
+
+  --brand-green: #47b298;
+
+  --success: #2b7660;
+  --success-surface: #e6f4ef;
+  --warning: #a25608;
+  --warning-surface: #fdf1e3;
+  --info: #226891;
+  --info-surface: #e8f1f7;
+  --error: #c0392b;
+  --error-surface: #fbeae8;
+
+  --chart-1: #226891;
+  --chart-2: #47b298;
+  --chart-3: #75aa8a;
+  --chart-4: #588cb7;
+  --chart-5: #96b974;
+
+  --radius: 0.625rem;
+
+  --sidebar: #f4f6f8;
+  --sidebar-foreground: #1e2a33;
+  --sidebar-primary: #226891;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f1f7;
+  --sidebar-accent-foreground: #1b5676;
+  --sidebar-border: #dde3e8;
+  --sidebar-ring: #226891;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Movimento reduzido: remove transições e animações não essenciais (IM-007, 15 §98). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

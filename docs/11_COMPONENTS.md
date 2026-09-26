@@ -245,6 +245,8 @@ Uma implementação pode utilizar outra organização caso a arquitetura definit
 
 O princípio de separação deve ser preservado.
 
+Implementado na Fase 5: `ui/` recebe os componentes gerados pelo shadcn/ui (base Radix); `common/` os componentes compartilhados (`FormField`, `PasswordInput`, `PasswordRequirements`, `Logo`, `PageLoader`); `features/auth/` os formulários e guardas de autenticação; `layouts/` o `AuthLayout` e o `DashboardLayout`. A camada de API fica em `lib/api/`.
+
 ---
 
 # 10. Button
@@ -315,6 +317,8 @@ O Button deve:
 - impedir interação durante loading quando necessário;
 - possuir área de toque adequada;
 - permitir uso como elemento semântico apropriado.
+
+Implementação: `components/ui/button.tsx` (shadcn), personalizado com a prop `loading`, que desabilita o botão, marca `aria-busy` e mostra um indicador.
 
 ---
 
@@ -481,6 +485,8 @@ Input / Select / Textarea
 HelperText
 ErrorMessage
 ```
+
+Implementação: `components/common/form-field.tsx`, sobre o `Field` do shadcn/ui. Associa descrição e erro ao controle via `aria-describedby`, aplica `aria-invalid` e `aria-required` e marca campos obrigatórios com `*` visual (12 §47–§52).
 
 ---
 
@@ -1569,6 +1575,8 @@ link para recuperação
 ```
 
 quando a funcionalidade estiver disponível.
+
+Formulários com credenciais (login e cadastro) declaram `method="post"`. Se forem enviados antes de o JavaScript carregar, o navegador não coloca e-mail e senha na URL (verificado em 2026-09-26).
 
 ---
 

@@ -1095,7 +1095,9 @@ necessidade acadêmica
 
 # 36. OQ-032 — Identidade Visual Definitiva do Produto
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-071` (2026-09-26):** paleta derivada da logo oficial e tipografia Inter. Continuam em aberto as variações oficiais da logo, ícones customizados, ilustrações e fotografias.
 
 ## Questão
 

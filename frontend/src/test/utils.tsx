@@ -1,0 +1,57 @@
+import { render } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { vi } from "vitest";
+import { AuthProvider } from "@/components/features/auth/auth-provider";
+
+type Envelope = { status: number; body: unknown };
+
+export function success<T>(data: T, message = "OK", status = 200): Envelope {
+  return { status, body: { status: "success", message, data } };
+}
+
+export function failure(status: number, code: string, message: string, fields: Record<string, string> = {}): Envelope {
+  return { status, body: { status: "error", message, error: { code, fields }, data: null } };
+}
+
+type Route = { method?: string; path: string; response: Envelope | ((body: unknown) => Envelope) };
+
+// Substitui o fetch global por respostas no envelope da API (DEC-017),
+// registrando as chamadas feitas.
+export function mockApi(routes: Route[]) {
+  const calls: Array<{ method: string; path: string; body: unknown }> = [];
+
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input.toString();
+    const method = init?.method ?? "GET";
+    const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+    calls.push({ method, path: url, body });
+
+    const route = routes.find((item) => (item.method ?? "GET") === method && `/api/v1${item.path}` === url);
+    const envelope = route
+      ? typeof route.response === "function"
+        ? route.response(body)
+        : route.response
+      : failure(404, "RESOURCE_NOT_FOUND", "Recurso não encontrado.");
+
+    return new Response(JSON.stringify(envelope.body), {
+      status: envelope.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+
+  vi.stubGlobal("fetch", fetchMock);
+  return { calls, fetchMock };
+}
+
+export function renderWithAuth(ui: ReactElement) {
+  return render(<AuthProvider>{ui}</AuthProvider>);
+}
+
+export const clienteUser = {
+  id: "u1",
+  nome: "Mariana Oliveira",
+  email: "mariana@ecobyte.local",
+  role: "CLIENTE" as const,
+  tipoCadastro: "PF" as const,
+  status: "ATIVO" as const,
+};

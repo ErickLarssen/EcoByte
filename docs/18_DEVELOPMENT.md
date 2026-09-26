@@ -300,6 +300,8 @@ O teste de concorrência da aceitação (`DEC-006`) deve rodar contra MongoDB re
 
 Estratégia completa: `docs/17_TESTING.md`.
 
+Frontend: testes de componentes com Vitest em ambiente `jsdom` e Testing Library (`frontend/src/**/*.test.tsx`). As chamadas à API são simuladas com o helper `mockApi` (`frontend/src/test/utils.tsx`). Testes E2E com Playwright ainda não foram configurados.
+
 ---
 
 # 10. Convenções de código
