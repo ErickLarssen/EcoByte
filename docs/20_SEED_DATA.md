@@ -411,7 +411,7 @@ A coleção `ecopoints` deve possuir índice:
 
 ```js
 {
-  location: "2dsphere"
+  localizacao: "2dsphere"
 }
 ```
 
@@ -419,7 +419,7 @@ Exemplo:
 
 ```js
 db.ecopoints.createIndex({
-  location: "2dsphere"
+  localizacao: "2dsphere"
 });
 ```
 
@@ -647,6 +647,8 @@ completedAt: null
 
 Representa uma coleta cuja carga já chegou ao ecoponto central EcoByte.
 
+O exemplo abaixo omite o endereço, que é obrigatório. A implementação utiliza o endereço fictício `Avenida Sustentável, 900 — Distrito Industrial, Diadema/SP, CEP 09900006`.
+
 Exemplo:
 
 ```json
@@ -849,31 +851,31 @@ Exemplos:
 
 ```json
 {
-  "userId": "<ID_CLIENTE_PF>",
-  "type": "COLETA_CRIADA",
-  "title": "Coleta solicitada",
-  "message": "Sua solicitação de coleta foi registrada com sucesso.",
-  "read": false
+  "usuarioId": "<ID_CLIENTE_PF>",
+  "tipo": "COLETA_CRIADA",
+  "titulo": "Coleta solicitada",
+  "mensagem": "Sua solicitação de coleta foi registrada com sucesso.",
+  "lida": false
 }
 ```
 
 ```json
 {
-  "userId": "<ID_COLETOR>",
-  "type": "NOVA_COLETA",
-  "title": "Nova coleta disponível",
-  "message": "Uma nova coleta está disponível para atendimento.",
-  "read": false
+  "usuarioId": "<ID_COLETOR>",
+  "tipo": "NOVA_COLETA",
+  "titulo": "Nova coleta disponível",
+  "mensagem": "Uma nova coleta está disponível para atendimento.",
+  "lida": false
 }
 ```
 
 ```json
 {
-  "userId": "<ID_CLIENTE_PJ>",
-  "type": "COLETA_ATUALIZADA",
-  "title": "Coleta atualizada",
-  "message": "O status da sua coleta foi atualizado.",
-  "read": true
+  "usuarioId": "<ID_CLIENTE_PJ>",
+  "tipo": "COLETA_ATUALIZADA",
+  "titulo": "Coleta atualizada",
+  "mensagem": "O status da sua coleta foi atualizado.",
+  "lida": true
 }
 ```
 
@@ -1445,21 +1447,23 @@ Consultar relatórios
 
 # 38. Exemplo de Estrutura do Script
 
-Uma possível organização:
+Organização implementada (Fase 2, 2026-09-25):
 
 ```text
 backend/src/
 └── database/
     └── seed/
-        ├── index.ts
-        ├── users.seed.ts
-        ├── ecopoints.seed.ts
-        ├── collections.seed.ts
-        ├── notifications.seed.ts
-        └── helpers.ts
+        ├── index.ts           CLI: carrega ambiente, conecta, executa e imprime o resumo
+        ├── data.ts            dados fictícios: usuários, ecoponto, coletas e notificações
+        ├── seed.ts            runSeed(): índices, limpeza, criação na ordem do §30
+        └── validate-seed.ts   validação pós-seed (§31–§33)
 ```
 
 O seed é escrito em TypeScript e reutiliza os models Mongoose do backend (`DEC-062`).
+
+`runSeed()` recebe uma data de referência, o que torna os timestamps determinísticos nos testes automatizados (`backend/tests/seed/seed.test.ts`).
+
+Os timestamps de cada coleta são derivados da máquina de estados (`requiredTimestampsFor`), com intervalo de 2 horas entre etapas, garantindo coerência com o status (§19).
 
 A estrutura física definitiva deve seguir:
 
@@ -1562,13 +1566,12 @@ Seed completed successfully.
 
 Os comandos definitivos dependem da configuração do `package.json`.
 
-Sugestão para `backend/package.json`:
+Script em `backend/package.json`:
 
 ```json
 {
   "scripts": {
-    "seed": "tsx src/database/seed/index.ts",
-    "seed:full": "tsx src/database/seed/index.ts --full"
+    "seed": "tsx --env-file-if-exists=.env src/database/seed/index.ts"
   }
 }
 ```
@@ -1579,11 +1582,7 @@ Execução a partir da raiz do monorepo:
 npm run seed --workspace backend
 ```
 
-ou:
-
-```bash
-npm run seed:full --workspace backend
-```
+O seed completo (`seed:full`, §27) ainda não está implementado. Ele será criado junto com as funcionalidades de administração e relatórios, que precisam de volume de dados.
 
 ---
 

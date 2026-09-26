@@ -286,11 +286,14 @@ Cada item deve possuir:
 ```text
 categoria
 quantidade
+condicao
 ```
 
-Campos adicionais podem ser utilizados quando necessários.
+Os três campos são obrigatórios, conforme `BR-014`, `RF-016`, `07_DATABASE_MONGODB.md` §23 e `DEC-009` (alinhamento de 2026-09-25).
 
 A quantidade deve ser maior que zero.
+
+Enquanto `OQ-007` e `OQ-010` estiverem abertas, `categoria` e `condicao` são textos obrigatórios normalizados em maiúsculas, sem lista fechada de valores.
 
 ---
 
