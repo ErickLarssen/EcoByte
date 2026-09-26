@@ -2278,6 +2278,16 @@ Framer Motion
 Lucide React
 ```
 
+Complemento (2026-09-26, Fase 5):
+
+```text
+shadcn/ui com base Radix (pacote radix-ui), preset "nova"
+cn (utilitário de classes do shadcn, substitui clsx + tailwind-merge)
+class-variance-authority (variantes dos componentes)
+react-hook-form + @hookform/resolvers + Zod (formulários)
+next/font com Inter (DEC-071)
+```
+
 ### Backend
 
 ```text
@@ -2300,6 +2310,8 @@ Testing Library        → componentes
 Playwright             → E2E
 axe                    → acessibilidade
 ```
+
+Os testes de componentes do frontend rodam no Vitest com ambiente `jsdom`.
 
 ## Regras
 
@@ -2696,7 +2708,126 @@ OQ-048  limite de coletas simultâneas por coletor (hoje, sem limite)
 
 ---
 
-# 73. Registro Atual de Decisões Pendentes
+# 73. DEC-071 — Paleta e Tipografia da Interface
+
+**Status:** ACEITA
+
+**Data:** 2026-09-26
+
+## Contexto
+
+`10_DESIGN_SYSTEM.md` §5 define apenas a direção "azul profundo + verde sustentável", e `OQ-032` deixava paleta e tipografia em aberto.
+
+## Decisão
+
+### Paleta (derivada da logo oficial)
+
+As cores foram extraídas de `ecobyte-logo.png`: azul petróleo do símbolo (`#226891`) e verde das letras "ECO" (`#47B298`).
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--primary` | `#226891` | CTAs, links, foco, itens ativos |
+| `--primary-hover` | `#1B5676` | hover da cor primária |
+| `--primary-foreground` | `#FFFFFF` | texto sobre a primária (contraste 6,1:1) |
+| `--brand-green` | `#47B298` | destaques ambientais, ícones, ilustrações (não usar como cor de texto) |
+| `--secondary` | `#E6F4EF` | fundo de ações secundárias e destaques verdes |
+| `--secondary-foreground` | `#1F6B57` | texto sobre `--secondary` (5,6:1) |
+| `--foreground` | `#1E2A33` | texto principal (grafite) |
+| `--muted-foreground` | `#5B6670` | texto auxiliar (5,9:1 sobre branco) |
+| `--background` | `#FFFFFF` | fundo |
+| `--muted` | `#F4F6F8` | superfícies secundárias |
+| `--border` | `#DDE3E8` | divisórias decorativas |
+| `--input` | `#85929E` | borda de campos (3,2:1, requisito de contraste não textual) |
+| `--destructive` | `#C0392B` | erro e ações destrutivas (5,4:1) |
+
+Cores semânticas (`10 §9`):
+
+| Estado | Texto/ícone | Fundo |
+|---|---|---|
+| success | `#2B7660` | `#E6F4EF` |
+| warning | `#A25608` | `#FDF1E3` |
+| info | `#226891` | `#E8F1F7` |
+| error | `#C0392B` | `#FBEAE8` |
+
+Contrastes calculados pela fórmula WCAG 2.x (2026-09-26): success 4,80:1, warning 4,87:1, info 5,31:1 e error 4,67:1 sobre os fundos indicados; todos acima de 5,4:1 sobre branco. Todas as cores de texto da decisão atingem o mínimo AA de 4,5:1.
+
+### Tipografia
+
+```text
+Inter, carregada com next/font (arquivo servido pelo próprio site, sem requisição a serviços externos em tempo de uso)
+```
+
+Licença: SIL Open Font License.
+
+### Tema escuro
+
+Fora do escopo atual. Somente o tema claro é definido.
+
+## Continuam em aberto (`OQ-032`)
+
+```text
+variações oficiais da logo (monocromática, fundo escuro, versão horizontal)
+ícones customizados, ilustrações e fotografias
+```
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+16_ASSETS.md
+```
+
+---
+
+# 74. DEC-072 — Mapa de Páginas do Frontend
+
+**Status:** ACEITA
+
+**Data:** 2026-09-26
+
+## Contexto
+
+O mapa de páginas não estava documentado (`19_DEPLOYMENT.md` §61).
+
+## Decisão
+
+URLs em português, com uma área por perfil:
+
+| URL | Página | Acesso |
+|---|---|---|
+| `/` | página pública | todos |
+| `/entrar` | login | visitantes |
+| `/cadastro` | cadastro de cliente | visitantes |
+| `/cliente` | painel do cliente | `CLIENTE` |
+| `/cliente/coletas` | minhas coletas | `CLIENTE` |
+| `/cliente/coletas/nova` | solicitar coleta | `CLIENTE` |
+| `/cliente/coletas/[id]` | detalhes da coleta | `CLIENTE` |
+| `/coletor` | painel do coletor | `COLETOR` |
+| `/coletor/disponiveis` | coletas disponíveis | `COLETOR` |
+| `/coletor/coletas` | minhas coletas (atribuídas) | `COLETOR` |
+| `/coletor/coletas/[id]` | detalhes e ações da coleta | `COLETOR` |
+| `/admin` | painel administrativo | `ADMIN` |
+
+As páginas administrativas internas serão definidas com as funcionalidades de administração.
+
+## Regras
+
+- após login ou cadastro, o usuário é direcionado à área do seu perfil;
+- visitante em página protegida é enviado a `/entrar`, com retorno à página original após o login;
+- usuário autenticado em área de outro perfil é enviado à área do próprio perfil;
+- os redirecionamentos são somente experiência de uso: toda autorização é validada pela API (`DEC-015`, `DEC-038`, 11 §129).
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 75. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2715,7 +2846,7 @@ até serem formalmente decididas.
 
 ---
 
-# 74. Como Adicionar uma Nova Decisão
+# 76. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2753,7 +2884,7 @@ arquivo2.md
 
 ---
 
-# 75. Regra Final
+# 77. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

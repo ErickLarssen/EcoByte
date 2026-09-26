@@ -840,6 +840,8 @@ O backend deve validar novamente:
 - referências;
 - regras de domínio.
 
+Formulários do frontend que enviam credenciais devem declarar `method="post"`, para que um envio nativo (antes de o JavaScript carregar) nunca exponha senha ou e-mail na URL, no histórico ou em logs de servidor.
+
 ---
 
 # 40. Sanitização e normalização

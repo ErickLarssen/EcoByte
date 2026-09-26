@@ -179,6 +179,8 @@ deformar
 inclinar artificialmente
 ```
 
+Arquivos em uso (Fase 5): `frontend/public/brand/ecobyte-logo.png` (símbolo + palavra) e `frontend/public/brand/ecobyte-mark.png` (somente o símbolo), recortados dos originais em `public/images/`, que permanecem inalterados. O ícone do site é `frontend/src/app/icon.png` (512×512, símbolo sobre fundo branco).
+
 ---
 
 # 6. Versões da logo
@@ -1296,6 +1298,8 @@ favicon
 robots
 arquivos estáticos específicos
 ```
+
+As fotografias em `public/images/` (`AdobeStock_*`) não foram movidas para o frontend nem utilizadas, pois a licença de uso ainda não foi verificada (`OQ-033`).
 
 ---
 

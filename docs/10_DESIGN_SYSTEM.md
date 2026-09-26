@@ -213,6 +213,8 @@ Estrutura recomendada:
 --color-border-strong
 ```
 
+Valores adotados (`DEC-071`): implementados como variáveis CSS em `frontend/src/app/globals.css` e expostos ao Tailwind (`bg-primary`, `text-success`, `bg-warning-surface`...). Os contrastes de cada par texto/fundo estão registrados na decisão.
+
 ---
 
 # 7. Cor primária
@@ -355,6 +357,8 @@ Preferir uma família sans-serif moderna.
 A família definitiva deve ser centralizada em tokens/configuração do projeto.
 
 Não utilizar diversas famílias tipográficas simultaneamente.
+
+Família adotada (`DEC-071`): **Inter**, carregada com `next/font` e servida pelo próprio site.
 
 ---
 
@@ -1408,6 +1412,8 @@ inputs
 
 Não depender de elementos minúsculos em dispositivos móveis.
 
+Implementação (Fase 5): campos e botões têm 44px de altura no celular e 40px a partir de `md`; botões `lg`, 48px/44px. O botão de mostrar senha ocupa uma área de 44×44px.
+
 ---
 
 # 71. Breakpoints
@@ -1425,6 +1431,8 @@ xl
 ```
 
 Não espalhar valores arbitrários pelo código.
+
+Breakpoints adotados: os padrões do Tailwind CSS 4 (`sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1536px), sem valores arbitrários nos componentes.
 
 ---
 
