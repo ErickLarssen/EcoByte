@@ -794,6 +794,8 @@ Essa questão não deve ser implementada automaticamente apenas por ser conceitu
 
 **Status:** ABERTA
 
+**Comportamento enquanto aberta (2026-09-26):** a criação de coleta não aceita `dataAgendada`; o campo permanece `null`.
+
 ## Questão
 
 O cliente poderá escolher data e horário específicos para a coleta?
@@ -1468,7 +1470,9 @@ Nenhuma opção deve ser tratada como definitiva sem decisão formal.
 
 # 51. OQ-047 — Regras de Visibilidade das Coletas
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-070` (2026-09-26):** o coletor consulta coletas `PENDENTE` e as atribuídas a ele; coletas de outro coletor respondem 404. Continuam em aberto os agrupamentos da interface e o tempo de visibilidade das concluídas.
 
 ## Questão
 

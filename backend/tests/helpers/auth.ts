@@ -30,26 +30,40 @@ export async function createUser({
   role = "CLIENTE",
   status = "ATIVO",
   senha = VALID_PASSWORD,
+  nome = `Usuário ${role}`,
+  telefone = null,
 }: {
   email: string;
   role?: Role;
   status?: "ATIVO" | "INATIVO";
   senha?: string;
+  nome?: string;
+  telefone?: string | null;
 }) {
   return User.create({
-    nome: `Usuário ${role}`,
+    nome,
     email,
     senhaHash: await hashPassword(senha),
+    telefone,
     role,
     tipoCadastro: "PF",
     status,
   });
 }
 
+let fakeIpCounter = 0;
+
 // Agente com cookie de sessão após login bem-sucedido.
+// Cada login usa um X-Forwarded-For distinto: em apps com trustProxy=1 isso
+// simula clientes diferentes para o rate limit (DEC-067/DEC-068); com
+// trustProxy=0 o header é ignorado.
 export async function loginAgent(app: Express, email: string, senha = VALID_PASSWORD) {
   const agent = request.agent(app);
-  const response = await agent.post("/api/v1/auth/login").send({ email, senha });
+  fakeIpCounter += 1;
+  const response = await agent
+    .post("/api/v1/auth/login")
+    .set("X-Forwarded-For", `198.51.100.${fakeIpCounter % 250}`)
+    .send({ email, senha });
 
   if (response.status !== 200) {
     throw new Error(`Login de teste falhou (${response.status}): ${JSON.stringify(response.body)}`);
