@@ -1238,7 +1238,9 @@ A solução ainda não foi definida.
 
 # 42. OQ-038 — Rate Limiting
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decisão:** `DEC-067` (2026-09-25) — login 10 a cada 15 min e cadastro 5 por hora, por IP. Identificação do IP: `DEC-068`. Limites de recuperação de senha serão definidos com esse fluxo.
 
 ## Questão
 
@@ -1334,7 +1336,9 @@ ficam registradas
 
 # 46. OQ-042 — Dados Específicos de Pessoa Jurídica
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decisão:** `DEC-066` (2026-09-25) — razão social obrigatória, nome fantasia opcional; CNPJ não coletado enquanto `OQ-044` estiver aberta.
 
 ## Questão
 
@@ -1363,7 +1367,9 @@ mas os campos empresariais definitivos ainda precisam ser consolidados.
 
 # 47. OQ-043 — Dados Específicos de Pessoa Física
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decisão:** `DEC-066` (2026-09-25) — nome, e-mail, senha, confirmação e tipoCadastro obrigatórios; telefone opcional; CPF não coletado enquanto `OQ-044` estiver aberta.
 
 ## Questão
 
@@ -1385,6 +1391,8 @@ A lista definitiva ainda não foi estabelecida neste documento.
 # 48. OQ-044 — Documentos de Identificação
 
 **Status:** ABERTA
+
+**Comportamento enquanto aberta (`DEC-066`, 2026-09-25):** CPF e CNPJ não são coletados no cadastro.
 
 ## Questão
 
@@ -1410,7 +1418,9 @@ Essa questão deve ser definida antes da implementação definitiva dos campos c
 
 # 49. OQ-045 — Regras de Telefone
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-066` (2026-09-25):** telefone opcional no cadastro. Formato, DDI/DDD, WhatsApp e múltiplos telefones continuam em aberto.
 
 ## Questão
 
@@ -1812,7 +1822,9 @@ Caso futuramente adotada, deverá ser especificada separadamente.
 
 # 66. OQ-062 — Política de Expiração de Sessão
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decisão:** `DEC-021` (2026-09-25) — 7 dias sem uso, renovada a cada requisição autenticada. O texto abaixo é mantido como registro histórico.
 
 ## Questão
 

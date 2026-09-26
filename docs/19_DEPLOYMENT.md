@@ -508,6 +508,32 @@ SESSION_SECRET
 PORT
 ```
 
+Implementação: `backend/src/config/env.ts`. Em produção, o backend não inicia sem:
+
+```text
+MONGODB_URI
+SESSION_SECRET   (mínimo de 32 caracteres, exclusivo do ambiente)
+FRONTEND_URL     (origem pública do frontend, DEC-069)
+TRUST_PROXY      (proxies confiáveis, DEC-068)
+```
+
+---
+
+# 21.1 Proxy de borda e identificação do cliente (DEC-068)
+
+O proxy do Next.js não informa o IP real do cliente nem o protocolo original. Por isso, em produção:
+
+1. o tráfego público deve passar por um proxy de borda (plataforma de hospedagem, balanceador ou servidor web) que defina `X-Forwarded-For` com o IP real e `X-Forwarded-Proto: https`;
+2. o backend Express não deve ser acessível publicamente sem passar por esse proxy (somente pela rede interna, via `API_INTERNAL_URL`);
+3. `TRUST_PROXY` deve refletir quantos proxies confiáveis existem à frente do backend.
+
+Sem essas condições:
+
+- o rate limiting (`DEC-067`) passa a tratar todos os usuários como um único IP, ou pode ser burlado com headers forjados;
+- o cookie de sessão `Secure` não é emitido, pois o backend não reconhece a conexão original como HTTPS, e o login deixa de funcionar.
+
+O valor concreto de `TRUST_PROXY` depende da hospedagem, ainda em aberto (`OQ-034`), e deve ser validado com um teste de fumaça após o primeiro deploy.
+
 ---
 
 # 22. Validação das variáveis

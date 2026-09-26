@@ -906,7 +906,13 @@ O tempo de expiração será configurado por variável de ambiente:
 SESSION_MAX_AGE
 ```
 
-O valor definitivo da expiração permanece em aberto em `OQ-062`.
+### Expiração (2026-09-25, resolve `OQ-062`)
+
+```text
+7 dias sem uso, renovada a cada requisição autenticada (rolling)
+```
+
+`SESSION_MAX_AGE` é informado em **segundos**; o padrão é `604800` (7 dias). O mesmo prazo é aplicado ao cookie e ao registro na coleção `sessions`.
 
 ## Motivo
 
@@ -926,9 +932,9 @@ O valor definitivo da expiração permanece em aberto em `OQ-062`.
 
 ```text
 OQ-060  sessões simultâneas
-OQ-062  tempo de expiração
-política complementar de CSRF além de SameSite
 ```
+
+A política complementar de CSRF foi decidida em `DEC-069`.
 
 ## Documentos relacionados
 
@@ -2448,7 +2454,178 @@ Coerência com os métodos HTTP definidos em `01_ARCHITECTURE.md`.
 
 ---
 
-# 68. Registro Atual de Decisões Pendentes
+# 68. DEC-066 — Campos do Cadastro Público
+
+**Status:** ACEITA
+
+**Data:** 2026-09-25
+
+## Contexto
+
+`OQ-042`, `OQ-043`, `OQ-044` e `OQ-045` deixavam em aberto os campos obrigatórios do cadastro. A autenticação (Fase 3) precisa de um contrato definido para `POST /api/v1/auth/register`.
+
+## Decisão
+
+### Todos os cadastros
+
+| Campo | Regra |
+|---|---|
+| `nome` | obrigatório |
+| `email` | obrigatório, formato válido, normalizado em minúsculas, único |
+| `senha` | obrigatória, política do `DEC-019` |
+| `confirmacaoSenha` | obrigatória, igual a `senha`, não persistida |
+| `tipoCadastro` | obrigatório, `PF` ou `PJ` |
+| `telefone` | opcional |
+
+### Somente `PJ`
+
+| Campo | Regra |
+|---|---|
+| `dadosEmpresa.razaoSocial` | obrigatório |
+| `dadosEmpresa.nomeFantasia` | opcional |
+
+Para `PF`, `dadosEmpresa` não é aceito.
+
+### Não coletado
+
+CPF e CNPJ (`documento`) não são coletados no cadastro enquanto `OQ-044` (armazenamento e proteção de documentos) estiver aberta.
+
+### Regras adicionais
+
+- o cadastro público sempre cria `role = CLIENTE` e `status = ATIVO`; qualquer `role` enviada pelo cliente é ignorada (09 §75, §77);
+- após o cadastro, o usuário já fica autenticado, conforme o critério `CA-001` (criar conta → autenticar usuário);
+- a verificação de e-mail continua pendente (`DEC-023`, `OQ-001`); até lá, o cadastro não exige confirmação.
+
+## Continuam em aberto
+
+```text
+OQ-044  armazenamento e validação de CPF/CNPJ
+OQ-045  formato do telefone (DDI, DDD, WhatsApp)
+```
+
+## Documentos relacionados
+
+```text
+04_REQUIREMENTS.md
+05_ROUTES.md
+06_API.md
+09_AUTHENTICATION_SECURITY.md
+```
+
+---
+
+# 69. DEC-067 — Limites de Requisições (Rate Limiting)
+
+**Status:** ACEITA
+
+**Data:** 2026-09-25
+
+## Contexto
+
+`OQ-038` deixava em aberto os limites concretos das rotas sensíveis (09 §48).
+
+## Decisão
+
+| Rota | Limite por IP |
+|---|---|
+| `POST /api/v1/auth/login` | 10 requisições a cada 15 minutos |
+| `POST /api/v1/auth/register` | 5 requisições a cada 1 hora |
+
+Acima do limite, a API responde `429 Too Many Requests` com o código `RATE_LIMIT_EXCEEDED` e o header `Retry-After`.
+
+Implementação: `express-rate-limit`, com contadores em memória. É suficiente para uma única instância do backend; várias instâncias exigirão um store compartilhado, a ser decidido junto com a hospedagem (`OQ-034`).
+
+Os limites de `forgot-password` e `reset-password` serão definidos quando esses fluxos forem implementados (`OQ-014`, `OQ-015`).
+
+## Documentos relacionados
+
+```text
+06_API.md
+09_AUTHENTICATION_SECURITY.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 70. DEC-068 — Identificação do Cliente Atrás de Proxies
+
+**Status:** ACEITA
+
+**Data:** 2026-09-25
+
+## Contexto
+
+Com a topologia do `DEC-063`, o Express recebe as requisições do servidor Next.js, não do navegador.
+
+Verificado em 2026-09-25 (Next.js 16, modos `dev` e `start`): o proxy de rewrites do Next.js **não** acrescenta o IP real do cliente nem `X-Forwarded-Proto`; ele apenas repassa os headers `X-Forwarded-*` recebidos, inclusive valores forjados pelo próprio cliente.
+
+Consequências:
+
+- confiar cegamente em `X-Forwarded-For` permitiria burlar o rate limiting (`DEC-067`);
+- ignorar o header faz todos os usuários parecerem ter o IP do servidor Next.js, transformando o limite por IP em limite global;
+- sem `X-Forwarded-Proto`, o Express não sabe que a conexão original era HTTPS e não emite cookie `Secure`.
+
+## Decisão
+
+A confiança em proxies é configuração explícita:
+
+```text
+TRUST_PROXY = número de proxies confiáveis à frente do backend
+```
+
+- padrão: `0` (nenhum header `X-Forwarded-*` é considerado);
+- **obrigatória em produção**: o backend não inicia sem `TRUST_PROXY` definida;
+- em produção, o proxy de borda da hospedagem deve definir `X-Forwarded-For` com o IP real e `X-Forwarded-Proto: https`; o valor de `TRUST_PROXY` depende dessa infraestrutura (`OQ-034`);
+- o backend não deve ser acessível publicamente sem passar pelo proxy de borda.
+
+## Impacto
+
+- em desenvolvimento, todas as requisições via Next.js compartilham o mesmo IP para fins de rate limiting;
+- o deploy precisa documentar e configurar `TRUST_PROXY` conforme a hospedagem escolhida.
+
+## Documentos relacionados
+
+```text
+09_AUTHENTICATION_SECURITY.md
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 71. DEC-069 — Validação de Origin (CSRF Complementar)
+
+**Status:** ACEITA
+
+**Data:** 2026-09-25
+
+## Contexto
+
+`DEC-021` adotou `SameSite=Lax` e deixou em aberto a proteção complementar contra CSRF (09 §58).
+
+## Decisão
+
+Requisições que alteram estado (`POST`, `PUT`, `PATCH`, `DELETE`) com header `Origin` diferente da origem configurada em `FRONTEND_URL` são rejeitadas com:
+
+```text
+403 Forbidden
+error.code = INVALID_ORIGIN
+```
+
+Requisições sem header `Origin` (clientes que não são navegadores, como testes e ferramentas de linha de comando) continuam permitidas; a proteção é direcionada a navegadores, que sempre enviam `Origin` em requisições cross-site desse tipo.
+
+`FRONTEND_URL` passa a ser obrigatória em produção. Em desenvolvimento, o padrão é `http://localhost:3000`.
+
+## Documentos relacionados
+
+```text
+06_API.md
+09_AUTHENTICATION_SECURITY.md
+```
+
+---
+
+# 72. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2467,7 +2644,7 @@ até serem formalmente decididas.
 
 ---
 
-# 69. Como Adicionar uma Nova Decisão
+# 73. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2505,7 +2682,7 @@ arquivo2.md
 
 ---
 
-# 70. Regra Final
+# 74. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

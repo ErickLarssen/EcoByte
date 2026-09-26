@@ -23,6 +23,10 @@ logs/
 *.log
 npm-debug.log*
 
+# Arquivos gerados pelo `next dev` para agentes de IA (recriados a cada execução)
+frontend/AGENTS.md
+frontend/CLAUDE.md
+
 # Sistema / editores
 .DS_Store
 Thumbs.db

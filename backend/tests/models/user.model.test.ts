@@ -8,8 +8,8 @@ const validUser = {
   nome: "Usuária Teste",
   email: "usuaria@ecobyte.local",
   senhaHash: "$argon2id$hash-de-teste",
-  role: "CLIENTE",
-  tipoCadastro: "PF",
+  role: "CLIENTE" as const,
+  tipoCadastro: "PF" as const,
 };
 
 describe("User model", () => {
@@ -42,8 +42,8 @@ describe("User model", () => {
   });
 
   it("rejeita role e tipoCadastro fora dos valores oficiais (BR-001, BR-002)", async () => {
-    await expect(User.create({ ...validUser, role: "SUPERADMIN" })).rejects.toThrow(/role inválida/);
-    await expect(User.create({ ...validUser, tipoCadastro: "MEI" })).rejects.toThrow(/tipoCadastro inválido/);
+    await expect(User.create({ ...validUser, role: "SUPERADMIN" } as unknown as typeof validUser)).rejects.toThrow(/role inválida/);
+    await expect(User.create({ ...validUser, tipoCadastro: "MEI" } as unknown as typeof validUser)).rejects.toThrow(/tipoCadastro inválido/);
   });
 
   it("exige senhaHash e não persiste campo de senha em texto puro (17_TESTING §57)", async () => {
@@ -80,7 +80,7 @@ describe("User model", () => {
   it("armazena dados empresariais de PJ", async () => {
     const user = await User.create({
       ...validUser,
-      tipoCadastro: "PJ",
+      tipoCadastro: "PJ" as const,
       dadosEmpresa: { razaoSocial: "Empresa Teste Ltda.", nomeFantasia: "Empresa Teste" },
     });
 

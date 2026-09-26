@@ -1,3 +1,5 @@
+import { MongoStore } from "connect-mongo";
+import mongoose from "mongoose";
 import { createApp } from "./app.js";
 import { loadEnv } from "./config/env.js";
 import { connectDatabase, disconnectDatabase } from "./database/connection.js";
@@ -10,7 +12,24 @@ async function main(): Promise<void> {
   await connectDatabase(env.MONGODB_URI);
   console.info("[backend] MongoDB conectado.");
 
-  const app = createApp();
+  // Sessões na coleção `sessions`, com expiração automática (DEC-021).
+  const sessionStore = MongoStore.create({
+    client: mongoose.connection.getClient(),
+    collectionName: "sessions",
+    ttl: env.SESSION_MAX_AGE,
+  });
+
+  const app = createApp({
+    frontendUrl: env.FRONTEND_URL,
+    trustProxy: env.TRUST_PROXY,
+    session: {
+      secret: env.SESSION_SECRET,
+      maxAgeSeconds: env.SESSION_MAX_AGE,
+      secureCookies: env.NODE_ENV === "production",
+      store: sessionStore,
+    },
+  });
+
   const server = app.listen(env.PORT, () => {
     console.info(`[backend] API ouvindo na porta ${env.PORT} (${env.NODE_ENV}).`);
   });
