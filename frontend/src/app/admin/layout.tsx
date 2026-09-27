@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 export default function AdminAreaLayout({ children }: { children: ReactNode }) {
   return (
     <RequireAuth role="ADMIN">
-      <DashboardLayout>{children}</DashboardLayout>
+      <DashboardLayout area="admin">{children}</DashboardLayout>
     </RequireAuth>
   );
 }

@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 export default function ClienteAreaLayout({ children }: { children: ReactNode }) {
   return (
     <RequireAuth role="CLIENTE">
-      <DashboardLayout>{children}</DashboardLayout>
+      <DashboardLayout area="cliente">{children}</DashboardLayout>
     </RequireAuth>
   );
 }

@@ -1,7 +1,9 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { vi } from "vitest";
 import { AuthProvider } from "@/components/features/auth/auth-provider";
+import type { ClientCollection } from "@/lib/api/collections";
 
 type Envelope = { status: number; body: unknown };
 
@@ -43,8 +45,64 @@ export function mockApi(routes: Route[]) {
   return { calls, fetchMock };
 }
 
-export function renderWithAuth(ui: ReactElement) {
-  return render(<AuthProvider>{ui}</AuthProvider>);
+// Um QueryClient novo por teste, sem novas tentativas, para isolar o cache.
+export function createTestQueryClient() {
+  return new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+}
+
+export function renderWithAuth(ui: ReactElement, queryClient = createTestQueryClient()) {
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>{ui}</AuthProvider>
+    </QueryClientProvider>,
+  );
+}
+
+export function renderWithQuery(ui: ReactElement, queryClient = createTestQueryClient()) {
+  return { queryClient, ...render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>) };
+}
+
+type CollectionOverrides = Partial<ClientCollection>;
+
+// Coleta na visão do cliente (06_API §13.4), para testes.
+export function buildCollection(overrides: CollectionOverrides = {}): ClientCollection {
+  return {
+    id: "c1",
+    status: "PENDENTE",
+    enderecoColeta: {
+      logradouro: "Rua das Palmeiras",
+      numero: "120",
+      complemento: "Casa 2",
+      bairro: "Centro",
+      cidade: "Diadema",
+      estado: "SP",
+      cep: "09900001",
+      localizacao: null,
+    },
+    itensDescarte: [
+      { categoria: "INFORMATICA", quantidade: 2, condicao: "USADO" },
+      { categoria: "CELULARES", quantidade: 1, condicao: "DANIFICADO" },
+    ],
+    dataAgendada: null,
+    observacoes: null,
+    createdAt: "2026-09-20T13:00:00.000Z",
+    updatedAt: "2026-09-20T13:00:00.000Z",
+    acceptedAt: null,
+    startedAt: null,
+    collectedAt: null,
+    deliveredAt: null,
+    completedAt: null,
+    coletor: null,
+    ...overrides,
+  };
+}
+
+export function paginated<T>(items: T[], page = 1, limit = 10, total = items.length) {
+  const totalPages = Math.ceil(total / limit);
+  return {
+    items,
+    pagination: { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 },
+  };
 }
 
 export const clienteUser = {

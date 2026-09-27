@@ -371,6 +371,8 @@ Esses valores são provisórios para desenvolvimento.
 
 **Comportamento enquanto aberta (2026-09-25):** `categoria` aceita qualquer texto não vazio, normalizado em maiúsculas. O enum oficial será aplicado no schema e na API quando esta questão for decidida.
 
+**Interface (2026-09-27, `DEC-073`):** o formulário de solicitação sugere os valores provisórios do seed, mas aceita qualquer texto.
+
 ## Questões a definir
 
 ```text
@@ -432,6 +434,8 @@ interface
 # 13. OQ-009 — Unidade de Quantidade dos Resíduos
 
 **Status:** ABERTA
+
+**Comportamento enquanto aberta (2026-09-27, `DEC-073`):** o formulário do cliente pede a quantidade em unidades inteiras (mínimo 1). A API segue aceitando qualquer número positivo.
 
 ## Questão
 
@@ -497,6 +501,8 @@ OBSOLETO
 Esses valores devem ser confirmados antes da implementação final.
 
 **Comportamento enquanto aberta (2026-09-25):** `condicao` é obrigatória e aceita qualquer texto não vazio, normalizado em maiúsculas. Nenhuma lista fechada é imposta pelo schema.
+
+**Interface (2026-09-27, `DEC-073`):** o formulário sugere USADO, DANIFICADO e OBSOLETO, mas aceita qualquer texto.
 
 ## Questões adicionais
 
