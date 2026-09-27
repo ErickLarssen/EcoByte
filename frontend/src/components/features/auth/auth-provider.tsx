@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import * as authApi from "@/lib/api/auth";
 import type { LoginPayload, RegisterPayload, User } from "@/lib/api/auth";
@@ -22,6 +23,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 // Não é mecanismo de segurança: a API valida tudo (11 §129, DEC-038).
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: "loading", user: null });
+  // Dados em cache pertencem ao usuário da sessão: são descartados ao trocar de
+  // usuário ou sair, para não exibir dados de outra conta no mesmo navegador.
+  const queryClient = useQueryClient();
 
   // Restaura a sessão ao carregar a aplicação.
   useEffect(() => {
@@ -38,26 +42,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => controller.abort();
   }, []);
 
-  const login = useCallback(async (payload: LoginPayload) => {
-    const user = await authApi.login(payload);
-    setState({ status: "authenticated", user });
-    return user;
-  }, []);
+  const login = useCallback(
+    async (payload: LoginPayload) => {
+      const user = await authApi.login(payload);
+      queryClient.clear();
+      setState({ status: "authenticated", user });
+      return user;
+    },
+    [queryClient],
+  );
 
-  const register = useCallback(async (payload: RegisterPayload) => {
-    const user = await authApi.register(payload);
-    setState({ status: "authenticated", user });
-    return user;
-  }, []);
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const user = await authApi.register(payload);
+      queryClient.clear();
+      setState({ status: "authenticated", user });
+      return user;
+    },
+    [queryClient],
+  );
 
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
     } finally {
       // Mesmo se a sessão já tiver expirado no servidor, a interface sai.
+      queryClient.clear();
       setState({ status: "unauthenticated", user: null });
     }
-  }, []);
+  }, [queryClient]);
 
   const value = useMemo(() => ({ ...state, login, register, logout }), [state, login, register, logout]);
 

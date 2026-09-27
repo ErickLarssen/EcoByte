@@ -1378,6 +1378,8 @@ Estrutura conceitual:
 
 O fluxo final deve refletir os requisitos definitivos.
 
+Fluxo implementado (Fase 6, `DEC-073`): Endereço → Itens → Revisão. A etapa de agendamento não existe enquanto `OQ-020` estiver aberta.
+
 ---
 
 # 69. Mobile First

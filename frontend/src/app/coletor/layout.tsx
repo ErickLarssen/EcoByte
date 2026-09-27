@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 export default function ColetorAreaLayout({ children }: { children: ReactNode }) {
   return (
     <RequireAuth role="COLETOR">
-      <DashboardLayout>{children}</DashboardLayout>
+      <DashboardLayout area="coletor">{children}</DashboardLayout>
     </RequireAuth>
   );
 }

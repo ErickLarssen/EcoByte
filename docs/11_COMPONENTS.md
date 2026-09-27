@@ -712,6 +712,8 @@ label
 variante visual
 ```
 
+Implementação: `components/domain/collection-status-badge.tsx`. Labels e tons vêm de `lib/collection-status.ts`, fonte única dos status no frontend (§125).
+
 ---
 
 # 26. UserStatusBadge
@@ -849,6 +851,8 @@ título
 mensagem
 ação de tentativa novamente
 ```
+
+Implementação (Fase 6): `components/common/empty-state.tsx`, `components/common/error-state.tsx` (com "Tentar novamente") e `components/ui/skeleton.tsx` com `common/collection-card-skeleton.tsx`.
 
 ---
 
@@ -1025,6 +1029,8 @@ previous
 
 Deve refletir a paginação real da API.
 
+Implementação: `components/common/pagination.tsx`. Anterior/Próxima são links reais (`?pagina=N`), o que preserva o histórico do navegador.
+
 ---
 
 # 43. Table
@@ -1140,6 +1146,8 @@ bottom navigation
 ```
 
 conforme a experiência definida.
+
+Implementação (Fase 6, `DEC-073`): `components/layouts/area-navigation.tsx`, com barra inferior no celular e links no cabeçalho a partir de `md`; o item ativo é o destino mais específico da URL atual.
 
 ---
 
@@ -1330,6 +1338,8 @@ coletas
 ecoponto
 ```
 
+Implementação (Fase 6): `components/domain/` — `collection-card.tsx`, `collection-timeline.tsx`, `waste-items-list.tsx`, `address-card.tsx`. O detalhe (`CollectionSummary`) é composto em `features/collections/client-collection-detail.tsx`.
+
 ---
 
 # 60. LocationDisplay
@@ -1502,6 +1512,8 @@ status
 data
 próxima ação
 ```
+
+Implementação (Fase 6): `features/collections/collection-request-form.tsx` (etapas), `address-fields.tsx` (`AddressForm`), `waste-items-fields.tsx` (`WasteItemsForm`), `collection-review.tsx` (`CollectionReview`). A confirmação (`CollectionSuccess`) é exibida no detalhe da nova coleta. Nas etapas intermediárias, "Continuar" é o botão de envio do formulário, para que o Enter avance de etapa conforme a especificação HTML, sem enviar a solicitação antes da revisão.
 
 ---
 
@@ -1922,6 +1934,8 @@ relatórios
 ```
 
 Não duplicar desnecessariamente esses dados em múltiplos estados locais.
+
+Implementação: TanStack Query (`DEC-073`). Hooks em `hooks/use-client-collections.ts`; criar uma coleta invalida as listas do cliente (§96). O cache é limpo no login, no cadastro e no logout, para não exibir dados de outra conta no mesmo navegador.
 
 ---
 

@@ -2286,6 +2286,7 @@ cn (utilitário de classes do shadcn, substitui clsx + tailwind-merge)
 class-variance-authority (variantes dos componentes)
 react-hook-form + @hookform/resolvers + Zod (formulários)
 next/font com Inter (DEC-071)
+@tanstack/react-query (estado do servidor: cache, carregamento e invalidação — Fase 6)
 ```
 
 ### Backend
@@ -2827,7 +2828,59 @@ As páginas administrativas internas serão definidas com as funcionalidades de 
 
 ---
 
-# 75. Registro Atual de Decisões Pendentes
+# 75. DEC-073 — Área do Cliente: Navegação e Solicitação de Coleta
+
+**Status:** ACEITA
+
+**Data:** 2026-09-27
+
+## Contexto
+
+A Fase 6 implementa as telas do cliente (`DEC-072`). O fluxo de solicitação previsto em 10 §68 inclui agendamento, que continua em aberto (`OQ-020`), e a navegação móvel (11 §49) não estava definida.
+
+## Decisão
+
+### Navegação
+
+- no celular, barra inferior fixa com os destinos do perfil, ao alcance do polegar;
+- a partir de `md`, os mesmos destinos no cabeçalho;
+- item ativo indicado por `aria-current="page"` e por estilo, não apenas por cor;
+- destinos atuais do cliente: **Início** (`/cliente`), **Minhas coletas** (`/cliente/coletas`) e **Solicitar** (`/cliente/coletas/nova`). Ecoponto, Notificações e Perfil (10 §58) entram quando essas telas existirem.
+
+### Solicitação de coleta
+
+Fluxo em três etapas, sem agendamento enquanto `OQ-020` estiver aberta:
+
+```text
+1. Endereço → 2. Itens → 3. Revisão → envio
+```
+
+- cada etapa é validada antes de avançar; o indicador informa a etapa atual também em texto (12 §55);
+- se a API recusar algum campo, o formulário volta à etapa desse campo e mostra a mensagem junto a ele;
+- após o envio, o cliente é levado ao detalhe da nova coleta, com a confirmação de sucesso (11 §68).
+
+### Itens (comportamento provisório)
+
+- categoria e condição: texto livre com sugestões da lista provisória do seed (`OQ-007`, `OQ-010`);
+- quantidade: unidades inteiras, mínimo 1 (`OQ-009`). A API continua aceitando qualquer número positivo.
+
+### Dados da API no frontend
+
+Leitura e escrita via TanStack Query. Criar uma coleta invalida a lista do cliente, para que a nova coleta apareça sem recarregar a página (11 §96).
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+12_RESPONSIVENESS_ACCESSIBILITY.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+
+# 76. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2846,7 +2899,7 @@ até serem formalmente decididas.
 
 ---
 
-# 76. Como Adicionar uma Nova Decisão
+# 77. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2884,7 +2937,7 @@ arquivo2.md
 
 ---
 
-# 77. Regra Final
+# 78. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

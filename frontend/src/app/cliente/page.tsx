@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { DashboardWelcome } from "@/components/features/dashboard/dashboard-welcome";
+import { ClientDashboard } from "@/components/features/collections/client-dashboard";
 
 export const metadata: Metadata = { title: "Painel do cliente" };
 
 export default function ClienteHomePage() {
-  return <DashboardWelcome description="Em breve você poderá solicitar e acompanhar suas coletas por aqui." />;
+  return <ClientDashboard />;
 }

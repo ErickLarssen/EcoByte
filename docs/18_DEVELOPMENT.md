@@ -374,6 +374,7 @@ decisões novas foram registradas
 | Seed recusa execução | `NODE_ENV=production` |
 | Erro de conexão com o banco | MongoDB local não está em execução ou `MONGODB_URI` incorreta |
 | Primeiro `npm test` do backend demora vários minutos | Download único do binário do MongoDB (~780 MB) pelo `mongodb-memory-server`, guardado em `~/.cache/mongodb-binaries` |
+| Arquivos de teste do backend falham antes de rodar, com vários pulados | O `mongod` de teste não iniciou a tempo com a máquina sobrecarregada. O limite é de 60 s (`tests/helpers/test-database.ts`); rode novamente e, se persistir, guarde o log completo do Vitest para identificar a causa |
 
 ---
 

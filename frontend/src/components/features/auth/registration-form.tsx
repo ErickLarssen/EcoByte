@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch, type FieldPath } from "react-hook-form";
 import { FormField } from "@/components/common/form-field";
 import { PasswordInput } from "@/components/common/password-input";
 import { PasswordRequirements } from "@/components/common/password-requirements";
@@ -18,7 +18,7 @@ import { applyApiErrors } from "@/lib/form-errors";
 import { registrationFormSchema, type RegistrationFormValues } from "@/lib/validation/auth";
 import { useAuth } from "./auth-provider";
 
-const FORM_FIELDS = [
+const FORM_FIELDS: readonly FieldPath<RegistrationFormValues>[] = [
   "tipoCadastro",
   "nome",
   "email",
@@ -27,14 +27,17 @@ const FORM_FIELDS = [
   "nomeFantasia",
   "senha",
   "confirmacaoSenha",
-] as const;
+];
 
 // Nomes da API → nomes do formulário.
-const API_FIELD_MAP = {
+const API_FIELD_MAP: Record<string, FieldPath<RegistrationFormValues>> = {
   "dadosEmpresa.razaoSocial": "razaoSocial",
   "dadosEmpresa.nomeFantasia": "nomeFantasia",
   dadosEmpresa: "razaoSocial",
-} as const;
+};
+
+const resolveApiField = (apiField: string): FieldPath<RegistrationFormValues> | undefined =>
+  API_FIELD_MAP[apiField] ?? FORM_FIELDS.find((field) => field === apiField);
 
 function toPayload(values: RegistrationFormValues): RegisterPayload {
   return {
@@ -91,7 +94,7 @@ export function RegistrationForm() {
     try {
       await registerAccount(toPayload(values));
     } catch (error) {
-      setFormError(applyApiErrors(error, setError, API_FIELD_MAP, FORM_FIELDS));
+      setFormError(applyApiErrors(error, setError, resolveApiField).message);
     }
   });
 

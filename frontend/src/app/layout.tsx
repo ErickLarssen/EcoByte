@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/features/auth/auth-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="pt-BR" className={cn("font-sans", inter.variable)}>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
