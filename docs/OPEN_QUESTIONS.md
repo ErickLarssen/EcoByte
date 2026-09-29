@@ -1482,6 +1482,8 @@ Nenhuma opção deve ser tratada como definitiva sem decisão formal.
 
 **Decidido em `DEC-070` (2026-09-26):** o coletor consulta coletas `PENDENTE` e as atribuídas a ele; coletas de outro coletor respondem 404. Continuam em aberto os agrupamentos da interface e o tempo de visibilidade das concluídas.
 
+**Interface enquanto aberta (2026-09-28, `DEC-074`):** "Minhas coletas" lista todas as atribuídas, em qualquer status, sem agrupamentos, e as concluídas continuam visíveis. O painel mostra o total de atribuídas, mas não o total "em andamento" (13 §43) nem uma "próxima coleta": para isso, é preciso definir os agrupamentos e o critério de prioridade (13 §84) e incluir na API um filtro por status.
+
 ## Questão
 
 Quais coletas um coletor poderá visualizar?

@@ -20,8 +20,8 @@ export type ItemDescarte = {
   condicao: string;
 };
 
-// Visão do cliente (06_API §13.4).
-export type ClientCollection = {
+// Campos comuns às visões do cliente e do coletor (06_API §13.4).
+export type CollectionBase = {
   id: string;
   status: CollectionStatus;
   enderecoColeta: EnderecoColeta;
@@ -35,7 +35,15 @@ export type ClientCollection = {
   collectedAt: string | null;
   deliveredAt: string | null;
   completedAt: string | null;
-  coletor: { nome: string } | null;
+};
+
+// Visão do cliente: nome do coletor responsável (DEC-070).
+export type ClientCollection = CollectionBase & { coletor: { nome: string } | null };
+
+// Visão do coletor: nome e telefone do cliente somente nas coletas atribuídas
+// a ele; em coletas PENDENTE, `cliente` é null (DEC-070).
+export type CollectorCollection = CollectionBase & {
+  cliente: { nome: string; telefone: string | null } | null;
 };
 
 export type Pagination = {
@@ -74,4 +82,43 @@ export async function getMyCollection(id: string, signal?: AbortSignal): Promise
     signal,
   });
   return data.collection;
+}
+
+// ---------------------------------------------------------------------------
+// Coletor (13 §69, DEC-064)
+// ---------------------------------------------------------------------------
+
+// Cada evento do coletor é um endpoint de ação (DEC-041, DEC-064).
+export type CollectorEvent = "accept" | "start" | "collect" | "deliver" | "complete";
+
+export async function listAvailableCollections(page: number, limit: number, signal?: AbortSignal) {
+  const { data } = await apiRequest<Paginated<CollectorCollection>>(
+    `/collections/available?page=${page}&limit=${limit}`,
+    { signal },
+  );
+  return data;
+}
+
+export async function listAssignedCollections(page: number, limit: number, signal?: AbortSignal) {
+  const { data } = await apiRequest<Paginated<CollectorCollection>>(
+    `/collections/assigned?page=${page}&limit=${limit}`,
+    { signal },
+  );
+  return data;
+}
+
+export async function getCollectorCollection(id: string, signal?: AbortSignal): Promise<CollectorCollection> {
+  const { data } = await apiRequest<{ collection: CollectorCollection }>(`/collections/${encodeURIComponent(id)}`, {
+    signal,
+  });
+  return data.collection;
+}
+
+// A mensagem de sucesso vem da API (ex.: "Coleta aceita.").
+export async function runCollectorEvent(id: string, event: CollectorEvent) {
+  const { data, message } = await apiRequest<{ collection: CollectorCollection }>(
+    `/collections/${encodeURIComponent(id)}/${event}`,
+    { method: "POST" },
+  );
+  return { collection: data.collection, message };
 }

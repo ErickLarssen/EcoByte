@@ -1572,6 +1572,8 @@ Antes de uma coleta ser considerada encerrada:
 [ ] Testes das transições
 ```
 
+Situação (2026-09-28): API e regras na Fase 4 (`DEC-064`, `DEC-070`); telas na Fase 7 (`DEC-074`). Todos os itens acima estão implementados. A transição de cada etapa é testada no backend e, na interface, com a API simulada (`frontend/src/components/features/collector/collector-collections.test.tsx`). Em aberto: agrupamentos, "em andamento" e "próxima coleta" no painel (`OQ-047`), rotas, notificações e perfil.
+
 ---
 
 # 94. Testes principais

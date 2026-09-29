@@ -33,3 +33,29 @@ describe("navegação da área do cliente (DEC-073)", () => {
     expect(within(nav).getByRole("link", { name: "Minhas coletas" })).not.toHaveAttribute("aria-current");
   });
 });
+
+describe("navegação da área do coletor (DEC-074)", () => {
+  const coletorItems = AREA_NAVIGATION.coletor;
+
+  it.each([
+    ["/coletor", "/coletor"],
+    ["/coletor/disponiveis", "/coletor/disponiveis"],
+    ["/coletor/coletas", "/coletor/coletas"],
+    ["/coletor/coletas/abc123", "/coletor/coletas"],
+  ])("em %s o item ativo é %s", (pathname, expected) => {
+    expect(activeHref(coletorItems, pathname)).toBe(expected);
+  });
+
+  it("lista Início, Disponíveis e Minhas coletas", () => {
+    navigation.pathname = "/coletor/disponiveis";
+    render(<MobileNavigation items={coletorItems} />);
+
+    const nav = screen.getByRole("navigation", { name: "Navegação principal" });
+    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Início",
+      "Disponíveis",
+      "Minhas coletas",
+    ]);
+    expect(within(nav).getByRole("link", { name: "Disponíveis" })).toHaveAttribute("aria-current", "page");
+  });
+});

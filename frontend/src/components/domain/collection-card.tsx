@@ -1,11 +1,20 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import type { ClientCollection } from "@/lib/api/collections";
+import type { CollectionBase } from "@/lib/api/collections";
 import { formatDate, formatStreetLine } from "@/lib/format";
 import { CollectionStatusBadge } from "./collection-status-badge";
 
-// Resumo de uma coleta em listas (11 §53). O card inteiro é o link para o detalhe.
-export function CollectionCard({ collection, href }: { collection: ClientCollection; href: string }) {
+type CollectionCardProps = {
+  collection: CollectionBase;
+  href: string;
+  // Próxima ação do coletor (13 §44). A ação é executada no detalhe:
+  // o card inteiro é um link e não pode conter botões.
+  nextAction?: string;
+};
+
+// Resumo de uma coleta em listas (11 §53), compartilhado entre perfis (11 §134–§135).
+// O card inteiro é o link para o detalhe.
+export function CollectionCard({ collection, href, nextAction }: CollectionCardProps) {
   const totalItems = collection.itensDescarte.reduce((sum, item) => sum + item.quantidade, 0);
 
   return (
@@ -24,6 +33,12 @@ export function CollectionCard({ collection, href }: { collection: ClientCollect
         <p className="text-sm text-muted-foreground">
           {collection.enderecoColeta.bairro} · {totalItems} {totalItems === 1 ? "item" : "itens"}
         </p>
+        {nextAction && (
+          <p className="text-sm font-medium text-primary">
+            <span className="text-muted-foreground">Próxima ação: </span>
+            {nextAction}
+          </p>
+        )}
       </div>
       <ChevronRight
         className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"

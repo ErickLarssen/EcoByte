@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, House, PlusCircle, type LucideIcon } from "lucide-react";
+import { ClipboardList, House, Inbox, PlusCircle, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,15 +13,19 @@ export type NavItem = {
 
 export type Area = "cliente" | "coletor" | "admin";
 
-// Destinos de cada área (DEC-073, 10 §58). Coletor e administrador recebem
-// seus itens junto com as respectivas telas.
+// Destinos de cada área (DEC-073, DEC-074, 10 §58, §62). O administrador
+// recebe seus itens junto com as respectivas telas.
 export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
   cliente: [
     { href: "/cliente", label: "Início", icon: House },
     { href: "/cliente/coletas", label: "Minhas coletas", icon: ClipboardList },
     { href: "/cliente/coletas/nova", label: "Solicitar", icon: PlusCircle },
   ],
-  coletor: [],
+  coletor: [
+    { href: "/coletor", label: "Início", icon: House },
+    { href: "/coletor/disponiveis", label: "Disponíveis", icon: Inbox },
+    { href: "/coletor/coletas", label: "Minhas coletas", icon: ClipboardList },
+  ],
   admin: [],
 };
 

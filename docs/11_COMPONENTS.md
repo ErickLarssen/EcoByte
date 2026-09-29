@@ -1293,6 +1293,8 @@ ENTREGUE_ECOPONTO
 
 O componente não deve permitir ações incompatíveis com o status.
 
+Implementação (Fase 7, `DEC-074`): `components/domain/collection-actions.tsx`, com a regra de próxima ação em `lib/collector-actions.ts` (`NEXT_ACTION`, 13 §36). A execução e o feedback ficam em `features/collector/collector-collection-detail.tsx`, via `useCollectorEvent`.
+
 ---
 
 # 57. WasteItemsList
@@ -1414,6 +1416,8 @@ Loading
 Error
 Filters
 ```
+
+Implementação (Fase 7, `DEC-074`): `features/collector/collector-collection-list.tsx` (variantes `available` e `assigned`), sem agrupamentos nem filtros enquanto `OQ-047` estiver aberta. O `CollectorRouteCard` não é um componente separado: é o `CollectionCard` com a propriedade `nextAction` (§135).
 
 ---
 
@@ -1729,6 +1733,8 @@ coletas atribuídas
 próxima ação
 status operacional
 ```
+
+Implementação (Fase 7, `DEC-074`): `features/collector/collector-dashboard.tsx`. Os blocos compartilhados dos detalhes (`DetailSection`, `BackLink`, `DetailSkeleton`) ficam em `components/common/detail-parts.tsx`, usados pelo cliente e pelo coletor.
 
 ---
 
