@@ -1,11 +1,11 @@
 import { Check } from "lucide-react";
-import type { ClientCollection } from "@/lib/api/collections";
+import type { CollectionBase } from "@/lib/api/collections";
 import { COLLECTION_STATUSES, STATUS_INFO, statusIndex } from "@/lib/collection-status";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type TimelineCollection = Pick<
-  ClientCollection,
+  CollectionBase,
   "status" | "createdAt" | "acceptedAt" | "startedAt" | "collectedAt" | "deliveredAt" | "completedAt"
 >;
 

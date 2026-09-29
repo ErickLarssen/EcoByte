@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, SearchX } from "lucide-react";
+import { CheckCircle2, SearchX } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { BackLink as BackLinkTo, DetailSection as Section, DetailSkeleton } from "@/components/common/detail-parts";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { AddressCard } from "@/components/domain/address-card";
@@ -12,42 +12,13 @@ import { CollectionTimeline } from "@/components/domain/collection-timeline";
 import { WasteItemsList } from "@/components/domain/waste-items-list";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useMyCollection } from "@/hooks/use-client-collections";
 import { ApiError } from "@/lib/api/client";
 import { STATUS_INFO } from "@/lib/collection-status";
 import { NOT_INFORMED, formatDate } from "@/lib/format";
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="grid gap-3 rounded-xl border bg-card p-4 sm:p-5" aria-label={title}>
-      <h2 className="font-semibold">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
 function BackLink() {
-  return (
-    <Link
-      href="/cliente/coletas"
-      className="inline-flex h-11 items-center gap-1.5 justify-self-start text-sm font-medium text-primary underline-offset-4 hover:underline"
-    >
-      <ArrowLeft className="size-4" aria-hidden="true" />
-      Minhas coletas
-    </Link>
-  );
-}
-
-function DetailSkeleton() {
-  return (
-    <div role="status" aria-live="polite" className="grid gap-4">
-      <span className="sr-only">Carregando coleta...</span>
-      <Skeleton className="h-8 w-2/3" aria-hidden="true" />
-      <Skeleton className="h-64 w-full rounded-xl" aria-hidden="true" />
-      <Skeleton className="h-24 w-full rounded-xl" aria-hidden="true" />
-    </div>
-  );
+  return <BackLinkTo href="/cliente/coletas">Minhas coletas</BackLinkTo>;
 }
 
 // Detalhe da coleta para o cliente (RF-022, 11 §54): status, andamento,

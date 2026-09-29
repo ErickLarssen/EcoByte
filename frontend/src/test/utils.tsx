@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { vi } from "vitest";
 import { AuthProvider } from "@/components/features/auth/auth-provider";
-import type { ClientCollection } from "@/lib/api/collections";
+import type { ClientCollection, CollectorCollection } from "@/lib/api/collections";
 
 type Envelope = { status: number; body: unknown };
 
@@ -110,6 +110,23 @@ export const clienteUser = {
   nome: "Mariana Oliveira",
   email: "mariana@ecobyte.local",
   role: "CLIENTE" as const,
+  tipoCadastro: "PF" as const,
+  status: "ATIVO" as const,
+};
+
+// Coleta na visão do coletor (06_API §13.4, DEC-070): `cliente` é null em
+// coletas PENDENTE e preenchido nas atribuídas ao coletor.
+export function buildCollectorCollection(overrides: Partial<CollectorCollection> = {}): CollectorCollection {
+  const base: Partial<ClientCollection> = buildCollection();
+  delete base.coletor;
+  return { ...(base as Omit<ClientCollection, "coletor">), cliente: null, ...overrides };
+}
+
+export const coletorUser = {
+  id: "k1",
+  nome: "Carlos Mendes",
+  email: "carlos@ecobyte.local",
+  role: "COLETOR" as const,
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
 };

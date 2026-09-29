@@ -2879,8 +2879,59 @@ OPEN_QUESTIONS.md
 
 ---
 
+# 76. DEC-074 — Área do Coletor: Navegação, Painel e Ações
 
-# 76. Registro Atual de Decisões Pendentes
+**Status:** ACEITA
+
+**Data:** 2026-09-28
+
+## Contexto
+
+A Fase 7 implementa as telas do coletor (`DEC-072`), consumindo a API da Fase 4 (`DEC-064`, `DEC-070`) sem alterações no backend. O fluxo (13) prevê um painel com a "coleta em andamento" e a "próxima coleta", mas a API não filtra as atribuídas por status e não existe critério de prioridade definido (13 §84, `OQ-047`).
+
+## Decisão
+
+### Navegação
+
+Mesmo padrão do `DEC-073`. Destinos atuais do coletor: **Início** (`/coletor`), **Disponíveis** (`/coletor/disponiveis`) e **Minhas coletas** (`/coletor/coletas`). Rotas, Notificações e Perfil (10 §62) entram quando essas telas existirem. O detalhe (`/coletor/coletas/[id]`) serve tanto a coleta disponível quanto a atribuída; por isso, em uma coleta `PENDENTE` o item ativo continua sendo "Minhas coletas", e o link de retorno aponta para "Coletas disponíveis".
+
+### Painel
+
+- totais de disponíveis e de atribuídas, lidos do `pagination.total` da API (13 §43);
+- as três coletas atribuídas mais recentes e as três disponíveis mais antigas, cada uma com a sua próxima ação;
+- sem contagem "em andamento" nem "próxima coleta" enquanto a API não oferecer filtro por status e o critério de prioridade não for definido (`OQ-047`).
+
+### Listas
+
+Sem agrupamentos por status (`OQ-047`). A ordem é a da API: disponíveis da mais antiga para a mais recente, atribuídas da mais recente para a mais antiga (`DEC-070`). O `CollectionCard` é o mesmo do cliente, com a próxima ação em texto (11 §135).
+
+### Ações
+
+- a interface mostra somente a ação da etapa atual (13 §36), com texto de progresso e botão desabilitado durante a requisição;
+- o status muda na tela somente depois da confirmação da API, sem optimistic update (13 §76);
+- sucesso: mensagem da própria API ("Coleta aceita.", "Rota iniciada."...) e invalidação das listas do coletor (13 §73);
+- aceite concorrente (`409 COLLECTION_ALREADY_ACCEPTED`) ou `404`: a ação é retirada e a tela oferece "Ver coletas disponíveis", preservando os dados exibidos (13 §60);
+- transição recusada (`422 INVALID_STATUS_TRANSITION` ou `409 CONFLICT`): a coleta é lida de novo da API (13 §77);
+- sem conexão ou ecoponto indisponível: mensagem clara e a ação continua disponível (13 §75);
+- sem diálogo de confirmação antes das ações: não está previsto em 13 e acrescentaria um passo em cada etapa da operação.
+
+### Dados do cliente
+
+Nome e telefone aparecem somente nas coletas atribuídas ao coletor, como a API os entrega (`DEC-070`). O telefone é exibido em texto; ligação e navegação externa dependem de requisito (13 §23).
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+13_COLLECTOR_FLOW.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+
+# 77. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2899,7 +2950,7 @@ até serem formalmente decididas.
 
 ---
 
-# 77. Como Adicionar uma Nova Decisão
+# 78. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2937,7 +2988,7 @@ arquivo2.md
 
 ---
 
-# 78. Regra Final
+# 79. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

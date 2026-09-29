@@ -10,14 +10,9 @@ import { Pagination } from "@/components/common/pagination";
 import { CollectionCard } from "@/components/domain/collection-card";
 import { Button } from "@/components/ui/button";
 import { useMyCollections } from "@/hooks/use-client-collections";
+import { PAGE_PARAM, pageFromParams } from "@/lib/pagination";
 
 const PAGE_SIZE = 10;
-const PAGE_PARAM = "pagina";
-
-function pageFromParams(value: string | null): number {
-  const page = Number(value);
-  return Number.isInteger(page) && page >= 1 ? page : 1;
-}
 
 // Minhas coletas (RF-021): lista paginada, mais recentes primeiro (DEC-070).
 // A página fica na URL (?pagina=2), permitindo voltar e compartilhar o link.
