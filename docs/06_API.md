@@ -596,6 +596,8 @@ GET /api/v1/ecopoint
 }
 ```
 
+Implementado (`DEC-076`): consulta pública, sem sessão. Retorna o ecoponto central mesmo `INATIVO`, e a resposta inclui também `updatedAt`. `endereco` segue o formato do endereço da coleta, sem `localizacao`, com `complemento` `null` quando ausente. Sem ecoponto cadastrado: `404 RESOURCE_NOT_FOUND`.
+
 ---
 
 ## 12.2 Atualizar ecoponto
@@ -630,6 +632,19 @@ Alteração parcial: somente os campos enviados são atualizados (`DEC-065`).
   "status": "ATIVO"
 }
 ```
+
+Implementado (`DEC-076`):
+
+- campos aceitos: `nome`, `descricao` (vazio ou `null` remove), `endereco` (substituído por inteiro), `localizacao` (`null` remove) e `status` (`ATIVO`/`INATIVO`);
+- `horarios` não é aceito enquanto `OQ-005` estiver aberta, e é descartado como qualquer campo não previsto;
+- a resposta `200` é `{ "ecopoint": { ... } }`, com a mensagem "Ecoponto atualizado.".
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | campo inválido, ou nenhum campo válido enviado (`fields.body`) |
+| `401` | `UNAUTHORIZED` | sem sessão |
+| `403` | `FORBIDDEN` | role diferente de `ADMIN` |
+| `404` | `RESOURCE_NOT_FOUND` | nenhum ecoponto cadastrado |
 
 ---
 

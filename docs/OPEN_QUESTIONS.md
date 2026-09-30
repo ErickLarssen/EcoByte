@@ -202,6 +202,8 @@ deploy
 
 **Status:** ABERTA
 
+**Comportamento enquanto aberta (2026-09-30, `DEC-076`):** o endereço vem do seed e pode ser alterado pelo administrador em `/admin/ecoponto`.
+
 ## Questão
 
 Qual será o endereço real ou acadêmico oficialmente utilizado para representar o ecoponto central EcoByte?
@@ -247,6 +249,8 @@ apresentação acadêmica
 
 **Status:** ABERTA
 
+**Comportamento enquanto aberta (2026-09-30, `DEC-076`):** as coordenadas vêm do seed e podem ser alteradas ou removidas pelo administrador.
+
 ## Questão
 
 Quais coordenadas serão utilizadas para o `GeoJSON Point` do ecoponto?
@@ -285,6 +289,8 @@ testes
 # 9. OQ-005 — Horário de Funcionamento do Ecoponto
 
 **Status:** ABERTA
+
+**Comportamento enquanto aberta (2026-09-30, `DEC-076`):** `horarios` não é aceito pelo `PATCH /api/v1/ecopoint`, e a interface mostra "Horários de funcionamento a definir.". Decidir esta questão inclui definir o formato dos horários.
 
 ## Questão
 

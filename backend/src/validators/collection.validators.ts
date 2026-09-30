@@ -1,51 +1,8 @@
 import { z } from "zod";
-
-const text = (label: string, max: number) =>
-  z
-    .string({ error: `Informe ${label}.` })
-    .trim()
-    .min(1, `Informe ${label}.`)
-    .max(max, `Máximo de ${max} caracteres.`);
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max, `Máximo de ${max} caracteres.`)
-    .optional()
-    .transform((value) => (value ? value : undefined));
-
-// GeoJSON Point [longitude, latitude] (DEC-012, BR-039).
-const localizacaoSchema = z.object({
-  type: z.literal("Point", { error: "localizacao.type deve ser Point." }),
-  coordinates: z.tuple(
-    [
-      z.number().min(-180, "Longitude inválida.").max(180, "Longitude inválida."),
-      z.number().min(-90, "Latitude inválida.").max(90, "Latitude inválida."),
-    ],
-    { error: "Informe [longitude, latitude]." },
-  ),
-});
+import { enderecoShape, localizacaoSchema, optionalText, text } from "./address.validators.js";
 
 const enderecoColetaSchema = z.object(
-  {
-    logradouro: text("o logradouro", 120),
-    numero: text("o número", 20),
-    complemento: optionalText(120),
-    bairro: text("o bairro", 120),
-    cidade: text("a cidade", 120),
-    estado: z
-      .string({ error: "Informe a UF." })
-      .trim()
-      .toUpperCase()
-      .regex(/^[A-Z]{2}$/, "Informe a sigla da UF com 2 letras."),
-    // CEP normalizado: hífen e pontos removidos, 8 dígitos (07 §14).
-    cep: z
-      .string({ error: "Informe o CEP." })
-      .transform((value) => value.replace(/[\s.-]/g, ""))
-      .pipe(z.string().regex(/^\d{8}$/, "O CEP deve ter 8 dígitos.")),
-    localizacao: localizacaoSchema.optional(),
-  },
+  { ...enderecoShape, localizacao: localizacaoSchema.optional() },
   { error: "Informe o endereço da coleta." },
 );
 

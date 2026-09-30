@@ -2813,6 +2813,8 @@ As páginas administrativas internas serão definidas com as funcionalidades de 
 
 Complemento (2026-09-29, `DEC-075`): `/admin/usuarios`, `/admin/usuarios/[id]`, `/admin/coletas` e `/admin/coletas/[id]`, todas com acesso `ADMIN`.
 
+Complemento (2026-09-30, `DEC-076`): `/cliente/ecoponto` (`CLIENTE`) e `/admin/ecoponto` (`ADMIN`). A página `/` mostra o ecoponto, com consulta pública.
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -2994,8 +2996,55 @@ OPEN_QUESTIONS.md
 
 ---
 
+# 78. DEC-076 — Ecoponto: Consulta Pública e Administração
 
-# 78. Registro Atual de Decisões Pendentes
+**Status:** ACEITA
+
+**Data:** 2026-09-30
+
+## Contexto
+
+A Fase 9 implementa a consulta do ecoponto central (RF-036 a RF-038) e a sua administração (RF-039, `DEC-065`). A autenticação da consulta estava em aberto (05 §7.1: "pode ser pública"), e os horários não têm formato definido (`OQ-005`).
+
+## Decisão
+
+### Consulta
+
+- `GET /api/v1/ecopoint` é **pública**: não exige sessão. Os dados são de um local físico aberto e aparecem na página inicial;
+- retorna o ecoponto central, o primeiro cadastrado (`DEC-002`), mesmo `INATIVO`. Nesse caso, a interface informa que ele está temporariamente sem receber materiais (BR-038);
+- sem ecoponto cadastrado, a resposta é `404 RESOURCE_NOT_FOUND`. O ecoponto é criado na configuração inicial (seed); a API não oferece criação.
+
+### Alteração
+
+- `PATCH /api/v1/ecopoint` (`ADMIN`) altera parcialmente `nome`, `descricao`, `endereco`, `localizacao` e `status`;
+- `descricao` vazia ou `null` remove a descrição, e `localizacao: null` remove a localização;
+- `endereco` é substituído por inteiro e validado com as mesmas regras do endereço da coleta;
+- `horarios` não faz parte do contrato enquanto `OQ-005` estiver aberta: é descartado como qualquer campo não previsto;
+- corpo sem nenhum campo válido: `400 VALIDATION_ERROR` ("Informe ao menos um campo para atualizar.");
+- editar os dados não altera o vínculo das coletas entregues, que referenciam o ecoponto pelo `id` (`DEC-053`). Com o ecoponto `INATIVO`, novas entregas falham com `409 ECOPOINT_UNAVAILABLE`.
+
+### Interface
+
+- **Página inicial:** mostra o ecoponto, sem login;
+- **Cliente:** `/cliente/ecoponto`, com o item **Ecoponto** na navegação (`DEC-073`);
+- **Administrador:** `/admin/ecoponto`, com o item **Ecoponto** na navegação (10 §62). Um formulário edita nome, descrição, endereço e localização (latitude e longitude em graus decimais, as duas ou nenhuma). A desativação pede confirmação e informa que as entregas serão recusadas;
+- **Horários:** aparecem como "a definir" enquanto `OQ-005` estiver aberta;
+- não há mapa nem link de navegação (11 §60, `OQ-031`);
+- a área do coletor não ganhou página do ecoponto: a navegação prevista para ele (10 §62) não inclui esse item.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+11_COMPONENTS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+
+# 79. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -3014,7 +3063,7 @@ até serem formalmente decididas.
 
 ---
 
-# 79. Como Adicionar uma Nova Decisão
+# 80. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3052,7 +3101,7 @@ arquivo2.md
 
 ---
 
-# 80. Regra Final
+# 81. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 
