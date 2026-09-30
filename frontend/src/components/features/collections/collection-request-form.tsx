@@ -5,6 +5,7 @@ import { AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FormProvider, useForm, type FieldPath } from "react-hook-form";
+import { AddressFields } from "@/components/common/address-fields";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useCreateCollection } from "@/hooks/use-client-collections";
@@ -16,7 +17,6 @@ import {
   type CollectionRequestInput,
   type CollectionRequestValues,
 } from "@/lib/validation/collection";
-import { AddressFields } from "./address-fields";
 import { CollectionReview } from "./collection-review";
 import { REQUEST_STEPS, RequestSteps } from "./request-steps";
 import { WasteItemsFields } from "./waste-items-fields";
@@ -129,7 +129,7 @@ export function CollectionRequestForm() {
             </Alert>
           )}
 
-          {step === 0 && <AddressFields />}
+          {step === 0 && <AddressFields name="enderecoColeta" />}
           {step === 1 && <WasteItemsFields />}
           {step === 2 && <CollectionReview onEditStep={setStep} />}
         </div>

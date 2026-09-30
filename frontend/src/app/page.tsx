@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/common/logo";
+import { EcopointInfo } from "@/components/features/ecopoint/ecopoint-info";
 import { Button } from "@/components/ui/button";
 
 // Página pública provisória. A landing page completa (10 §63) é uma fase posterior;
@@ -26,6 +27,14 @@ export default function Home() {
           <Link href="/entrar">Entrar</Link>
         </Button>
       </div>
+
+      {/* Consulta pública do ecoponto (RF-036, DEC-076). */}
+      <section aria-labelledby="nosso-ecoponto" className="grid w-full max-w-xl gap-3 text-left">
+        <h2 id="nosso-ecoponto" className="text-center text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+          Nosso ecoponto
+        </h2>
+        <EcopointInfo />
+      </section>
     </main>
   );
 }

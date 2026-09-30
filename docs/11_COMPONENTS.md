@@ -1381,6 +1381,8 @@ status
 localização
 ```
 
+Implementação (Fase 9, `DEC-076`): `components/domain/ecopoint-card.tsx`, com nome, descrição, endereço (`AddressCard`) e aviso de indisponibilidade quando `INATIVO`. Os horários aparecem como "a definir" (`OQ-005`), e a localização não é exibida enquanto não houver mapa (§60). A consulta e os estados de carregamento, erro e ausência ficam em `features/ecopoint/ecopoint-info.tsx`, usado na página inicial e em `/cliente/ecoponto`. A edição fica em `features/admin/admin-ecopoint.tsx`.
+
 ---
 
 # 62. CollectorRouteCard
@@ -1519,7 +1521,7 @@ data
 próxima ação
 ```
 
-Implementação (Fase 6): `features/collections/collection-request-form.tsx` (etapas), `address-fields.tsx` (`AddressForm`), `waste-items-fields.tsx` (`WasteItemsForm`), `collection-review.tsx` (`CollectionReview`). A confirmação (`CollectionSuccess`) é exibida no detalhe da nova coleta. Nas etapas intermediárias, "Continuar" é o botão de envio do formulário, para que o Enter avance de etapa conforme a especificação HTML, sem enviar a solicitação antes da revisão.
+Implementação (Fase 6): `features/collections/collection-request-form.tsx` (etapas), `AddressForm` (movido na Fase 9 para `components/common/address-fields.tsx`, compartilhado com o ecoponto), `waste-items-fields.tsx` (`WasteItemsForm`), `collection-review.tsx` (`CollectionReview`). A confirmação (`CollectionSuccess`) é exibida no detalhe da nova coleta. Nas etapas intermediárias, "Continuar" é o botão de envio do formulário, para que o Enter avance de etapa conforme a especificação HTML, sem enviar a solicitação antes da revisão.
 
 ---
 

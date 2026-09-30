@@ -483,6 +483,8 @@ Pode ser pública
 
 A decisão final sobre exigir autenticação deve permanecer alinhada ao fluxo de interface definido posteriormente.
 
+Decidido (`DEC-076`): pública, sem sessão.
+
 ### Dados possíveis
 
 ```text
@@ -1462,7 +1464,7 @@ A escolha deve representar corretamente o motivo da falha.
 | POST | `/api/v1/auth/reset-password` | Conforme fluxo | Redefinir senha |
 | GET | `/api/v1/profile` | Autenticado | Visualizar perfil |
 | PATCH | `/api/v1/profile` | Autenticado | Atualizar perfil |
-| GET | `/api/v1/ecopoint` | Público/definido pelo fluxo | Visualizar ecoponto |
+| GET | `/api/v1/ecopoint` | Público (`DEC-076`) | Visualizar ecoponto |
 | PATCH | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
 | POST | `/api/v1/collections` | CLIENTE | Criar coleta |
 | GET | `/api/v1/collections` | CLIENTE | Minhas coletas |

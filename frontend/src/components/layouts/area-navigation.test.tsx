@@ -18,6 +18,7 @@ describe("navegação da área do cliente (DEC-073)", () => {
     ["/cliente/coletas", "/cliente/coletas"],
     ["/cliente/coletas/abc123", "/cliente/coletas"],
     ["/cliente/coletas/nova", "/cliente/coletas/nova"],
+    ["/cliente/ecoponto", "/cliente/ecoponto"],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(items, pathname)).toBe(expected);
   });
@@ -28,7 +29,7 @@ describe("navegação da área do cliente (DEC-073)", () => {
 
     const nav = screen.getByRole("navigation", { name: "Navegação principal" });
     const links = within(nav).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(["Início", "Minhas coletas", "Solicitar"]);
+    expect(links.map((link) => link.textContent)).toEqual(["Início", "Minhas coletas", "Solicitar", "Ecoponto"]);
     expect(within(nav).getByRole("link", { name: "Solicitar" })).toHaveAttribute("aria-current", "page");
     expect(within(nav).getByRole("link", { name: "Minhas coletas" })).not.toHaveAttribute("aria-current");
   });
@@ -69,11 +70,12 @@ describe("navegação da área administrativa (DEC-075)", () => {
     ["/admin/usuarios/u1", "/admin/usuarios"],
     ["/admin/coletas", "/admin/coletas"],
     ["/admin/coletas/k1", "/admin/coletas"],
+    ["/admin/ecoponto", "/admin/ecoponto"],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(adminItems, pathname)).toBe(expected);
   });
 
-  it("lista Início, Usuários e Coletas", () => {
-    expect(adminItems.map((item) => item.label)).toEqual(["Início", "Usuários", "Coletas"]);
+  it("lista Início, Usuários, Coletas e Ecoponto", () => {
+    expect(adminItems.map((item) => item.label)).toEqual(["Início", "Usuários", "Coletas", "Ecoponto"]);
   });
 });
