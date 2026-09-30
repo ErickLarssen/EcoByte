@@ -2811,6 +2811,8 @@ URLs em português, com uma área por perfil:
 
 As páginas administrativas internas serão definidas com as funcionalidades de administração.
 
+Complemento (2026-09-29, `DEC-075`): `/admin/usuarios`, `/admin/usuarios/[id]`, `/admin/coletas` e `/admin/coletas/[id]`, todas com acesso `ADMIN`.
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -2930,8 +2932,70 @@ OPEN_QUESTIONS.md
 
 ---
 
+# 77. DEC-075 — Área Administrativa: Usuários e Coletas
 
-# 77. Registro Atual de Decisões Pendentes
+**Status:** ACEITA
+
+**Data:** 2026-09-29
+
+## Contexto
+
+A Fase 8 implementa a administração de usuários e de coletas (RF-040 a RF-045, 05 §12–§13). As ações do administrador sobre usuários (`OQ-054`) e coletas (`OQ-055`) estavam em aberto, e as páginas administrativas não estavam definidas (`DEC-072`). O ecoponto (RF-039) e os relatórios (RF-046, `OQ-016`) ficam para fases seguintes.
+
+## Decisão
+
+### API
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/v1/admin/users` | usuários, paginados, mais recentes primeiro |
+| GET | `/api/v1/admin/users/:id` | dados administrativos do usuário |
+| PATCH | `/api/v1/admin/users/:id/status` | `{ "status": "ATIVO" \| "INATIVO" }` |
+| GET | `/api/v1/admin/collections` | coletas, paginadas, mais recentes primeiro; filtro opcional `status` |
+| GET | `/api/v1/admin/collections/:id` | detalhe administrativo da coleta |
+
+Todas exigem sessão e role `ADMIN` (`DEC-033`). Nenhum outro filtro é oferecido por enquanto (06 §22.1, §23.1: "somente implementar filtros realmente necessários").
+
+### Dados expostos
+
+- **Usuário:** `id`, `nome`, `email`, `telefone`, `role`, `tipoCadastro`, `dadosEmpresa`, `status`, `createdAt`, `updatedAt`. Nunca `senhaHash`; `documento` não é coletado (`DEC-066`, `OQ-044`).
+- **Coleta:** os campos comuns (06 §13.4), mais `cliente` e `coletor`, cada um com `{ id, nome, email, telefone }` ou `null`. O `id` permite ir ao detalhe do usuário.
+
+### Status do usuário
+
+- o administrador ativa e desativa clientes e coletores;
+- contas `ADMIN`, inclusive a própria, não têm o status alterado por esta rota: `403 FORBIDDEN`. Isso evita que o sistema fique sem administrador ativo;
+- um coletor com coletas em andamento (`ACEITA` a `ENTREGUE_ECOPONTO`) não pode ser desativado: `409 USER_HAS_ACTIVE_COLLECTIONS`. Assim, nenhuma coleta fica parada sem responsável e a máquina de estados não é contornada (`OQ-055`);
+- repetir o status atual não é erro;
+- a sessão de um usuário desativado é encerrada na próxima requisição (`requireAuth`, 06 §27.3).
+
+A verificação de coletas em andamento e a atualização do status são operações separadas: um aceite no mesmo instante da desativação ainda pode passar. Nesse caso, o coletor perde o acesso na requisição seguinte e a coleta fica `ACEITA`, visível ao administrador. Tratar esse caso raro depende de `OQ-055`.
+
+### Coletas
+
+Somente leitura: o administrador não altera status nem coletor responsável (`OQ-055`, 13 §54).
+
+### Interface
+
+- **Páginas:** `/admin` (painel), `/admin/usuarios`, `/admin/usuarios/[id]`, `/admin/coletas`, `/admin/coletas/[id]`. A navegação é Início, Usuários e Coletas, no padrão do `DEC-073`;
+- **Painel:** totais de usuários, de coletas e de coletas aguardando coletor (`PENDENTE`), todos lidos do `pagination.total` da API, mais as coletas recentes;
+- **Listas:** cartões no celular e tabela a partir de `md`, com `caption` e `th scope` (12 §11, §67, §69). A página e o filtro de status ficam na URL (`?status=ACEITA&pagina=2`);
+- **Desativação:** pede confirmação em diálogo (11 §35) e só muda a tela depois da resposta da API. A reativação não pede confirmação, porque restaura o acesso e é facilmente revertida;
+- a ação de status fica oculta para contas `ADMIN`, que a API também recusa.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+11_COMPONENTS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+
+# 78. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -2950,7 +3014,7 @@ até serem formalmente decididas.
 
 ---
 
-# 78. Como Adicionar uma Nova Decisão
+# 79. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -2988,7 +3052,7 @@ arquivo2.md
 
 ---
 
-# 79. Regra Final
+# 80. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

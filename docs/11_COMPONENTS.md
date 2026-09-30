@@ -907,6 +907,8 @@ Cancelar
 Confirmar
 ```
 
+Implementação (Fase 8, `DEC-075`): `components/common/confirm-dialog.tsx`, sobre o `AlertDialog` do shadcn/ui (`components/ui/alert-dialog.tsx`). O diálogo permanece aberto, com o botão de confirmação em processamento, até a resposta da API.
+
 ---
 
 # 36. DropdownMenu
@@ -1756,6 +1758,8 @@ data de cadastro
 ações
 ```
 
+Implementação (Fase 8, `DEC-075`): `features/admin/admin-user-list.tsx`. No celular, cartões; a partir de `md`, tabela com `caption` e `th scope` (12 §11, §67). As ações ficam no detalhe (`admin-user-detail.tsx`), e o status aparece em `components/domain/user-status-badge.tsx`.
+
 ---
 
 # 81. CollectionManagementTable
@@ -1775,6 +1779,8 @@ data
 criação
 ações
 ```
+
+Implementação (Fase 8, `DEC-075`): `features/admin/admin-collection-list.tsx`, com filtro por status na URL. No celular, a lista usa o `CollectionCard`; a partir de `md`, uma tabela com endereço, cliente, coletor, status e data. Não há coluna de ID nem ações: a administração de coletas é somente leitura (`OQ-055`). O `CountTile` dos painéis fica em `components/common/count-tile.tsx`.
 
 ---
 

@@ -1,46 +1,19 @@
 "use client";
 
-import { ClipboardList, Inbox, type LucideIcon } from "lucide-react";
+import { ClipboardList, Inbox } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CollectionListSkeleton } from "@/components/common/collection-card-skeleton";
+import { CountTile } from "@/components/common/count-tile";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { useAuth } from "@/components/features/auth/auth-provider";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAssignedCollections, useAvailableCollections } from "@/hooks/use-collector-collections";
 import { CollectorCollectionItems } from "./collector-collection-list";
 
 const PREVIEW_LIMIT = 3;
 
 type ListQuery = ReturnType<typeof useAvailableCollections>;
-
-// Total vindo da API (13 §43); o próprio cartão leva à lista correspondente.
-function CountTile({ href, label, icon: Icon, query }: { href: string; label: string; icon: LucideIcon; query: ListQuery }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-xl border bg-card p-4 outline-none transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50"
-    >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-        <Icon className="size-5" aria-hidden="true" />
-      </span>
-      <span className="grid">
-        <span className="text-sm text-muted-foreground">{label}</span>
-        {query.data ? (
-          <span className="text-2xl font-semibold tabular-nums">{query.data.pagination.total}</span>
-        ) : query.isError ? (
-          <span className="text-sm text-muted-foreground">Indisponível</span>
-        ) : (
-          <>
-            <span className="sr-only">Carregando...</span>
-            <Skeleton className="mt-1 h-7 w-10" aria-hidden="true" />
-          </>
-        )}
-      </span>
-    </Link>
-  );
-}
 
 function PreviewSection({
   id,
@@ -101,8 +74,20 @@ export function CollectorDashboard() {
           Olá{firstName ? `, ${firstName}` : ""}!
         </h1>
         <div className="grid gap-3 sm:grid-cols-2">
-          <CountTile href="/coletor/disponiveis" label="Coletas disponíveis" icon={Inbox} query={available} />
-          <CountTile href="/coletor/coletas" label="Atribuídas a você" icon={ClipboardList} query={assigned} />
+          <CountTile
+            href="/coletor/disponiveis"
+            label="Coletas disponíveis"
+            icon={Inbox}
+            value={available.data?.pagination.total}
+            failed={available.isError}
+          />
+          <CountTile
+            href="/coletor/coletas"
+            label="Atribuídas a você"
+            icon={ClipboardList}
+            value={assigned.data?.pagination.total}
+            failed={assigned.isError}
+          />
         </div>
       </section>
 

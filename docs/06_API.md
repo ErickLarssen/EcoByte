@@ -192,6 +192,7 @@ RATE_LIMIT_EXCEEDED
 INVALID_ORIGIN
 ECOPOINT_UNAVAILABLE
 CONFLICT
+USER_HAS_ACTIVE_COLLECTIONS
 ```
 
 `RATE_LIMIT_EXCEEDED` (429): limite de requisições excedido (`DEC-067`).
@@ -201,6 +202,8 @@ CONFLICT
 `ECOPOINT_UNAVAILABLE` (409): entrega sem ecoponto `ATIVO` para receber o material (`DEC-053`, `DEC-070`).
 
 `CONFLICT` (409): o recurso foi alterado por outra operação entre a tentativa e a verificação; a requisição pode ser repetida.
+
+`USER_HAS_ACTIVE_COLLECTIONS` (409): desativação de um coletor que ainda tem coletas em andamento (`DEC-075`).
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
 
@@ -786,7 +789,7 @@ Visão do cliente: acrescenta `coletor`, com `{ "nome": "..." }` ou `null` enqua
 
 Visão do coletor: acrescenta `cliente`, com `{ "nome": "...", "telefone": "..." }` somente nas coletas atribuídas a ele; nas coletas `PENDENTE`, `cliente` é `null`.
 
-Identificadores internos (`usuarioId`, `coletorId`, `ecopontoId`), e-mails e documentos não fazem parte da resposta.
+Nas visões do cliente e do coletor, identificadores internos (`usuarioId`, `coletorId`, `ecopontoId`), e-mails e documentos não fazem parte da resposta. A visão administrativa (§23.2, `DEC-075`) inclui `id`, nome, e-mail e telefone do cliente e do coletor.
 
 ---
 
@@ -1137,6 +1140,23 @@ status
 
 quando esses filtros forem necessários.
 
+Implementado (`DEC-075`): somente `page` e `limit` (06 §7), com os mais recentes primeiro. Cada item:
+
+```json
+{
+  "id": "USER_ID",
+  "nome": "Mariana Oliveira",
+  "email": "mariana@ecobyte.local",
+  "telefone": "11987654321",
+  "role": "CLIENTE",
+  "tipoCadastro": "PF",
+  "dadosEmpresa": null,
+  "status": "ATIVO",
+  "createdAt": "2026-09-26T10:00:00.000Z",
+  "updatedAt": "2026-09-26T10:00:00.000Z"
+}
+```
+
 ---
 
 ## 22.2 Consultar usuário
@@ -1152,6 +1172,8 @@ ADMIN
 ```
 
 Nunca retornar informações sensíveis desnecessárias.
+
+Resposta: `{ "user": { ... } }`, no mesmo formato da lista. `senhaHash` e `documento` nunca fazem parte da resposta.
 
 ---
 
@@ -1175,6 +1197,15 @@ Valores permitidos:
 ATIVO
 INATIVO
 ```
+
+Resposta `200`: `{ "user": { ... } }`, com a mensagem "Usuário ativado." ou "Usuário desativado.". Repetir o status atual também responde `200`.
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | `status` ausente ou fora de `ATIVO`/`INATIVO` |
+| `403` | `FORBIDDEN` | usuário-alvo com role `ADMIN`, inclusive o próprio administrador |
+| `404` | `RESOURCE_NOT_FOUND` | usuário inexistente ou `:id` inválido |
+| `409` | `USER_HAS_ACTIVE_COLLECTIONS` | coletor com coletas de `ACEITA` a `ENTREGUE_ECOPONTO` |
 
 ---
 
@@ -1206,6 +1237,8 @@ limit
 
 Somente implementar filtros realmente necessários.
 
+Implementado (`DEC-075`): `page`, `limit` e `status`, que é opcional e aceita um dos status oficiais. Um valor fora da lista responde `400 VALIDATION_ERROR`. A lista vem com as mais recentes primeiro.
+
 ---
 
 ## 23.2 Consultar coleta
@@ -1221,6 +1254,8 @@ ADMIN
 ```
 
 Deve retornar as informações necessárias ao acompanhamento administrativo.
+
+Visão administrativa (`DEC-075`): os campos comuns (§13.4), mais `cliente` e `coletor`, cada um como `{ "id", "nome", "email", "telefone" }` ou `null`. A lista usa a mesma representação. Os demais identificadores internos (`ecopontoId`) e documentos não fazem parte da resposta.
 
 ---
 
