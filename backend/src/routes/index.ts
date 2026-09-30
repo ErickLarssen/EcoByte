@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createAdminRouter } from "./admin.routes.js";
 import { createAuthRouter } from "./auth.routes.js";
 import { createCollectionRouter } from "./collection.routes.js";
 import { healthRouter } from "./health.routes.js";
@@ -10,6 +11,7 @@ export function createApiRouter(): Router {
   router.use("/health", healthRouter);
   router.use("/auth", createAuthRouter());
   router.use("/collections", createCollectionRouter());
+  router.use("/admin", createAdminRouter());
 
   return router;
 }

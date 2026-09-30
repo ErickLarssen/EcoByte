@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { vi } from "vitest";
 import { AuthProvider } from "@/components/features/auth/auth-provider";
+import type { AdminCollection, AdminUser } from "@/lib/api/admin";
 import type { ClientCollection, CollectorCollection } from "@/lib/api/collections";
 
 type Envelope = { status: number; body: unknown };
@@ -127,6 +128,44 @@ export const coletorUser = {
   nome: "Carlos Mendes",
   email: "carlos@ecobyte.local",
   role: "COLETOR" as const,
+  tipoCadastro: "PF" as const,
+  status: "ATIVO" as const,
+};
+
+// Usuário na visão administrativa (DEC-075), para testes.
+export function buildAdminUser(overrides: Partial<AdminUser> = {}): AdminUser {
+  return {
+    id: "u1",
+    nome: "Mariana Oliveira",
+    email: "mariana@ecobyte.local",
+    telefone: "11987654321",
+    role: "CLIENTE",
+    tipoCadastro: "PF",
+    dadosEmpresa: null,
+    status: "ATIVO",
+    createdAt: "2026-09-20T13:00:00.000Z",
+    updatedAt: "2026-09-20T13:00:00.000Z",
+    ...overrides,
+  };
+}
+
+// Coleta na visão administrativa (DEC-075), para testes.
+export function buildAdminCollection(overrides: Partial<AdminCollection> = {}): AdminCollection {
+  const base: Partial<ClientCollection> = buildCollection();
+  delete base.coletor;
+  return {
+    ...(base as Omit<ClientCollection, "coletor">),
+    cliente: { id: "u1", nome: "Mariana Oliveira", email: "mariana@ecobyte.local", telefone: "11987654321" },
+    coletor: null,
+    ...overrides,
+  };
+}
+
+export const adminUser = {
+  id: "a1",
+  nome: "Ana Admin",
+  email: "admin@ecobyte.local",
+  role: "ADMIN" as const,
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
 };

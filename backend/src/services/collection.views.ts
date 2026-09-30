@@ -92,3 +92,23 @@ export function toCollectorView(collection: CollectionRecord, coletorId: string)
     cliente: assignedToMe && cliente?.nome ? { nome: cliente.nome, telefone: cliente.telefone ?? null } : null,
   };
 }
+
+type AdminUserRef = { id: string; nome: string; email: string; telefone: string | null } | null;
+
+function adminRef(ref: UserRef): AdminUserRef {
+  if (!ref || !("_id" in ref) || !("nome" in ref)) return null;
+  const user = ref as { _id: Types.ObjectId; nome?: string; email?: string; telefone?: string | null };
+  return { id: String(user._id), nome: user.nome ?? "", email: user.email ?? "", telefone: user.telefone ?? null };
+}
+
+export type AdminCollectionView = ReturnType<typeof baseView> & { cliente: AdminUserRef; coletor: AdminUserRef };
+
+// Visão administrativa (RF-045, DEC-075): cliente e coletor com id, nome,
+// e-mail e telefone, para acompanhamento e contato. Documentos não são expostos.
+export function toAdminView(collection: CollectionRecord): AdminCollectionView {
+  return {
+    ...baseView(collection),
+    cliente: adminRef(collection.usuarioId),
+    coletor: adminRef(collection.coletorId),
+  };
+}

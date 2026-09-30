@@ -59,3 +59,21 @@ describe("navegação da área do coletor (DEC-074)", () => {
     expect(within(nav).getByRole("link", { name: "Disponíveis" })).toHaveAttribute("aria-current", "page");
   });
 });
+
+describe("navegação da área administrativa (DEC-075)", () => {
+  const adminItems = AREA_NAVIGATION.admin;
+
+  it.each([
+    ["/admin", "/admin"],
+    ["/admin/usuarios", "/admin/usuarios"],
+    ["/admin/usuarios/u1", "/admin/usuarios"],
+    ["/admin/coletas", "/admin/coletas"],
+    ["/admin/coletas/k1", "/admin/coletas"],
+  ])("em %s o item ativo é %s", (pathname, expected) => {
+    expect(activeHref(adminItems, pathname)).toBe(expected);
+  });
+
+  it("lista Início, Usuários e Coletas", () => {
+    expect(adminItems.map((item) => item.label)).toEqual(["Início", "Usuários", "Coletas"]);
+  });
+});

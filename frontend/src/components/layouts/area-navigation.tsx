@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, House, Inbox, PlusCircle, type LucideIcon } from "lucide-react";
+import { ClipboardList, House, Inbox, PlusCircle, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,8 +13,7 @@ export type NavItem = {
 
 export type Area = "cliente" | "coletor" | "admin";
 
-// Destinos de cada área (DEC-073, DEC-074, 10 §58, §62). O administrador
-// recebe seus itens junto com as respectivas telas.
+// Destinos de cada área (DEC-073, DEC-074, DEC-075, 10 §58, §62).
 export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
   cliente: [
     { href: "/cliente", label: "Início", icon: House },
@@ -26,7 +25,11 @@ export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
     { href: "/coletor/disponiveis", label: "Disponíveis", icon: Inbox },
     { href: "/coletor/coletas", label: "Minhas coletas", icon: ClipboardList },
   ],
-  admin: [],
+  admin: [
+    { href: "/admin", label: "Início", icon: House },
+    { href: "/admin/usuarios", label: "Usuários", icon: Users },
+    { href: "/admin/coletas", label: "Coletas", icon: ClipboardList },
+  ],
 };
 
 // Item ativo: o destino mais específico que corresponde à URL atual

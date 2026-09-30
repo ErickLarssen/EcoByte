@@ -1666,7 +1666,9 @@ ACEITA → PENDENTE
 
 # 58. OQ-054 — Administração de Usuários
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-075` (2026-09-29):** o administrador visualiza, desativa e reativa clientes e coletores. Contas `ADMIN` não têm o status alterado, e um coletor com coletas em andamento não pode ser desativado. Continuam em aberto: editar dados, alterar `role` e consultar histórico.
 
 ## Questão
 
@@ -1690,6 +1692,8 @@ Alterações de `role` devem ser tratadas com cuidado devido ao impacto direto n
 # 59. OQ-055 — Administração de Coletas
 
 **Status:** ABERTA
+
+**Comportamento enquanto aberta (2026-09-29, `DEC-075`):** a administração de coletas é somente leitura. O administrador não altera status nem coletor responsável. Por isso, a desativação de um coletor com coletas em andamento é recusada.
 
 ## Questão
 
