@@ -9,6 +9,8 @@ export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  // Ativo somente na própria página (ex.: "Início" não abrange as subpáginas da área).
+  exact?: boolean;
 };
 
 export type Area = "cliente" | "coletor" | "admin";
@@ -16,18 +18,18 @@ export type Area = "cliente" | "coletor" | "admin";
 // Destinos de cada área (DEC-073 a DEC-076, 10 §58, §62).
 export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
   cliente: [
-    { href: "/cliente", label: "Início", icon: House },
+    { href: "/cliente", label: "Início", icon: House, exact: true },
     { href: "/cliente/coletas", label: "Minhas coletas", icon: ClipboardList },
     { href: "/cliente/coletas/nova", label: "Solicitar", icon: PlusCircle },
     { href: "/cliente/ecoponto", label: "Ecoponto", icon: MapPin },
   ],
   coletor: [
-    { href: "/coletor", label: "Início", icon: House },
+    { href: "/coletor", label: "Início", icon: House, exact: true },
     { href: "/coletor/disponiveis", label: "Disponíveis", icon: Inbox },
     { href: "/coletor/coletas", label: "Minhas coletas", icon: ClipboardList },
   ],
   admin: [
-    { href: "/admin", label: "Início", icon: House },
+    { href: "/admin", label: "Início", icon: House, exact: true },
     { href: "/admin/usuarios", label: "Usuários", icon: Users },
     { href: "/admin/coletas", label: "Coletas", icon: ClipboardList },
     { href: "/admin/ecoponto", label: "Ecoponto", icon: MapPin },
@@ -36,9 +38,10 @@ export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
 
 // Item ativo: o destino mais específico que corresponde à URL atual
 // (ex.: /cliente/coletas/nova ativa "Solicitar", não "Minhas coletas").
+// Em páginas sem item próprio (ex.: notificações), nenhum item fica ativo.
 export function activeHref(items: NavItem[], pathname: string): string | undefined {
   return items
-    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .filter((item) => pathname === item.href || (!item.exact && pathname.startsWith(`${item.href}/`)))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 }
 

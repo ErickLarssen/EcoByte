@@ -566,7 +566,9 @@ Nenhuma dessas opções deve ser implementada como requisito definitivo antes da
 
 # 16. OQ-012 — Notificações em Tempo Real
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decidido em `DEC-077` (2026-09-30):** consulta periódica. O frontend consulta o contador de não lidas a cada 60 s com a aba visível e ao voltar para a aba. SSE e WebSocket não serão usados; adotá-los exigirá uma nova decisão.
 
 ## Questão
 
@@ -598,7 +600,9 @@ A estratégia de atualização em tempo real ainda não foi definida.
 
 # 17. OQ-013 — Tipos Definitivos de Notificação
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-077` (2026-09-30):** o cliente é notificado a cada etapa da coleta: `COLETA_ACEITA`, `COLETA_A_CAMINHO`, `COLETA_RECOLHIDA`, `COLETA_ENTREGUE_ECOPONTO` e `COLETA_CONCLUIDA`. Continuam em aberto `COLETA_CRIADA`, `NOVA_COLETA` (aviso aos coletores) e notificações de outros perfis. Elas existem apenas no seed de demonstração.
 
 ## Questão
 
@@ -2190,9 +2194,6 @@ Quantidade máxima de resíduos
 
 OQ-011
 Uso de geolocalização
-
-OQ-012
-Notificações em tempo real
 
 OQ-014
 Provedor de e-mail

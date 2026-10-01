@@ -1184,6 +1184,8 @@ marcar como lida
 visualização de detalhes
 ```
 
+Implementação (Fase 10, `DEC-077`): `features/notifications/notification-center.tsx`, nas páginas `/cliente/notificacoes` e `/coletor/notificacoes`. O contador fica no sino do cabeçalho, `components/layouts/notification-bell.tsx`, e a consulta periódica em `hooks/use-notifications.ts`.
+
 ---
 
 # 52. NotificationItem
@@ -1197,6 +1199,8 @@ mensagem
 data
 estado de leitura
 ```
+
+Implementação (Fase 10): `components/domain/notification-item.tsx`. O estado "Não lida" aparece em texto, não só por cor, e há ações para marcar como lida e ver a coleta relacionada.
 
 ---
 

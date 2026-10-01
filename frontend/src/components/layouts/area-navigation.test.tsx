@@ -19,6 +19,7 @@ describe("navegação da área do cliente (DEC-073)", () => {
     ["/cliente/coletas/abc123", "/cliente/coletas"],
     ["/cliente/coletas/nova", "/cliente/coletas/nova"],
     ["/cliente/ecoponto", "/cliente/ecoponto"],
+    ["/cliente/notificacoes", undefined],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(items, pathname)).toBe(expected);
   });
@@ -43,6 +44,7 @@ describe("navegação da área do coletor (DEC-074)", () => {
     ["/coletor/disponiveis", "/coletor/disponiveis"],
     ["/coletor/coletas", "/coletor/coletas"],
     ["/coletor/coletas/abc123", "/coletor/coletas"],
+    ["/coletor/notificacoes", undefined],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(coletorItems, pathname)).toBe(expected);
   });
@@ -71,6 +73,7 @@ describe("navegação da área administrativa (DEC-075)", () => {
     ["/admin/coletas", "/admin/coletas"],
     ["/admin/coletas/k1", "/admin/coletas"],
     ["/admin/ecoponto", "/admin/ecoponto"],
+    ["/admin/qualquer", undefined],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(adminItems, pathname)).toBe(expected);
   });

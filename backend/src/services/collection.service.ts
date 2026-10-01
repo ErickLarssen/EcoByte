@@ -7,6 +7,7 @@ import {
 } from "../domain/collection-status.js";
 import { Collection, Ecopoint } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
+import { notifyClientOfEvent } from "./notification.service.js";
 import { paginate, type Paginated } from "../utils/pagination.js";
 import type { CreateCollectionInput, PaginationQuery } from "../validators/collection.validators.js";
 import {
@@ -228,5 +229,10 @@ export async function applyCollectorEvent(
 
   if (!updated) throw await explainRejectedEvent(collectionId, coletorId, event);
 
-  return toCollectorView(updated as unknown as CollectionRecord, coletorId);
+  // Somente após a transição confirmada: o cliente é avisado da etapa (DEC-077).
+  const record = updated as unknown as CollectionRecord;
+  const cliente = record.usuarioId && "_id" in record.usuarioId ? record.usuarioId._id : record.usuarioId;
+  if (cliente) await notifyClientOfEvent(cliente, collectionId, event);
+
+  return toCollectorView(record, coletorId);
 }
