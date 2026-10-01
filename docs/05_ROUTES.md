@@ -1144,6 +1144,8 @@ Sim
 
 O usuário só pode modificar uma notificação pertencente a ele.
 
+Implementação: `06_API.md` §24.3 (`DEC-077`).
+
 ---
 
 # 15. Relatórios

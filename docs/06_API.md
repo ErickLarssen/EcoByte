@@ -1308,6 +1308,36 @@ A API deve verificar se a notificação pertence ao usuário autenticado.
 
 ---
 
+## 24.3 Implementação (`DEC-077`)
+
+**Listagem:** aceita `page` e `limit`, com as mais recentes primeiro, mais um filtro opcional `lida=true|false`. Com `lida=false&limit=1`, o `pagination.total` é o contador de não lidas usado pelo frontend. Cada item:
+
+```json
+{
+  "id": "NOTIFICATION_ID",
+  "tipo": "COLETA_ACEITA",
+  "titulo": "Coleta aceita",
+  "mensagem": "Um coletor EcoByte aceitou a sua coleta.",
+  "referencia": { "tipo": "COLETA", "id": "COLLECTION_ID" },
+  "lida": false,
+  "createdAt": "2026-09-30T13:00:00.000Z"
+}
+```
+
+**Marcar como lida:** responde `200` com `{ "notification": { ... } }` e pode ser repetida sem erro. Uma notificação de outro usuário, inexistente ou com `:id` inválido responde `404 RESOURCE_NOT_FOUND`.
+
+**Geração:** a API registra uma notificação para o cliente da coleta após cada transição confirmada:
+
+| Ação | Tipo |
+|---|---|
+| `accept` | `COLETA_ACEITA` |
+| `start` | `COLETA_A_CAMINHO` |
+| `collect` | `COLETA_RECOLHIDA` |
+| `deliver` | `COLETA_ENTREGUE_ECOPONTO` |
+| `complete` | `COLETA_CONCLUIDA` |
+
+---
+
 # 25. Relatórios
 
 ## 25.1 Relatórios administrativos

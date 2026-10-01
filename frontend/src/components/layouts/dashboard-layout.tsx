@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { LOGIN_PATH, ROLE_HOME, ROLE_LABEL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { AREA_NAVIGATION, DesktopNavigation, MobileNavigation, type Area } from "./area-navigation";
+import { NotificationBell } from "./notification-bell";
+
+// Áreas com central de notificações (10 §58, §62, DEC-077).
+const NOTIFICATIONS_PATH: Partial<Record<Area, string>> = {
+  cliente: "/cliente/notificacoes",
+  coletor: "/coletor/notificacoes",
+};
 
 // Layout das áreas autenticadas (11 §74): cabeçalho com marca, navegação da
 // área (cabeçalho no desktop, barra inferior no celular — DEC-073) e saída.
@@ -18,6 +25,7 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
   const router = useRouter();
   const [leaving, setLeaving] = useState(false);
   const items = AREA_NAVIGATION[area];
+  const notificationsPath = NOTIFICATIONS_PATH[area];
 
   async function handleLogout() {
     setLeaving(true);
@@ -50,9 +58,11 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
             <DesktopNavigation items={items} />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {notificationsPath && <NotificationBell href={notificationsPath} />}
+            {/* Nome a partir de lg: com 4 destinos, o cabeçalho de md não comporta tudo. */}
             {user && (
-              <div className="hidden text-right sm:block">
+              <div className="hidden text-right lg:block">
                 <p className="text-sm font-medium leading-tight">{user.nome}</p>
                 <p className="text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
               </div>

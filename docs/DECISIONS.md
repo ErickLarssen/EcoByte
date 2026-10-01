@@ -3044,7 +3044,56 @@ OPEN_QUESTIONS.md
 ---
 
 
-# 79. Registro Atual de Decisões Pendentes
+# 79. DEC-077 — Notificações do Cliente e Consulta Periódica
+
+**Status:** ACEITA
+
+**Data:** 2026-09-30
+
+## Contexto
+
+A coleção `notifications` existia desde a Fase 2 (`DEC-025`), mas nada no sistema criava notificações. Os eventos estavam em aberto (`OQ-013`), e a forma de atualização também (`OQ-012`).
+
+## Decisão
+
+### Eventos
+
+- **Destinatário:** o cliente da coleta é notificado a cada transição confirmada pelo coletor: `COLETA_ACEITA`, `COLETA_A_CAMINHO`, `COLETA_RECOLHIDA`, `COLETA_ENTREGUE_ECOPONTO` e `COLETA_CONCLUIDA`;
+- **Conteúdo:** títulos e mensagens são os do seed (20 §20), e a `referencia` aponta para a coleta (`{ tipo: "COLETA", id }`);
+- **Fora do escopo:** criar a coleta não gera notificação, porque o cliente já vê a confirmação na tela. Coletores e administradores não recebem notificações por enquanto (`NOVA_COLETA` segue em aberto);
+- **Falhas:** a notificação é gravada depois da transição. Se a gravação falhar, o erro vai para o log e a transição, já persistida, não é desfeita nem recusada.
+
+### API
+
+- `GET /api/v1/notifications` lista as notificações do usuário autenticado, de qualquer perfil, com filtro opcional `lida`;
+- o contador de não lidas usa a própria listagem (`lida=false&limit=1`, `pagination.total`), sem endpoint adicional;
+- `PATCH /api/v1/notifications/:id/read` pode ser repetido sem erro. Uma notificação de outro usuário responde `404` (`DEC-070`).
+
+### Atualização (`OQ-012`)
+
+Consulta periódica: o contador é recarregado a cada 60 s com a aba visível e ao voltar para a aba. Não há conexão persistente (SSE ou WebSocket).
+
+### Interface
+
+- o sino fica no cabeçalho do cliente e do coletor (12 §14), com o contador no nome acessível ("Notificações, 3 não lidas"). Ele leva a `/cliente/notificacoes` ou `/coletor/notificacoes`;
+- não há item "Notificações" na barra inferior: o sino substitui o destino previsto em 10 §58 e §62, sem ocupar mais espaço no celular;
+- na central, cada notificação mostra o estado de leitura em texto, "Marcar como lida" e "Ver coleta". Abrir a coleta também marca a notificação como lida;
+- o administrador não tem central de notificações, porque não está previsto em 10 §62;
+- o item "Início" da navegação fica ativo somente na própria página, e as páginas sem item próprio, como as notificações, não destacam nenhum item;
+- o nome do usuário no cabeçalho aparece a partir de `lg`, para caber com 4 destinos e o sino em `md`.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+11_COMPONENTS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 80. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -3063,7 +3112,7 @@ até serem formalmente decididas.
 
 ---
 
-# 80. Como Adicionar uma Nova Decisão
+# 81. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3101,7 +3150,7 @@ arquivo2.md
 
 ---
 
-# 81. Regra Final
+# 82. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 
