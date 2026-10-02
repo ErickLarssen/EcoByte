@@ -32,3 +32,10 @@ export function createAuthRateLimiters() {
     register: createLimiter({ windowMs: 60 * MINUTE_MS, limit: 5 }),
   };
 }
+
+// Troca de senha: limita tentativas de adivinhar a senha atual (DEC-078).
+export function createProfileRateLimiters() {
+  return {
+    changePassword: createLimiter({ windowMs: 15 * MINUTE_MS, limit: 10 }),
+  };
+}

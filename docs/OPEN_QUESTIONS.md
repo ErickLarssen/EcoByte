@@ -1326,7 +1326,9 @@ Essa questão deve considerar o fato de que coletas possuem histórico operacion
 
 # 45. OQ-041 — Alteração de Dados Cadastrais
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-078` (2026-10-01):** o usuário altera nome, telefone e, se for PJ, razão social e nome fantasia. A senha é trocada informando a senha atual. E-mail, documentos e endereço não são alterados pelo perfil. Continuam em aberto: troca de e-mail, confirmações adicionais e registro das alterações (`OQ-056`).
 
 ## Questão
 
@@ -1873,7 +1875,9 @@ A política definitiva dependerá do mecanismo de autenticação escolhido.
 
 # 67. OQ-063 — Política de Troca de Senha
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-078` (2026-10-01):** o usuário troca a própria senha no perfil. A troca exige a senha atual, a nova senha com confirmação e a mesma política do cadastro (`DEC-019`), e a nova senha deve ser diferente da atual. A sessão atual continua, com novo identificador. Continua em aberto invalidar as demais sessões do usuário (`OQ-060`).
 
 ## Questão
 

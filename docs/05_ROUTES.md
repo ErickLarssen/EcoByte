@@ -451,6 +451,26 @@ Sim
 - alterações devem passar por validação;
 - informações históricas das coletas não devem ser modificadas retroativamente.
 
+Campos editáveis (`DEC-078`): `nome`, `telefone` e, para PJ, `dadosEmpresa`.
+
+---
+
+## 6.3 Alterar senha
+
+```http
+PATCH /api/v1/profile/password
+```
+
+### Objetivo
+
+Trocar a senha do usuário autenticado, informando a senha atual (`DEC-078`).
+
+### Autenticação
+
+```text
+Sim
+```
+
 ---
 
 # 7. Ecoponto
@@ -1466,6 +1486,7 @@ A escolha deve representar corretamente o motivo da falha.
 | POST | `/api/v1/auth/reset-password` | Conforme fluxo | Redefinir senha |
 | GET | `/api/v1/profile` | Autenticado | Visualizar perfil |
 | PATCH | `/api/v1/profile` | Autenticado | Atualizar perfil |
+| PATCH | `/api/v1/profile/password` | Autenticado | Alterar senha (`DEC-078`) |
 | GET | `/api/v1/ecopoint` | Público (`DEC-076`) | Visualizar ecoponto |
 | PATCH | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
 | POST | `/api/v1/collections` | CLIENTE | Criar coleta |

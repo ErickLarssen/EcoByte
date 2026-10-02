@@ -2815,6 +2815,8 @@ Complemento (2026-09-29, `DEC-075`): `/admin/usuarios`, `/admin/usuarios/[id]`, 
 
 Complemento (2026-09-30, `DEC-076`): `/cliente/ecoponto` (`CLIENTE`) e `/admin/ecoponto` (`ADMIN`). A página `/` mostra o ecoponto, com consulta pública.
 
+Complemento (2026-10-01, `DEC-077`, `DEC-078`): `/cliente/notificacoes` e `/coletor/notificacoes`; `/cliente/perfil`, `/coletor/perfil` e `/admin/perfil`.
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -3093,7 +3095,53 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 80. Registro Atual de Decisões Pendentes
+# 80. DEC-078 — Perfil do Usuário e Troca de Senha
+
+**Status:** ACEITA
+
+**Data:** 2026-10-01
+
+## Contexto
+
+A Fase 11 implementa o perfil (RF-011, RF-012, RF-055). Os campos editáveis estavam em aberto (`OQ-041`), e a troca de senha também (`OQ-063`).
+
+## Decisão
+
+### Dados
+
+- `GET /api/v1/profile` e `PATCH /api/v1/profile` servem a qualquer perfil autenticado, sempre para o usuário da sessão;
+- campos editáveis: `nome`, `telefone` e, somente para PJ, `dadosEmpresa` (`razaoSocial`, `nomeFantasia`);
+- `email`, `role`, `tipoCadastro`, `status` e `documento` não fazem parte do contrato: trocar o e-mail mexe no login e depende de `OQ-001`;
+- a representação de usuário é a mesma da área administrativa (`DEC-075`), agora em `services/user.views.ts`;
+- **RF-013:** as coletas guardam o endereço da solicitação (`DEC-008`), que o perfil não altera. Nome e telefone não são copiados para a coleta: as visões continuam mostrando o dado atual do usuário (`DEC-070`).
+
+### Senha
+
+- `PATCH /api/v1/profile/password` com `senhaAtual`, `novaSenha` e `confirmacaoNovaSenha`;
+- **validação:** a nova senha segue a política do cadastro (`DEC-019`) e deve ser diferente da atual. Senha atual incorreta responde `400` em `fields.senhaAtual`, não `401`, porque a sessão continua válida;
+- **sessão:** a atual continua, com um novo identificador (09 §20). Invalidar as demais sessões do usuário depende de `OQ-060`;
+- **limite:** 10 tentativas em 15 minutos por IP, contra tentativas de adivinhar a senha atual (`DEC-067`).
+
+### Interface
+
+- `/cliente/perfil`, `/coletor/perfil` e `/admin/perfil` usam a mesma página, com três partes:
+  - **Conta:** e-mail, perfil, tipo e data de cadastro, que não são editáveis;
+  - **Dados pessoais:** o formulário dos campos editáveis;
+  - **Alterar senha:** o formulário de troca, com os requisitos da senha;
+- o acesso ao perfil fica no cabeçalho (12 §14), não na barra inferior: um ícone, e a partir de `lg` também nome e perfil. Ele substitui o nome estático do `DEC-077` e o item "Perfil" previsto em 10 §58 e §62;
+- depois de salvar, o nome exibido no cabeçalho é atualizado com a resposta da API.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 81. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -3112,7 +3160,7 @@ até serem formalmente decididas.
 
 ---
 
-# 81. Como Adicionar uma Nova Decisão
+# 82. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3150,7 +3198,7 @@ arquivo2.md
 
 ---
 
-# 82. Regra Final
+# 83. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 
