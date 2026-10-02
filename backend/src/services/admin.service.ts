@@ -4,13 +4,14 @@ import {
   INITIAL_COLLECTION_STATUS,
   isTerminalStatus,
 } from "../domain/collection-status.js";
-import type { RecordStatus, TipoCadastro, UserRole } from "../domain/constants.js";
+import type { RecordStatus } from "../domain/constants.js";
 import { Collection, User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { paginate, type Paginated } from "../utils/pagination.js";
 import type { AdminCollectionsQuery } from "../validators/admin.validators.js";
 import type { PaginationQuery } from "../validators/collection.validators.js";
 import { toAdminView, type AdminCollectionView, type CollectionRecord } from "./collection.views.js";
+import { toUserDetailView, type UserDetailView, type UserRecord } from "./user.views.js";
 
 const USER_REF_FIELDS = "nome email telefone";
 
@@ -29,55 +30,10 @@ function toObjectId(id: string, notFound: () => AppError): Types.ObjectId {
 // Usuários (RF-041–RF-043, 06_API §22)
 // ---------------------------------------------------------------------------
 
-// Dados administrativos permitidos (RF-042, 06 §22.2): nunca senhaHash;
-// `documento` não é coletado enquanto OQ-044 estiver aberta (DEC-066).
-export type AdminUserView = {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string | null;
-  role: UserRole;
-  tipoCadastro: TipoCadastro;
-  dadosEmpresa: { razaoSocial: string | null; nomeFantasia: string | null } | null;
-  status: RecordStatus;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type UserRecord = {
-  _id: Types.ObjectId;
-  nome: string;
-  email: string;
-  telefone?: string | null;
-  role: UserRole;
-  tipoCadastro: TipoCadastro;
-  dadosEmpresa?: { razaoSocial?: string | null; nomeFantasia?: string | null } | null;
-  status: RecordStatus;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-function toAdminUser(user: UserRecord): AdminUserView {
-  return {
-    id: String(user._id),
-    nome: user.nome,
-    email: user.email,
-    telefone: user.telefone ?? null,
-    role: user.role,
-    tipoCadastro: user.tipoCadastro,
-    dadosEmpresa: user.dadosEmpresa
-      ? { razaoSocial: user.dadosEmpresa.razaoSocial ?? null, nomeFantasia: user.dadosEmpresa.nomeFantasia ?? null }
-      : null,
-    status: user.status,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  };
-}
-
 const userNotFound = () => new AppError(404, "RESOURCE_NOT_FOUND", "Usuário não encontrado.");
 
 // Mais recentes primeiro, como as demais listas (DEC-070).
-export async function listUsers(pagination: PaginationQuery): Promise<Paginated<AdminUserView>> {
+export async function listUsers(pagination: PaginationQuery): Promise<Paginated<UserDetailView>> {
   const [records, total] = await Promise.all([
     User.find()
       .sort({ createdAt: -1, _id: -1 })
@@ -87,13 +43,13 @@ export async function listUsers(pagination: PaginationQuery): Promise<Paginated<
     User.countDocuments(),
   ]);
 
-  return paginate((records as unknown as UserRecord[]).map(toAdminUser), total, pagination);
+  return paginate((records as unknown as UserRecord[]).map(toUserDetailView), total, pagination);
 }
 
-export async function getUser(id: string): Promise<AdminUserView> {
+export async function getUser(id: string): Promise<UserDetailView> {
   const record = await User.findById(toObjectId(id, userNotFound)).lean();
   if (!record) throw userNotFound();
-  return toAdminUser(record as unknown as UserRecord);
+  return toUserDetailView(record as unknown as UserRecord);
 }
 
 // Ativar ou desativar (RF-043, DEC-075):
@@ -101,7 +57,7 @@ export async function getUser(id: string): Promise<AdminUserView> {
 // - um coletor com coletas em andamento não pode ser desativado (OQ-055);
 // - repetir o status atual não é erro (a operação é idempotente).
 // A sessão de quem é desativado é encerrada na próxima requisição (requireAuth, 06 §27.3).
-export async function updateUserStatus(id: string, status: RecordStatus): Promise<AdminUserView> {
+export async function updateUserStatus(id: string, status: RecordStatus): Promise<UserDetailView> {
   const userId = toObjectId(id, userNotFound);
   const current = await User.findById(userId).select("role status").lean();
 
@@ -132,7 +88,7 @@ export async function updateUserStatus(id: string, status: RecordStatus): Promis
   ).lean();
 
   if (!updated) throw userNotFound();
-  return toAdminUser(updated as unknown as UserRecord);
+  return toUserDetailView(updated as unknown as UserRecord);
 }
 
 // ---------------------------------------------------------------------------

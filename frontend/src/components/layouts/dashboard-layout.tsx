@@ -7,10 +7,11 @@ import { useState, type ReactNode } from "react";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/components/features/auth/auth-provider";
 import { Button } from "@/components/ui/button";
-import { LOGIN_PATH, ROLE_HOME, ROLE_LABEL } from "@/lib/navigation";
+import { LOGIN_PATH, ROLE_HOME } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { AREA_NAVIGATION, DesktopNavigation, MobileNavigation, type Area } from "./area-navigation";
 import { NotificationBell } from "./notification-bell";
+import { ProfileLink } from "./profile-link";
 
 // Áreas com central de notificações (10 §58, §62, DEC-077).
 const NOTIFICATIONS_PATH: Partial<Record<Area, string>> = {
@@ -60,13 +61,7 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
 
           <div className="flex items-center gap-2">
             {notificationsPath && <NotificationBell href={notificationsPath} />}
-            {/* Nome a partir de lg: com 4 destinos, o cabeçalho de md não comporta tudo. */}
-            {user && (
-              <div className="hidden text-right lg:block">
-                <p className="text-sm font-medium leading-tight">{user.nome}</p>
-                <p className="text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
-              </div>
-            )}
+            {user && <ProfileLink user={user} />}
             <Button variant="ghost" onClick={handleLogout} loading={leaving}>
               {!leaving && <LogOut aria-hidden="true" data-icon="inline-start" />}
               Sair

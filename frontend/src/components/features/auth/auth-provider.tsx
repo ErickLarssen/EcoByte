@@ -14,6 +14,8 @@ type AuthContextValue = AuthState & {
   login: (payload: LoginPayload) => Promise<User>;
   register: (payload: RegisterPayload) => Promise<User>;
   logout: () => Promise<void>;
+  // Atualiza o usuário exibido após mudanças no próprio perfil (DEC-078).
+  updateUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,7 +74,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [queryClient]);
 
-  const value = useMemo(() => ({ ...state, login, register, logout }), [state, login, register, logout]);
+  const updateUser = useCallback((user: User) => setState({ status: "authenticated", user }), []);
+
+  const value = useMemo(
+    () => ({ ...state, login, register, logout, updateUser }),
+    [state, login, register, logout, updateUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -20,7 +20,7 @@ const emailSchema = z
   .max(254, "O e-mail deve ter no máximo 254 caracteres.")
   .pipe(z.email("Informe um e-mail válido."));
 
-const requiredText = (message: string, max: number) =>
+export const requiredText = (message: string, max: number) =>
   z.string({ error: message }).trim().min(1, message).max(max, `Máximo de ${max} caracteres.`);
 
 // Cadastro público (DEC-066). Campos não previstos, como `role`, são descartados.

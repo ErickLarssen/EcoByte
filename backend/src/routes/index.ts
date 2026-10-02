@@ -4,6 +4,7 @@ import { createAuthRouter } from "./auth.routes.js";
 import { createCollectionRouter } from "./collection.routes.js";
 import { createEcopointRouter } from "./ecopoint.routes.js";
 import { createNotificationRouter } from "./notification.routes.js";
+import { createProfileRouter } from "./profile.routes.js";
 import { healthRouter } from "./health.routes.js";
 
 // Rotas montadas sob /api/v1 (DEC-016).
@@ -15,6 +16,7 @@ export function createApiRouter(): Router {
   router.use("/collections", createCollectionRouter());
   router.use("/ecopoint", createEcopointRouter());
   router.use("/notifications", createNotificationRouter());
+  router.use("/profile", createProfileRouter());
   router.use("/admin", createAdminRouter());
 
   return router;

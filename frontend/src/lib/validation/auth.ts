@@ -11,7 +11,7 @@ export const PASSWORD_RULES = [
   { id: "special", label: "Um caractere especial", test: (value: string) => /[^A-Za-z0-9]/.test(value) },
 ] as const;
 
-const passwordSchema = z
+export const passwordSchema = z
   .string()
   .min(8, "A senha deve ter pelo menos 8 caracteres.")
   .max(128, "A senha deve ter no máximo 128 caracteres.")

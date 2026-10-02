@@ -560,6 +560,34 @@ PATCH /api/v1/profile
 
 Somente campos permitidos devem ser atualizados.
 
+## 11.3 Implementação (`DEC-078`)
+
+**Consultar:** `GET /api/v1/profile` responde `{ "user": { ... } }` no mesmo formato de usuário de §22.1. A resposta nunca traz `senhaHash` nem `documento`.
+
+**Atualizar:** `PATCH /api/v1/profile` aceita só os campos abaixo e responde com a mensagem "Perfil atualizado.":
+
+- `nome`;
+- `telefone`: vazio ou `null` remove o telefone;
+- `dadosEmpresa` `{ razaoSocial, nomeFantasia }`: somente para PJ. Se um PF enviar esse campo, a resposta é `400` em `fields.dadosEmpresa`.
+
+Os campos `email`, `role`, `tipoCadastro`, `status` e `documento` não fazem parte do contrato e são descartados. Um corpo sem nenhum campo válido responde `400` em `fields.body`.
+
+**Alterar senha:** `PATCH /api/v1/profile/password`.
+
+```json
+{
+  "senhaAtual": "Senha@123",
+  "novaSenha": "NovaSenha@456",
+  "confirmacaoNovaSenha": "NovaSenha@456"
+}
+```
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `200` | — | senha alterada ("Senha alterada com sucesso."); a sessão atual continua, com novo identificador |
+| `400` | `VALIDATION_ERROR` | `senhaAtual` incorreta (`fields.senhaAtual`), nova senha fora da política (`DEC-019`), confirmação diferente ou nova senha igual à atual |
+| `429` | `RATE_LIMIT_EXCEEDED` | mais de 10 tentativas em 15 minutos (`DEC-067`) |
+
 ---
 
 # 12. Ecoponto
