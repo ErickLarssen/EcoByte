@@ -3208,7 +3208,48 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 82. Registro Atual de Decisões Pendentes
+# 82. DEC-080 — Linguagem Visual do Site Público e Navegação com Dropdowns
+
+**Status:** ACEITA
+
+**Data:** 2026-10-03
+
+## Contexto
+
+O responsável pelo projeto indicou um site como referência de aspecto premium e organização das seções. Ele pediu que a navegação não repetisse o problema da referência (muitos links, com quebra de linha) e sugeriu dropdowns. A referência serve só para estrutura e ritmo: nenhum texto, imagem ou identidade dela é usado, e a paleta e a tipografia continuam as do `DEC-071`.
+
+## Decisão
+
+### Seções
+
+| Bloco | Uso |
+|---|---|
+| `PageHero` | Em largura total em todas as páginas públicas (maior na Home), com foto de fundo em movimento lento (Ken Burns), véu escuro e texto claro. Sem vídeo enquanto não houver um asset licenciado |
+| `FeatureSplit` | Home: duas fotos sobrepostas, cartão de destaque ("Ecoponto próprio") e texto com lista de público (00 §6) |
+| `ServiceCards` | Home: cartões com foto, ícone, título, texto e ação para "Para você", "Para empresas" e "Para instituições" |
+| `GradientCta` | Fim das páginas: foto em largura total que nasce de um degradê na cor da seção anterior, com texto e ação no lado claro |
+| Rodapé | Fundo escuro da paleta (`foreground`), mais alto, com o símbolo da marca como marca d'água à esquerda |
+
+### Navegação
+
+- **Desktop:** "Sobre o Projeto" e "Como Funciona" abrem dropdowns (Radix `NavigationMenu`, teclado e ARIA). Cada um tem "Visão geral" e as subpáginas do diagrama, como âncoras das seções. "Ecoponto" e "Solicitar Coleta" seguem como links diretos;
+- **Celular:** o menu lateral mostra as subpáginas agrupadas sob cada seção.
+
+### Movimento
+
+O Ken Burns e a entrada do texto do hero usam CSS e `tw-animate-css`, sem dependência nova. Ambos ficam desativados com `prefers-reduced-motion` (15 §83, §98).
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+15_INTERACTIONS_MOTION.md
+```
+
+---
+
+# 83. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -3227,7 +3268,7 @@ até serem formalmente decididas.
 
 ---
 
-# 83. Como Adicionar uma Nova Decisão
+# 84. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3265,7 +3306,7 @@ arquivo2.md
 
 ---
 
-# 84. Regra Final
+# 85. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

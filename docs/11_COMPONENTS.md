@@ -1692,7 +1692,7 @@ Main
 Footer
 ```
 
-Implementação (Fase 12, `DEC-079`): `components/layouts/public-layout.tsx`, com `public-header.tsx` e `site-footer.tsx`. Os blocos das páginas (`PageHero`, `SiteSection`, `StepList`, `SectionImage`) ficam em `features/site/site-blocks.tsx`, e as ações de solicitação em `features/site/request-collection-actions.tsx`.
+Implementação (Fase 12, `DEC-079`): `components/layouts/public-layout.tsx`, com `public-header.tsx` e `site-footer.tsx`. Os blocos das páginas (`PageHero`, `SiteSection`, `StepList`, `SectionImage`, `FeatureSplit`, `ServiceCards`, `GradientCta`, `CheckList`, `Eyebrow`) ficam em `features/site/site-blocks.tsx` (`DEC-080`), e as ações de solicitação em `features/site/request-collection-actions.tsx`. Os dropdowns do cabeçalho usam `components/ui/navigation-menu.tsx` (shadcn/ui).
 
 ---
 

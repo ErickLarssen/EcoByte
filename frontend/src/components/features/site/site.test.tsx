@@ -24,21 +24,34 @@ const anonymous = () => mockApi([{ path: "/auth/me", response: failure(401, "UNA
 const loggedAs = (user: object) => mockApi([{ path: "/auth/me", response: success({ user }) }]);
 
 describe("PublicHeader (diagrama de navegação, DEC-079)", () => {
-  it("mostra as seções do site na ordem do diagrama, com a atual marcada", async () => {
+  it("mostra as seções na ordem do diagrama: dropdowns e links diretos, com a atual marcada", async () => {
     anonymous();
-    navigation.pathname = "/como-funciona";
+    navigation.pathname = "/ecoponto";
     renderWithAuth(<PublicHeader />);
 
     const nav = screen.getAllByRole("navigation", { name: "Navegação do site" })[0]!;
-    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
-      "Sobre o Projeto",
-      "Ecoponto",
-      "Solicitar Coleta",
-      "Como Funciona",
-    ]);
-    expect(within(nav).getByRole("link", { name: "Como Funciona" })).toHaveAttribute("aria-current", "page");
+    const items = within(nav)
+      .getAllByRole("listitem")
+      .map((item) => item.querySelector("a, button")?.textContent?.trim());
+    expect(items).toEqual(["Sobre o Projeto", "Ecoponto", "Solicitar Coleta", "Como Funciona"]);
+    expect(within(nav).getByRole("button", { name: "Sobre o Projeto" })).toHaveAttribute("aria-expanded", "false");
+    expect(within(nav).getByRole("link", { name: "Ecoponto" })).toHaveAttribute("aria-current", "page");
     expect(await screen.findByRole("link", { name: "Entrar" })).toHaveAttribute("href", "/entrar");
     expect(screen.getByRole("link", { name: "Criar conta" })).toHaveAttribute("href", "/cadastro");
+  });
+
+  it("o dropdown abre a visão geral e as subpáginas do diagrama (DEC-080)", async () => {
+    const user = userEvent.setup();
+    anonymous();
+    renderWithAuth(<PublicHeader />);
+
+    const nav = screen.getAllByRole("navigation", { name: "Navegação do site" })[0]!;
+    await user.click(within(nav).getByRole("button", { name: "Como Funciona" }));
+
+    expect(within(nav).getByRole("button", { name: "Como Funciona" })).toHaveAttribute("aria-expanded", "true");
+    expect(await within(nav).findByRole("link", { name: /Visão geral/ })).toHaveAttribute("href", "/como-funciona");
+    expect(within(nav).getByRole("link", { name: /Dúvidas frequentes/ })).toHaveAttribute("href", "/como-funciona#duvidas");
+    expect(within(nav).getByRole("link", { name: /Para empresas/ })).toHaveAttribute("href", "/como-funciona#para-empresas");
   });
 
   it("usuário autenticado vê 'Meu painel' da sua área", async () => {
@@ -59,6 +72,13 @@ describe("PublicHeader (diagrama de navegação, DEC-079)", () => {
     const dialog = await screen.findByRole("dialog", { name: "Menu" });
     expect(within(dialog).getByRole("link", { name: "Início" })).toHaveAttribute("href", "/");
     expect(within(dialog).getByRole("link", { name: "Sobre o Projeto" })).toHaveAttribute("href", "/sobre");
+    const sobre = within(dialog).getByRole("list", { name: "Sobre o Projeto" });
+    expect(within(sobre).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Quem somos",
+      "Nossa missão",
+      "Impacto ambiental",
+      "Equipe",
+    ]);
     expect(await within(dialog).findByRole("link", { name: "Criar conta" })).toBeInTheDocument();
     expect(within(dialog).getByRole("button", { name: "Fechar" })).toBeInTheDocument();
   });

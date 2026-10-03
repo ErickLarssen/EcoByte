@@ -35,17 +35,18 @@ export default function SolicitarColetaPage() {
   return (
     <>
       <PageHero
-        title="Solicitar coleta"
-        description="Em poucos passos, você pede a coleta e a equipe EcoByte busca os eletrônicos no seu endereço."
+        eyebrow="Solicitar coleta"
+        title="Peça a coleta em poucos passos"
+        description="Informe o endereço e os itens. A equipe EcoByte busca os eletrônicos no local indicado."
         image={phoneRecycling}
         imageAlt="Celular com o símbolo de reciclagem sobre peças de eletrônicos descartados."
-        priority
       >
-        <RequestCollectionActions />
+        <RequestCollectionActions inverse />
       </PageHero>
 
       <SiteSection
         id="etapas"
+        eyebrow="Etapas"
         title="Como é a solicitação"
         description="Para solicitar, você precisa de uma conta de cliente, de pessoa física ou jurídica."
       >

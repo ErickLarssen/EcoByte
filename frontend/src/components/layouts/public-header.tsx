@@ -7,9 +7,18 @@ import { useState } from "react";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/components/features/auth/auth-provider";
 import { Button } from "@/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ROLE_HOME } from "@/lib/navigation";
-import { SITE_NAVIGATION } from "@/lib/site-navigation";
+import { SITE_NAVIGATION, type SiteNavItem } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
 
 function isActive(pathname: string, href: string) {
@@ -49,18 +58,47 @@ function AccountActions({ onNavigate, stacked = false }: { onNavigate?: () => vo
   );
 }
 
-const MOBILE_LINK =
-  "flex h-12 items-center rounded-lg px-3 font-medium outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground";
+// Dropdown de uma seção: "Visão geral" leva à página; os demais itens, às
+// subpáginas do diagrama (DEC-080).
+function SectionDropdown({ item, active }: { item: SiteNavItem; active: boolean }) {
+  const links = [{ href: item.href, label: "Visão geral", description: undefined }, ...(item.children ?? [])];
 
-// Cabeçalho do site público (11 §76, 12 §14): seções no desktop, a partir de
-// lg; no celular e no tablet, menu lateral (11 §49).
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuTrigger className={cn(active && "bg-accent text-accent-foreground")}>
+        {item.label}
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <ul className="grid w-80 gap-1 p-1">
+          {links.map((link) => (
+            <li key={link.href}>
+              <NavigationMenuLink asChild>
+                <Link href={link.href} className="grid gap-0.5 rounded-md p-3 hover:bg-accent focus:bg-accent">
+                  <span className="text-sm font-medium">{link.label}</span>
+                  {link.description && <span className="text-sm text-muted-foreground">{link.description}</span>}
+                </Link>
+              </NavigationMenuLink>
+            </li>
+          ))}
+        </ul>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  );
+}
+
+const MOBILE_LINK =
+  "flex min-h-12 items-center rounded-lg px-3 font-medium outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground";
+
+// Cabeçalho do site público (11 §76, 12 §14): seções com dropdown no desktop,
+// a partir de lg; no celular e no tablet, menu lateral com as subpáginas
+// agrupadas (11 §49, DEC-080).
 export function PublicHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-background">
+    <header className="sticky top-0 z-30 border-b bg-background">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <Link
           href="/"
@@ -70,27 +108,28 @@ export function PublicHeader() {
           <span className="text-lg font-semibold tracking-tight">EcoByte</span>
         </Link>
 
-        <nav aria-label="Navegação do site" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
+        <NavigationMenu aria-label="Navegação do site" className="hidden lg:flex" viewport={false}>
+          <NavigationMenuList>
             {SITE_NAVIGATION.map((item) => {
               const active = isActive(pathname, item.href);
+              if (item.children) return <SectionDropdown key={item.href} item={item} active={active} />;
+
               return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "inline-flex h-10 items-center rounded-lg px-3 text-sm font-medium outline-none transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50",
-                      active ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
+                <NavigationMenuItem key={item.href}>
+                  <NavigationMenuLink asChild active={active}>
+                    <Link
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(navigationMenuTriggerStyle(), active && "bg-accent text-accent-foreground")}
+                    >
+                      {item.label}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               );
             })}
-          </ul>
-        </nav>
+          </NavigationMenuList>
+        </NavigationMenu>
 
         <div className="hidden lg:block">
           <AccountActions />
@@ -102,7 +141,7 @@ export function PublicHeader() {
               <Menu aria-hidden="true" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-80 max-w-[85vw] gap-6 p-4 pt-14">
+          <SheetContent side="right" className="w-80 max-w-[85vw] gap-6 overflow-y-auto p-4 pt-14">
             <SheetHeader className="sr-only p-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
@@ -123,6 +162,21 @@ export function PublicHeader() {
                     >
                       {item.label}
                     </Link>
+                    {item.children && (
+                      <ul className="mb-2 ml-3 grid gap-0.5 border-l pl-2" aria-label={item.label}>
+                        {item.children.map((child) => (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              onClick={close}
+                              className="flex min-h-11 items-center rounded-lg px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                            >
+                              {child.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>

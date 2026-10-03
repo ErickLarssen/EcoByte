@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import recyclingBin from "@/assets/images/recycling-bin.webp";
+import sortingCables from "@/assets/images/sorting-cables.webp";
 import { CollectionSteps } from "@/components/features/site/collection-steps";
 import { RequestCollectionActions } from "@/components/features/site/request-collection-actions";
-import { PageHero, SiteSection } from "@/components/features/site/site-blocks";
+import { GradientCta, PageHero, SiteSection } from "@/components/features/site/site-blocks";
 import { CollectionStatusBadge } from "@/components/domain/collection-status-badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -55,16 +56,16 @@ export default function ComoFuncionaPage() {
   return (
     <>
       <PageHero
-        title="Como funciona"
+        eyebrow="Como funciona"
+        title="Você pede, a EcoByte recolhe"
         description="Você pede a coleta pela plataforma, a equipe EcoByte recolhe o material e o leva ao nosso ecoponto."
         image={recyclingBin}
         imageAlt="Cesto verde com o símbolo de reciclagem cheio de teclados, cabos e celulares."
-        priority
       >
-        <RequestCollectionActions />
+        <RequestCollectionActions inverse />
       </PageHero>
 
-      <SiteSection id="passo-a-passo" title="Passo a passo">
+      <SiteSection id="passo-a-passo" eyebrow="Do pedido ao ecoponto" title="Passo a passo">
         <CollectionSteps />
         <div className="grid gap-3">
           <h3 className="font-semibold">As etapas que você acompanha</h3>
@@ -115,7 +116,7 @@ export default function ComoFuncionaPage() {
         </div>
       </SiteSection>
 
-      <SiteSection id="duvidas" title="Dúvidas frequentes">
+      <SiteSection id="duvidas" eyebrow="Dúvidas" title="Dúvidas frequentes">
         <Accordion type="single" collapsible className="max-w-3xl rounded-xl border bg-card px-4">
           {FAQ.map((item, index) => (
             <AccordionItem key={item.question} value={`pergunta-${index}`}>
@@ -125,6 +126,18 @@ export default function ComoFuncionaPage() {
           ))}
         </Accordion>
       </SiteSection>
+
+      <GradientCta
+        id="descarte"
+        from="background"
+        eyebrow="Descarte responsável"
+        title="Seu lixo eletrônico no lugar certo"
+        description="Quer que a equipe EcoByte busque os seus eletrônicos?"
+        image={sortingCables}
+        imageAlt="Pessoa de luvas separando cabos e carregadores em caixas de triagem."
+      >
+        <RequestCollectionActions />
+      </GradientCta>
     </>
   );
 }
