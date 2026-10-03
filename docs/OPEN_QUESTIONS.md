@@ -669,6 +669,8 @@ ambiente de produção
 
 **Status:** ABERTA
 
+**Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê "Recuperar Senha" no fluxo de login. Continua indisponível até esta questão e a OQ-014 serem decididas.
+
 ## Questão
 
 Qual infraestrutura será utilizada para enviar o token temporário de recuperação?
@@ -700,6 +702,8 @@ Token invalidado
 # 20. OQ-016 — Relatórios Administrativos
 
 **Status:** ABERTA
+
+**Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê "Relatórios" no painel administrativo, sem detalhar quais.
 
 ## Questão
 
@@ -809,6 +813,8 @@ Essa questão não deve ser implementada automaticamente apenas por ser conceitu
 # 24. OQ-020 — Agendamento de Coletas
 
 **Status:** ABERTA
+
+**Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê a etapa "Escolher Data e Horário" na solicitação. O site informa que a escolha ainda não está disponível.
 
 **Comportamento enquanto aberta (2026-09-26):** a criação de coleta não aceita `dataAgendada`; o campo permanece `null`.
 
@@ -1055,6 +1061,8 @@ A existência futura de múltiplos ecopontos não altera a decisão atual do MVP
 
 **Status:** ABERTA
 
+**Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê "Visualizar rotas do dia" no painel do coletor. Não implementado: depende desta questão (13 §45–§46).
+
 ## Questão
 
 O painel do coletor deverá calcular automaticamente uma rota otimizada?
@@ -1080,7 +1088,9 @@ mas a estratégia concreta de geração dessas rotas ainda não foi definida.
 
 # 35. OQ-031 — Serviço de Mapas
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-079` (2026-10-03):** "Como chegar" abre rotas no Google Maps em uma nova aba, por link externo, sem mapa embutido. Continuam em aberto: mapa na página, serviço definitivo e chaves de API.
 
 ## Questão
 
@@ -1137,7 +1147,9 @@ O design system já estabelece uma direção visual, mas os assets finais ainda 
 
 # 37. OQ-033 — Assets Externos e Licenciamento
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-079` (2026-10-03):** o responsável pelo projeto confirmou a licença das fotografias Adobe Stock em `public/images/` (`AdobeStock_*`), que passam a ser usadas no site público em versões otimizadas (16 §81). Fontes e demais assets seguem esta questão.
 
 ## Questão
 
@@ -2053,7 +2065,64 @@ Uma questão não deve ser considerada resolvida apenas porque alguém implement
 
 ---
 
-# 73. Processo de Resolução
+# 73. OQ-069 — Conteúdo Institucional Definitivo
+
+**Status:** ABERTA
+
+**Comportamento enquanto aberta (2026-10-03, `DEC-079`):** as páginas Sobre o Projeto e Como Funciona usam textos provisórios, escritos a partir de `00_PROJECT_OVERVIEW.md` e das regras já definidas. A seção Equipe informa que os integrantes serão publicados, e Impacto Ambiental não apresenta números.
+
+## Questão
+
+Quais serão os textos definitivos do site institucional?
+
+Ainda é necessário definir:
+
+```text
+integrantes da equipe (nomes, papéis, fotos)
+missão e textos institucionais aprovados
+indicadores de impacto e sua fonte
+perguntas frequentes definitivas
+```
+
+Nenhum nome, número ou indicador deve ser inventado.
+
+---
+
+# 74. OQ-070 — Número de Protocolo da Solicitação
+
+**Status:** ABERTA
+
+## Questão
+
+A solicitação de coleta terá um número de protocolo, como mostra o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`)?
+
+Hoje a coleta é identificada pelo `id` do MongoDB.
+
+Ainda é necessário definir:
+
+```text
+formato do protocolo
+geração (sequencial, por data, aleatório)
+onde é exibido e se é usado em buscas
+```
+
+---
+
+# 75. OQ-071 — Endereço no Cadastro
+
+**Status:** ABERTA
+
+## Questão
+
+O cadastro deve pedir endereço, como mostra o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) ("Dados pessoais e endereço")?
+
+Hoje o cadastro não pede endereço (`DEC-066`): ele é informado em cada solicitação e guardado na coleta como retrato histórico (`DEC-008`).
+
+Caso o endereço passe a fazer parte do cadastro, será necessário definir se ele é obrigatório e se preenche automaticamente a solicitação.
+
+---
+
+# 76. Processo de Resolução
 
 Para cada questão:
 
@@ -2071,7 +2140,7 @@ Para cada questão:
 
 ---
 
-# 74. Matriz de Impacto
+# 77. Matriz de Impacto
 
 As questões devem ser tratadas conforme o impacto.
 
@@ -2084,7 +2153,7 @@ As questões devem ser tratadas conforme o impacto.
 
 ---
 
-# 75. Questões que Não Devem ser Inventadas pela IA
+# 78. Questões que Não Devem ser Inventadas pela IA
 
 Enquanto permanecerem abertas, agentes de IA não devem assumir automaticamente decisões sobre:
 
@@ -2112,7 +2181,7 @@ ou sinalizar a questão como bloqueadora
 
 ---
 
-# 76. Questões Bloqueadoras
+# 79. Questões Bloqueadoras
 
 Uma questão deve ser marcada como `BLOQUEADA` quando a implementação não puder ser concluída corretamente sem sua resolução.
 
@@ -2134,7 +2203,7 @@ antes de congelar o enum utilizado pela API e banco.
 
 ---
 
-# 77. Ao Resolver uma Questão
+# 80. Ao Resolver uma Questão
 
 Quando uma questão for resolvida:
 
@@ -2170,7 +2239,7 @@ DEC-XXX
 
 ---
 
-# 78. Registro Atual
+# 81. Registro Atual
 
 No momento, as questões consideradas especialmente importantes para a próxima etapa são:
 
@@ -2213,7 +2282,7 @@ Essas questões não devem ser tratadas como decisões já tomadas.
 
 ---
 
-# 79. Relação com `DECISIONS.md`
+# 82. Relação com `DECISIONS.md`
 
 Quando uma questão for resolvida, ela deve deixar de ser uma hipótese e passar a representar uma decisão formal do projeto.
 
@@ -2235,7 +2304,7 @@ testes
 
 ---
 
-# 80. Regra Final
+# 83. Regra Final
 
 Este documento representa aquilo que **ainda não foi definido**.
 

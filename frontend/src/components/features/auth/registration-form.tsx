@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { RegisterPayload } from "@/lib/api/auth";
+import type { RegisterPayload, TipoCadastro } from "@/lib/api/auth";
 import { applyApiErrors } from "@/lib/form-errors";
+import { withReturnParam } from "@/lib/navigation";
 import { registrationFormSchema, type RegistrationFormValues } from "@/lib/validation/auth";
 import { useAuth } from "./auth-provider";
 
@@ -61,7 +62,14 @@ const TIPOS = [
 
 // Cadastro de cliente PF ou PJ (11 §70, 10 §40, DEC-066). Após o sucesso, o
 // usuário já está autenticado e a guarda de visitante o leva à sua área.
-export function RegistrationForm() {
+type RegistrationFormProps = {
+  // Tipo pré-selecionado (ex.: "Sou empresa / instituição", DEC-079).
+  initialTipo?: TipoCadastro;
+  // Destino após o cadastro (?proximo=), mantido no link para "Entrar".
+  returnTo?: string | null;
+};
+
+export function RegistrationForm({ initialTipo = "PF", returnTo }: RegistrationFormProps = {}) {
   const { register: registerAccount } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -74,7 +82,7 @@ export function RegistrationForm() {
     resolver: zodResolver(registrationFormSchema),
     mode: "onTouched",
     defaultValues: {
-      tipoCadastro: "PF",
+      tipoCadastro: initialTipo,
       nome: "",
       email: "",
       telefone: "",
@@ -191,7 +199,7 @@ export function RegistrationForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Já tem conta?{" "}
-        <Link href="/entrar" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link href={withReturnParam("/entrar", returnTo)} className="font-medium text-primary underline-offset-4 hover:underline">
           Entrar
         </Link>
       </p>

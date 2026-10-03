@@ -1,9 +1,12 @@
-import { Clock, Info } from "lucide-react";
+import { Clock, ExternalLink, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Ecopoint } from "@/lib/api/ecopoint";
+import { directionsUrl } from "@/lib/maps";
 import { AddressCard } from "./address-card";
 
 // Ecoponto central (11 §61). Horários ainda não são exibidos: o formato está
-// em aberto (OQ-005). Mapa e navegação dependem de requisito (11 §60, OQ-031).
+// em aberto (OQ-005). Sem mapa embutido: "Como chegar" abre um app de mapas
+// externo (11 §60, OQ-031, DEC-079).
 export function EcopointCard({ ecopoint }: { ecopoint: Ecopoint }) {
   const inactive = ecopoint.status === "INATIVO";
 
@@ -30,6 +33,14 @@ export function EcopointCard({ ecopoint }: { ecopoint: Ecopoint }) {
         <Clock className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
         Horários de funcionamento a definir.
       </p>
+
+      <Button asChild variant="outline" className="w-full sm:w-auto sm:justify-self-start">
+        <a href={directionsUrl(ecopoint)} target="_blank" rel="noopener noreferrer">
+          Como chegar
+          <ExternalLink aria-hidden="true" data-icon="inline-end" />
+          <span className="sr-only"> (abre o mapa em uma nova aba)</span>
+        </a>
+      </Button>
     </article>
   );
 }

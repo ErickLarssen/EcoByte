@@ -1299,7 +1299,16 @@ robots
 arquivos estáticos específicos
 ```
 
-As fotografias em `public/images/` (`AdobeStock_*`) não foram movidas para o frontend nem utilizadas, pois a licença de uso ainda não foi verificada (`OQ-033`).
+As fotografias em `public/images/` (`AdobeStock_*`) tiveram a licença confirmada pelo responsável pelo projeto (`OQ-033`, `DEC-079`). Os originais continuam em `public/images/`; o site usa versões em WebP, com 2000 px de largura, em `frontend/src/assets/images/`, importadas com `next/image`:
+
+| Arquivo | Original | Uso |
+|---|---|---|
+| `sorting-cables.webp` | `AdobeStock_2165041921` | Home |
+| `collection-containers.webp` | `AdobeStock_2155918425` | Home e Ecoponto |
+| `recycling-processing.webp` | `AdobeStock_2167208335` | Home e Sobre |
+| `electronic-waste-pile.webp` | `AdobeStock_2174843254` | Sobre (impacto) |
+| `recycling-bin.webp` | `AdobeStock_2161526761` | Como Funciona |
+| `phone-recycling.webp` | `AdobeStock_2167682237` | Solicitar Coleta |
 
 ---
 

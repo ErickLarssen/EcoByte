@@ -959,6 +959,8 @@ detalhes complementares
 informações extensas
 ```
 
+Implementação (Fase 12): `components/ui/accordion.tsx` (shadcn/ui), nas dúvidas frequentes de `/como-funciona`.
+
 ---
 
 # 39. Separator
@@ -1148,6 +1150,8 @@ bottom navigation
 ```
 
 conforme a experiência definida.
+
+Implementação: barra inferior nas áreas autenticadas (`DEC-073`); no site público, menu lateral em `components/ui/sheet.tsx`, aberto pelo botão "Abrir menu" do `PublicHeader` (Fase 12, `DEC-079`). O botão de fechar do sheet foi ajustado para "Fechar" e para área de toque adequada (12 §16).
 
 Implementação (Fase 6, `DEC-073`): `components/layouts/area-navigation.tsx`, com barra inferior no celular e links no cabeçalho a partir de `md`; o item ativo é o destino mais específico da URL atual.
 
@@ -1687,6 +1691,8 @@ Header
 Main
 Footer
 ```
+
+Implementação (Fase 12, `DEC-079`): `components/layouts/public-layout.tsx`, com `public-header.tsx` e `site-footer.tsx`. Os blocos das páginas (`PageHero`, `SiteSection`, `StepList`, `SectionImage`, `FeatureSplit`, `ServiceCards`, `GradientCta`, `CheckList`, `Eyebrow`) ficam em `features/site/site-blocks.tsx` (`DEC-080`), e as ações de solicitação em `features/site/request-collection-actions.tsx`. Os dropdowns do cabeçalho usam `components/ui/navigation-menu.tsx` (shadcn/ui).
 
 ---
 

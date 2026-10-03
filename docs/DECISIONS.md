@@ -2817,6 +2817,8 @@ Complemento (2026-09-30, `DEC-076`): `/cliente/ecoponto` (`CLIENTE`) e `/admin/e
 
 Complemento (2026-10-01, `DEC-077`, `DEC-078`): `/cliente/notificacoes` e `/coletor/notificacoes`; `/cliente/perfil`, `/coletor/perfil` e `/admin/perfil`.
 
+Complemento (2026-10-03, `DEC-079`): páginas públicas `/sobre`, `/ecoponto`, `/solicitar-coleta` e `/como-funciona`, acessíveis a todos.
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -3141,7 +3143,113 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 81. Registro Atual de Decisões Pendentes
+# 81. DEC-079 — Site Institucional a partir do Diagrama de Navegação
+
+**Status:** ACEITA
+
+**Data:** 2026-10-03
+
+## Contexto
+
+O diagrama de navegação do projeto (`public/images/diagrama-navegacao.png`) define uma parte institucional pública, que a documentação não descrevia: Home, Sobre o Projeto, Ecopontos, Solicitar Coleta, Como Funciona e Login, além dos painéis já existentes. Alguns itens do diagrama conflitam com decisões registradas ou dependem de questões em aberto.
+
+## Decisão
+
+### Páginas públicas
+
+| URL | Página | Seções |
+|---|---|---|
+| `/` | Home | apresentação, como funciona, para quem é, ecoponto, sobre |
+| `/sobre` | Sobre o Projeto | `#quem-somos`, `#missao`, `#impacto`, `#equipe` |
+| `/ecoponto` | Ecoponto | detalhes, endereço e "Como chegar" |
+| `/solicitar-coleta` | Solicitar Coleta | etapas da solicitação e acesso ao formulário |
+| `/como-funciona` | Como Funciona | `#passo-a-passo`, `#para-voce`, `#para-empresas`, `#para-instituicoes`, `#duvidas` |
+
+- Cabeçalho com as quatro seções na ordem do diagrama: no desktop a partir de `lg`, e em menu lateral no celular e no tablet (11 §49). O cabeçalho também traz "Entrar" e "Criar conta", ou "Meu painel" para quem já está autenticado.
+- Rodapé institucional com as seções e os links de conta. Não há canais de contato enquanto a `OQ-046` estiver aberta.
+- "Solicitar Coleta" exige conta de cliente (RF-014):
+  - **visitante:** vai ao cadastro ou ao login com `?proximo=/cliente/coletas/nova` e volta ao formulário;
+  - **cliente:** vai direto ao formulário;
+  - **coletor ou administrador:** é levado ao próprio painel.
+- **Login e cadastro:** os links entre as duas páginas mantêm o `?proximo=`. `/cadastro?tipo=PJ` abre com "Pessoa jurídica" selecionada ("Sou empresa / instituição").
+
+### Divergências com o diagrama
+
+| No diagrama | Decisão |
+|---|---|
+| "Ecopontos", mapa e lista | Mantido o ecoponto único (`DEC-002`, `CLAUDE.md` §10). A seção se chama "Ecoponto", e "Como chegar" é um link externo para o Google Maps (`OQ-031`) |
+| Escolher data e horário | Não implementado: depende da `OQ-020`. O site informa que a escolha ainda não está disponível |
+| Número de protocolo | Não implementado: registrado na `OQ-070` |
+| Recuperar senha | Não implementado: depende das `OQ-014` e `OQ-015` |
+| Endereço no cadastro | Não implementado: registrado na `OQ-071`; vale o `DEC-066` |
+| Rotas do dia do coletor | Não implementado: depende da `OQ-030` |
+| Relatórios do administrador | Não implementado: depende da `OQ-016` |
+
+### Conteúdo
+
+- Os textos são provisórios, escritos a partir de `00_PROJECT_OVERVIEW.md` e das regras já definidas (`OQ-069`).
+- Nenhum nome, número ou promessa não documentada é publicado. A seção Equipe informa que os integrantes serão publicados, e Impacto Ambiental não traz indicadores.
+- As perguntas frequentes respondem só com regras definidas e dizem quando algo ainda não está disponível, como agendamento e cancelamento.
+
+### Imagens
+
+- O responsável pelo projeto confirmou a licença das fotos Adobe Stock (`OQ-033`).
+- Seis delas são usadas em WebP com 2000 px de largura, em `frontend/src/assets/images/`, com `next/image` e texto alternativo (16 §21, §31, §80).
+- Os originais permanecem em `public/images/`.
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+16_ASSETS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 82. DEC-080 — Linguagem Visual do Site Público e Navegação com Dropdowns
+
+**Status:** ACEITA
+
+**Data:** 2026-10-03
+
+## Contexto
+
+O responsável pelo projeto indicou um site como referência de aspecto premium e organização das seções. Ele pediu que a navegação não repetisse o problema da referência (muitos links, com quebra de linha) e sugeriu dropdowns. A referência serve só para estrutura e ritmo: nenhum texto, imagem ou identidade dela é usado, e a paleta e a tipografia continuam as do `DEC-071`.
+
+## Decisão
+
+### Seções
+
+| Bloco | Uso |
+|---|---|
+| `PageHero` | Em largura total em todas as páginas públicas (maior na Home), com foto de fundo em movimento lento (Ken Burns), véu escuro e texto claro. Sem vídeo enquanto não houver um asset licenciado |
+| `FeatureSplit` | Home: duas fotos sobrepostas, cartão de destaque ("Ecoponto próprio") e texto com lista de público (00 §6) |
+| `ServiceCards` | Home: cartões com foto, ícone, título, texto e ação para "Para você", "Para empresas" e "Para instituições" |
+| `GradientCta` | Fim das páginas: foto em largura total que nasce de um degradê na cor da seção anterior, com texto e ação no lado claro |
+| Rodapé | Fundo escuro da paleta (`foreground`), mais alto, com o símbolo da marca como marca d'água à esquerda |
+
+### Navegação
+
+- **Desktop:** "Sobre o Projeto" e "Como Funciona" abrem dropdowns (Radix `NavigationMenu`, teclado e ARIA). Cada um tem "Visão geral" e as subpáginas do diagrama, como âncoras das seções. "Ecoponto" e "Solicitar Coleta" seguem como links diretos;
+- **Celular:** o menu lateral mostra as subpáginas agrupadas sob cada seção.
+
+### Movimento
+
+O Ken Burns e a entrada do texto do hero usam CSS e `tw-animate-css`, sem dependência nova. Ambos ficam desativados com `prefers-reduced-motion` (15 §83, §98).
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+15_INTERACTIONS_MOTION.md
+```
+
+---
+
+# 83. Registro Atual de Decisões Pendentes
 
 As seguintes decisões permanecem explicitamente abertas:
 
@@ -3160,7 +3268,7 @@ até serem formalmente decididas.
 
 ---
 
-# 82. Como Adicionar uma Nova Decisão
+# 84. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3198,7 +3306,7 @@ arquivo2.md
 
 ---
 
-# 83. Regra Final
+# 85. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

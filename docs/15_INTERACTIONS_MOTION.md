@@ -1386,6 +1386,8 @@ deve permanecer rapidamente disponível.
 
 Backgrounds animados devem ser discretos.
 
+Implementação (Fase 12, `DEC-080`): o hero do site público usa zoom lento na foto de fundo (`animate-ken-burns`, 28 s, ida e volta), desativado com `prefers-reduced-motion`.
+
 Evitar:
 
 ```text

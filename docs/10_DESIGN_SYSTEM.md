@@ -1267,6 +1267,10 @@ A intensidade visual pode variar conforme o contexto, mas a linguagem deve perma
 
 A landing page pode possuir uma linguagem visual mais expressiva.
 
+Implementação (Fase 12, `DEC-079`): site público com Home, Sobre o Projeto, Ecoponto, Solicitar Coleta e Como Funciona, a partir do diagrama de navegação. As fotografias aparecem em blocos com cantos arredondados, e o restante segue o sistema visual da área autenticada.
+
+Linguagem visual (`DEC-080`): hero em largura total com foto e véu escuro, composição com fotos sobrepostas, cartões com foto e ícone, chamada para ação com degradê e rodapé escuro com o símbolo da marca como marca d'água. Tudo usa a paleta e a tipografia do `DEC-071`.
+
 Pode utilizar:
 
 ```text

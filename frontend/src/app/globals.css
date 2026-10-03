@@ -147,3 +147,18 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Movimento lento da foto de fundo do hero (15 §80, §83, DEC-080). Discreto,
+   e desativado com movimento reduzido pela regra acima e por motion-reduce. */
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1) translate(-1.5%, -1%);
+  }
+}
+
+@utility animate-ken-burns {
+  animation: ken-burns 28s ease-in-out infinite alternate;
+}
