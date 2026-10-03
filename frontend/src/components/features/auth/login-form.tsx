@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/lib/api/client";
+import { withReturnParam } from "@/lib/navigation";
 import { loginFormSchema, type LoginFormValues } from "@/lib/validation/auth";
 import { useAuth } from "./auth-provider";
 
@@ -31,7 +32,8 @@ function loginErrorMessage(error: unknown): string {
 
 // Formulário de login (11 §71). O redirecionamento após o sucesso é feito
 // pela guarda de visitante (GuestOnly), conforme o perfil (DEC-072).
-export function LoginForm() {
+// returnTo: destino após o login (?proximo=), mantido no link para o cadastro.
+export function LoginForm({ returnTo }: { returnTo?: string | null } = {}) {
   const { login } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -78,7 +80,7 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Ainda não tem conta?{" "}
-        <Link href="/cadastro" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link href={withReturnParam("/cadastro", returnTo)} className="font-medium text-primary underline-offset-4 hover:underline">
           Cadastre-se
         </Link>
       </p>

@@ -36,3 +36,9 @@ export function postLoginDestination(role: UserRole, requested: string | null | 
 export function loginRedirectPath(currentPath: string): string {
   return `${LOGIN_PATH}?${RETURN_PARAM}=${encodeURIComponent(currentPath)}`;
 }
+
+// Leva o destino pedido (?proximo=) de uma página de visitante para outra,
+// como entre "Entrar" e "Criar conta" (DEC-079).
+export function withReturnParam(path: string, requested: string | null | undefined): string {
+  return isSafeInternalPath(requested) ? `${path}?${RETURN_PARAM}=${encodeURIComponent(requested)}` : path;
+}
