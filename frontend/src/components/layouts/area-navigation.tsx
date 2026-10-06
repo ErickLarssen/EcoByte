@@ -65,7 +65,9 @@ export function DesktopNavigation({ items }: { items: NavItem[] }) {
               aria-current={item.href === active ? "page" : undefined}
               className={cn(
                 "inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium outline-none transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50",
-                item.href === active ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+                item.href === active
+                  ? "bg-accent text-accent-foreground shadow-xs ring-1 ring-primary/10"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <item.icon className="size-4" aria-hidden="true" />
@@ -78,7 +80,8 @@ export function DesktopNavigation({ items }: { items: NavItem[] }) {
   );
 }
 
-// Barra inferior fixa no celular (DEC-073), ao alcance do polegar.
+// Barra inferior fixa no celular (DEC-073), ao alcance do polegar, em vidro e
+// com o ícone do item ativo sobre uma pílula (DEC-085).
 export function MobileNavigation({ items }: { items: NavItem[] }) {
   const active = useActiveHref(items);
   if (items.length === 0) return null;
@@ -86,7 +89,7 @@ export function MobileNavigation({ items }: { items: NavItem[] }) {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-20 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/85 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgb(30_42_51/0.12)] backdrop-blur-xl md:hidden"
     >
       <ul className="grid" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => {
@@ -102,7 +105,14 @@ export function MobileNavigation({ items }: { items: NavItem[] }) {
                   isActive ? "text-primary" : "text-muted-foreground",
                 )}
               >
-                <item.icon className={cn("size-5", isActive && "stroke-[2.5]")} aria-hidden="true" />
+                <span
+                  className={cn(
+                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+                    isActive && "bg-accent",
+                  )}
+                >
+                  <item.icon className={cn("size-5", isActive && "stroke-[2.5]")} aria-hidden="true" />
+                </span>
                 <span className={cn(isActive && "font-semibold")}>{item.label}</span>
               </Link>
             </li>

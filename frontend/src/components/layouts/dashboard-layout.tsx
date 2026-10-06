@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { BrandBackdrop } from "@/components/common/brand-backdrop";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/components/features/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const NOTIFICATIONS_PATH: Partial<Record<Area, string>> = {
 
 // Layout das áreas autenticadas (11 §74): cabeçalho com marca, navegação da
 // área (cabeçalho no desktop, barra inferior no celular — DEC-073) e saída.
+// Cabeçalho e barra em vidro sobre o fundo da marca no topo (DEC-085).
 export function DashboardLayout({ area, children }: { area: Area; children: ReactNode }) {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -38,7 +40,8 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-muted">
+    <div className="relative isolate flex min-h-dvh flex-col bg-muted">
+      <BrandBackdrop variant="area" />
       <a
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-background focus:px-4 focus:py-2"
@@ -46,7 +49,7 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
         Pular para o conteúdo
       </a>
 
-      <header className="sticky top-0 z-10 border-b bg-background">
+      <header className="sticky top-0 z-10 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-6">
             <Link

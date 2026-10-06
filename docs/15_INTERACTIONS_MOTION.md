@@ -1388,6 +1388,8 @@ Backgrounds animados devem ser discretos.
 
 Implementação (Fase 12, `DEC-080`): o hero do site público usa zoom lento na foto de fundo (`animate-ken-burns`, 28 s, ida e volta), desativado com `prefers-reduced-motion`.
 
+Telas de autenticação (`DEC-085`): o painel da marca usa o mesmo zoom lento, e os brilhos do fundo derivam devagar (`animate-aurora`, 22 s, ida e volta). Os dois são desativados com `prefers-reduced-motion`. Nas áreas autenticadas, o fundo é parado.
+
 Evitar:
 
 ```text
@@ -1437,6 +1439,8 @@ border
 ```
 
 ao hover.
+
+Implementação (`DEC-085`): `surface-card-interactive`, com elevação de 2 px, sombra maior e contorno na cor primária, em 200 ms. Não há elevação com movimento reduzido.
 
 ---
 

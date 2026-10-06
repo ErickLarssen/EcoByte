@@ -924,6 +924,8 @@ Coletas em andamento
 Coletas concluídas
 ```
 
+Implementação (`DEC-085`): `CountTile`, com ícone em placa, valor em destaque e seta para a lista correspondente.
+
 A métrica deve possuir:
 
 ```text
@@ -1305,6 +1307,8 @@ gradientes
 glassmorphism
 animações decorativas
 ```
+
+Acabamento (`DEC-085`): navegação em vidro, abertura escura dos painéis (`DashboardHero`), cartões com o utilitário `surface-card` e fundo discreto, sem animação, no topo. Degradês e vidro não se repetem nos demais elementos.
 
 ---
 

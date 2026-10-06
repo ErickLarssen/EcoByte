@@ -3,6 +3,7 @@
 import { ClipboardList, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { CollectionListSkeleton } from "@/components/common/collection-card-skeleton";
+import { DashboardHero } from "@/components/common/dashboard-hero";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { useAuth } from "@/components/features/auth/auth-provider";
@@ -13,7 +14,7 @@ import { useMyCollections } from "@/hooks/use-client-collections";
 const RECENT_LIMIT = 3;
 
 // Painel do cliente (11 §78, 10 §65): solicitar coleta em destaque e as coletas
-// mais recentes com o status atual. Notificações entram com a fase correspondente.
+// mais recentes com o status atual. Abertura com o DashboardHero (DEC-085).
 export function ClientDashboard() {
   const { user } = useAuth();
   const firstName = user?.nome.split(" ")[0];
@@ -21,25 +22,20 @@ export function ClientDashboard() {
 
   return (
     <div className="grid gap-8">
-      <section aria-labelledby="boas-vindas" className="grid gap-4">
-        <h1 id="boas-vindas" className="text-2xl font-semibold tracking-tight">
-          Olá{firstName ? `, ${firstName}` : ""}!
-        </h1>
-
-        <div className="grid gap-4 rounded-xl bg-primary p-5 text-primary-foreground sm:flex sm:items-center sm:justify-between">
-          <div className="grid gap-1">
-            <p className="text-lg font-semibold">Tem lixo eletrônico para descartar?</p>
-            <p className="text-sm text-primary-foreground/85">
-              Informe o endereço e os itens. A equipe EcoByte recolhe e leva ao ecoponto.
-            </p>
-          </div>
-          <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
-            <Link href="/cliente/coletas/nova">
-              <PlusCircle aria-hidden="true" data-icon="inline-start" />
-              Solicitar coleta
-            </Link>
-          </Button>
-        </div>
+      <section aria-labelledby="boas-vindas">
+        <DashboardHero
+          eyebrow="Área do cliente"
+          firstName={firstName}
+          description="Tem lixo eletrônico para descartar? Informe o endereço e os itens. A equipe EcoByte recolhe e leva ao ecoponto."
+          action={
+            <Button asChild size="lg" variant="secondary" className="w-full shadow-lg shadow-black/20 sm:w-auto">
+              <Link href="/cliente/coletas/nova">
+                <PlusCircle aria-hidden="true" data-icon="inline-start" />
+                Solicitar coleta
+              </Link>
+            </Button>
+          }
+        />
       </section>
 
       <section aria-labelledby="recentes" className="grid gap-4">

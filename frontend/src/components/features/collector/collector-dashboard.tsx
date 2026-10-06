@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CollectionListSkeleton } from "@/components/common/collection-card-skeleton";
 import { CountTile } from "@/components/common/count-tile";
+import { DashboardHero } from "@/components/common/dashboard-hero";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { useAuth } from "@/components/features/auth/auth-provider";
@@ -61,6 +62,7 @@ function PreviewSection({
 // Painel do coletor (11 §79, 13 §6, §43): quantas coletas estão disponíveis e
 // em andamento (DEC-084), e a próxima ação de cada uma. Sem "próxima coleta"
 // ordenada por prioridade: o critério não está definido (13 §84, OQ-047).
+// Abertura com o DashboardHero, e os totais sobrepostos a ele (DEC-085).
 export function CollectorDashboard() {
   const { user } = useAuth();
   const firstName = user?.nome.split(" ")[0];
@@ -70,10 +72,13 @@ export function CollectorDashboard() {
   return (
     <div className="grid gap-8">
       <section aria-labelledby="boas-vindas" className="grid gap-4">
-        <h1 id="boas-vindas" className="text-2xl font-semibold tracking-tight">
-          Olá{firstName ? `, ${firstName}` : ""}!
-        </h1>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <DashboardHero
+          eyebrow="Área do coletor"
+          firstName={firstName}
+          withTiles
+          description="Aceite coletas disponíveis, siga cada etapa e entregue o material no ecoponto EcoByte."
+        />
+        <div className="relative grid gap-3 sm:-mt-10 sm:grid-cols-2 sm:px-5">
           <CountTile
             href="/coletor/disponiveis"
             label="Coletas disponíveis"

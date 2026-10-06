@@ -76,7 +76,7 @@ export function RequireVerifiedEmail({ children }: { children: ReactNode }) {
   // O aviso com o reenvio já aparece no topo da área do cliente.
   if (user && !user.emailVerificado) {
     return (
-      <p className="rounded-xl border bg-card p-5 text-muted-foreground">
+      <p className="surface-card p-5 text-muted-foreground">
         A solicitação de coleta fica disponível depois que você confirmar o seu e-mail. Se não encontrar a mensagem,
         use &quot;Reenviar e-mail&quot; no aviso acima.
       </p>

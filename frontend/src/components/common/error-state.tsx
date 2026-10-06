@@ -11,7 +11,7 @@ type ErrorStateProps = {
 // Falha ao carregar uma seção (11 §33, 10 §57), com nova tentativa.
 export function ErrorState({ title, message, onRetry, retrying }: ErrorStateProps) {
   return (
-    <div role="alert" className="flex flex-col items-center gap-3 rounded-xl border bg-card px-6 py-10 text-center">
+    <div role="alert" className="flex flex-col items-center gap-3 surface-card px-6 py-12 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-error-surface text-error">
         <AlertTriangle className="size-6" aria-hidden="true" />
       </span>

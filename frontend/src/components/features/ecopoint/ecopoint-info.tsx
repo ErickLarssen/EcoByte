@@ -14,7 +14,7 @@ export function EcopointInfo() {
 
   if (query.isPending) {
     return (
-      <div role="status" aria-live="polite" className="grid gap-3 rounded-xl border bg-card p-5">
+      <div role="status" aria-live="polite" className="grid gap-3 surface-card p-5">
         <span className="sr-only">Carregando ecoponto...</span>
         <Skeleton className="h-6 w-1/2" aria-hidden="true" />
         <Skeleton className="h-4 w-3/4" aria-hidden="true" />
