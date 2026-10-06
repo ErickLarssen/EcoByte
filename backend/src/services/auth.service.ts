@@ -13,6 +13,8 @@ export type PublicUser = {
   role: UserRole;
   tipoCadastro: TipoCadastro;
   status: RecordStatus;
+  // Campo ausente conta como verificado (DEC-082).
+  emailVerificado: boolean;
 };
 
 export function toPublicUser(user: UserDocument): PublicUser {
@@ -23,6 +25,7 @@ export function toPublicUser(user: UserDocument): PublicUser {
     role: user.role,
     tipoCadastro: user.tipoCadastro,
     status: user.status,
+    emailVerificado: user.emailVerificado !== false,
   };
 }
 
@@ -40,7 +43,8 @@ function isDuplicateKeyError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === 11000;
 }
 
-// Cadastro público (DEC-066): sempre CLIENTE e ATIVO (09 §77).
+// Cadastro público (DEC-066): sempre CLIENTE e ATIVO (09 §77), com e-mail a
+// confirmar (DEC-082). O envio do link fica com o controller.
 export async function registerClient(input: RegisterInput): Promise<PublicUser> {
   if (await User.exists({ email: input.email })) {
     throw new AppError(409, "EMAIL_ALREADY_EXISTS", "Este e-mail já está cadastrado.");
@@ -56,6 +60,8 @@ export async function registerClient(input: RegisterInput): Promise<PublicUser> 
       tipoCadastro: input.tipoCadastro,
       dadosEmpresa: input.tipoCadastro === "PJ" ? input.dadosEmpresa : null,
       status: "ATIVO",
+      // Confirmação por link antes de solicitar coletas (DEC-082).
+      emailVerificado: false,
     });
 
     return toPublicUser(user);

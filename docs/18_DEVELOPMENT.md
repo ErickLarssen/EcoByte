@@ -141,6 +141,13 @@ FRONTEND_URL=http://localhost:3000
 SESSION_SECRET=
 SESSION_MAX_AGE=604800
 TRUST_PROXY=0
+# E-mail (DEC-082): sem SMTP_HOST, os e-mails aparecem no console do backend.
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=EcoByte <nao-responda@ecobyte.local>
 ```
 
 | Variável | Obrigatória | Uso |
@@ -152,6 +159,12 @@ TRUST_PROXY=0
 | `SESSION_SECRET` | Sim | Assinatura do cookie de sessão, mínimo 32 caracteres (`DEC-021`) |
 | `SESSION_MAX_AGE` | Não (padrão `604800`) | Expiração da sessão em segundos, renovada a cada uso (`DEC-021`) |
 | `TRUST_PROXY` | Em produção | Proxies confiáveis à frente do backend (`DEC-068`); `0` em desenvolvimento |
+| `SMTP_HOST` | Em produção | Servidor SMTP dos e-mails (`DEC-082`). Sem ele, fora de produção, os e-mails, com o link de confirmação, aparecem no console do backend |
+| `SMTP_PORT` | Não (padrão `587`) | Porta SMTP |
+| `SMTP_SECURE` | Não (padrão `false`) | `true` para TLS direto (porta 465); `false` usa STARTTLS |
+| `SMTP_USER` / `SMTP_PASS` | Conforme o provedor | Credenciais SMTP |
+| `MAIL_FROM` | Não | Remetente; padrão `EcoByte <nao-responda@ecobyte.local>` |
+| `VIACEP_URL` | Não (padrão `https://viacep.com.br`) | Serviço de consulta de CEP (`DEC-081`) |
 
 Para gerar um `SESSION_SECRET` local:
 

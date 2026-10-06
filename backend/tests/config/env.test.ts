@@ -3,7 +3,13 @@ import { loadEnv } from "../../src/config/env.js";
 
 const SECRET = "x".repeat(32);
 const base = { MONGODB_URI: "mongodb://localhost:27017/ecobyte", SESSION_SECRET: SECRET };
-const production = { ...base, NODE_ENV: "production", FRONTEND_URL: "https://ecobyte.exemplo", TRUST_PROXY: "1" };
+const production = {
+  ...base,
+  NODE_ENV: "production",
+  FRONTEND_URL: "https://ecobyte.exemplo",
+  TRUST_PROXY: "1",
+  SMTP_HOST: "smtp.ecobyte.exemplo",
+};
 
 describe("loadEnv", () => {
   it("aplica valores padrão fora de produção", () => {
@@ -15,6 +21,10 @@ describe("loadEnv", () => {
       SESSION_MAX_AGE: 604800,
       FRONTEND_URL: "http://localhost:3000",
       TRUST_PROXY: 0,
+      SMTP_PORT: 587,
+      SMTP_SECURE: false,
+      MAIL_FROM: "EcoByte <nao-responda@ecobyte.local>",
+      VIACEP_URL: "https://viacep.com.br",
     });
   });
 
@@ -45,6 +55,15 @@ describe("loadEnv", () => {
 
     expect(env.FRONTEND_URL).toBe("https://ecobyte.exemplo");
     expect(env.TRUST_PROXY).toBe(1);
+  });
+
+  it("exige SMTP_HOST em produção (DEC-082)", () => {
+    expect(() => loadEnv({ ...production, SMTP_HOST: undefined })).toThrow(/SMTP_HOST é obrigatória em produção/);
+  });
+
+  it("lê a configuração de SMTP", () => {
+    const env = loadEnv({ ...base, SMTP_HOST: "smtp.exemplo", SMTP_PORT: "465", SMTP_SECURE: "true" });
+    expect(env).toMatchObject({ SMTP_HOST: "smtp.exemplo", SMTP_PORT: 465, SMTP_SECURE: true });
   });
 
   it("exige FRONTEND_URL e TRUST_PROXY em produção (DEC-068, DEC-069)", () => {

@@ -329,6 +329,17 @@ Sim
 
 ---
 
+## 5.4.1 Confirmar e-mail
+
+```http
+POST /api/v1/auth/verify-email
+POST /api/v1/auth/verify-email/resend
+```
+
+Confirmação do e-mail pelo token do link (pública) e reenvio do link (com sessão) (`DEC-082`).
+
+---
+
 ## 5.5 Solicitar recuperação de senha
 
 ```http
@@ -395,6 +406,16 @@ Não necessariamente
 - token deve estar dentro do período permitido;
 - nova senha deve atender aos requisitos de segurança;
 - senha anterior não deve ser retornada.
+
+---
+
+# 5.7 Consulta de CEP
+
+```http
+GET /api/v1/cep/:cep
+```
+
+Endereço do CEP pelo ViaCEP, com a indicação de atendimento em Diadema-SP. Exige sessão (`DEC-081`).
 
 ---
 

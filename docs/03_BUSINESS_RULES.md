@@ -923,7 +923,21 @@ Quando existir conflito, a documentação deve ser atualizada antes da implement
 
 ---
 
-# 22. Regra geral
+# 22. Área de atendimento e verificação de e-mail
+
+## BR-061 — Área de atendimento
+
+As coletas são realizadas somente em Diadema-SP. O endereço da coleta deve estar em Diadema-SP, e a API recusa solicitações de outra cidade ou UF, ou com CEP de fora da área (`DEC-081`).
+
+---
+
+## BR-062 — Verificação de e-mail
+
+O cliente que se cadastra pela plataforma deve confirmar o e-mail pelo link enviado antes de solicitar coletas. Contas criadas pela equipe já nascem verificadas (`DEC-082`).
+
+---
+
+# 23. Regra geral
 
 ## BR-060 — Fonte de verdade
 

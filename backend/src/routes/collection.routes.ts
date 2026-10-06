@@ -9,18 +9,20 @@ import {
 } from "../controllers/collection.controller.js";
 import { requireAuth } from "../middlewares/authenticate.js";
 import { requireRole } from "../middlewares/authorize.js";
+import { requireVerifiedEmail } from "../middlewares/require-verified-email.js";
 import { validateBody } from "../middlewares/validate-body.js";
+import type { CepProvider } from "../services/cep.service.js";
 import { createCollectionSchema } from "../validators/collection.validators.js";
 
 // Rotas de coleta (05_ROUTES §8–§9, DEC-064). Todas exigem autenticação;
 // a role de cada rota é verificada no backend (BR-032).
-export function createCollectionRouter(): Router {
+export function createCollectionRouter(cepProvider: CepProvider): Router {
   const router = Router();
 
   router.use(requireAuth);
 
   // Cliente
-  router.post("/", requireRole("CLIENTE"), validateBody(createCollectionSchema), create);
+  router.post("/", requireRole("CLIENTE"), requireVerifiedEmail, validateBody(createCollectionSchema), create(cepProvider));
   router.get("/", requireRole("CLIENTE"), listMine);
 
   // Coletor — registradas antes de "/:id" (05_ROUTES §9.1.1).

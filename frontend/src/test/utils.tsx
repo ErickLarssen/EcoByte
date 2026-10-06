@@ -113,6 +113,7 @@ export const clienteUser = {
   role: "CLIENTE" as const,
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
+  emailVerificado: true,
 };
 
 // Coleta na visão do coletor (06_API §13.4, DEC-070): `cliente` é null em
@@ -130,6 +131,7 @@ export const coletorUser = {
   role: "COLETOR" as const,
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
+  emailVerificado: true,
 };
 
 // Usuário na visão administrativa (DEC-075), para testes.
@@ -168,4 +170,5 @@ export const adminUser = {
   role: "ADMIN" as const,
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
+  emailVerificado: true,
 };

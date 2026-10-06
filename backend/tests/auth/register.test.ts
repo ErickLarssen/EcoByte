@@ -16,7 +16,7 @@ describe("POST /api/v1/auth/register (17_TESTING §29, §40)", () => {
     expect(response.status).toBe(201);
     expect(response.body).toEqual({
       status: "success",
-      message: "Cadastro realizado com sucesso.",
+      message: "Cadastro realizado com sucesso. Enviamos um link para confirmar seu e-mail.",
       data: {
         user: {
           id: expect.any(String),
@@ -25,6 +25,7 @@ describe("POST /api/v1/auth/register (17_TESTING §29, §40)", () => {
           role: "CLIENTE",
           tipoCadastro: "PF",
           status: "ATIVO",
+          emailVerificado: false,
         },
       },
     });

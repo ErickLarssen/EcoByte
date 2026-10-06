@@ -977,7 +977,7 @@ A implementação do provedor de e-mail continua dependente da infraestrutura es
 
 # 25. DEC-023 — Email de Verificação
 
-**Status:** PENDENTE
+**Status:** RESOLVIDA por `DEC-082` (2026-10-05): verificação obrigatória por link para o cadastro público.
 
 ## Contexto
 
@@ -3249,14 +3249,98 @@ O Ken Burns e a entrada do texto do hero usam CSS e `tw-animate-css`, sem depend
 
 ---
 
-# 83. Registro Atual de Decisões Pendentes
+# 83. DEC-081 — Endereço pelo CEP e Área de Atendimento Diadema-SP
 
-As seguintes decisões permanecem explicitamente abertas:
+**Status:** ACEITA
+
+**Data:** 2026-10-05
+
+## Contexto
+
+As coletas são feitas somente em Diadema-SP (`CLAUDE.md` §1). O responsável pelo projeto pediu que o CEP preenchesse o endereço e que cidade e UF já viessem fixas em Diadema-SP.
+
+## Decisão
+
+### Consulta de CEP
+
+- `GET /api/v1/cep/:cep`, com sessão, consulta o ViaCEP (`https://viacep.com.br`, público e sem chave) pelo backend, com timeout de 5 s;
+- a resposta é `{ cep, logradouro, bairro, cidade, estado, atendido }`, em que `atendido` indica se o CEP é de Diadema-SP;
+- CEP com formato inválido responde `400`, CEP inexistente `404`, e falha do serviço `503 CEP_SERVICE_UNAVAILABLE`;
+- o navegador fala só com a API EcoByte. O endereço do ViaCEP é configurável (`VIACEP_URL`).
+
+### Área de atendimento
+
+- **Formulário (`AddressFields` com `serviceArea`):** cidade e UF vêm fixas e somente leitura. O CEP preenche logradouro e bairro, e o foco vai para "Número";
+- **Bloqueio no formulário:** um CEP de fora da área ou inexistente mostra o erro no campo e impede o avanço da etapa. Se o serviço falhar, o preenchimento segue manual;
+- **API, ao criar a coleta:** cidade e UF precisam ser Diadema-SP, sem diferenciar maiúsculas ou acentos, e são gravadas na grafia oficial. O CEP também é conferido no serviço externo: inexistente ou de fora da área responde `400` em `enderecoColeta.cep`. Se o serviço estiver indisponível, vale só a validação de cidade e UF, para a solicitação não depender dele;
+- **Ecoponto:** o formulário do admin também consulta o CEP, mas sem fixar cidade e UF. A área de atendimento vale para as coletas.
+
+## Documentos relacionados
 
 ```text
-DEC-023
-Verificação de e-mail
+03_BUSINESS_RULES.md
+05_ROUTES.md
+06_API.md
+11_COMPONENTS.md
 ```
+
+---
+
+# 84. DEC-082 — Verificação de E-mail por Link
+
+**Status:** ACEITA
+
+**Data:** 2026-10-05
+
+## Contexto
+
+O responsável pelo projeto pediu a confirmação do e-mail no cadastro, por link enviado. Isso resolve o `DEC-023` e a `OQ-001`, e exige um provedor de e-mail (`OQ-014`).
+
+## Decisão
+
+### Fluxo
+
+1. O cadastro público cria a conta com `emailVerificado: false`, inicia a sessão (`DEC-066`) e envia o link `{FRONTEND_URL}/verificar-email?token=...`.
+2. Antes de confirmar, o cliente entra e acompanha o painel, mas não solicita coleta: `POST /api/v1/collections` responde `403 EMAIL_NOT_VERIFIED`, e a interface mostra um aviso com "Reenviar e-mail".
+3. `POST /api/v1/auth/verify-email` (`{ token }`, público) confirma o e-mail. O link pode ser aberto em outro navegador.
+
+### Token
+
+- 32 bytes aleatórios. Só o hash SHA-256 é guardado no usuário, nunca o token;
+- vale 24 horas e é de uso único. Pedir um novo link invalida o anterior;
+- token inválido ou já usado responde `400 INVALID_TOKEN`, e token vencido `400 TOKEN_EXPIRED`.
+
+### Reenvio
+
+`POST /api/v1/auth/verify-email/resend`, com sessão, envia um novo link. Conta já verificada responde `409 EMAIL_ALREADY_VERIFIED`. Os limites são de 5 reenvios por hora e 20 confirmações a cada 15 minutos, por IP.
+
+### Contas existentes
+
+O campo tem padrão `true`: contas criadas pela equipe (coletor, admin, seed) e as anteriores a esta decisão contam como verificadas, e o campo ausente também conta como verificado. Só o cadastro público grava `false`.
+
+### Envio
+
+- `nodemailer` por SMTP genérico (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`), obrigatório em produção;
+- fora de produção, sem `SMTP_HOST`, o e-mail com o link aparece no console do backend;
+- falha no envio não desfaz o cadastro: fica no log, e o usuário pode pedir o reenvio;
+- **dependência nova:** `nodemailer`, porque o Node.js não tem cliente SMTP próprio.
+
+## Documentos relacionados
+
+```text
+03_BUSINESS_RULES.md
+05_ROUTES.md
+06_API.md
+07_DATABASE_MONGODB.md
+18_DEVELOPMENT.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 85. Registro Atual de Decisões Pendentes
+
+Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
 Outras questões de negócio e implementação devem permanecer em:
 
@@ -3268,7 +3352,7 @@ até serem formalmente decididas.
 
 ---
 
-# 84. Como Adicionar uma Nova Decisão
+# 86. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3306,7 +3390,7 @@ arquivo2.md
 
 ---
 
-# 85. Regra Final
+# 87. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

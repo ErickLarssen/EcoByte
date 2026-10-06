@@ -16,6 +16,8 @@ const dadosEmpresaSchema = new Schema(
 function userToJson(doc: unknown, ret: Record<string, unknown>): Record<string, unknown> {
   const json = toJsonTransform(doc, ret);
   delete json.senhaHash;
+  delete json.emailVerificacaoTokenHash;
+  delete json.emailVerificacaoExpiraEm;
   return json;
 }
 
@@ -52,6 +54,14 @@ const userSchema = new Schema(
       enum: { values: RECORD_STATUSES, message: "status inválido." },
       default: "ATIVO",
     },
+    // Verificação de e-mail (DEC-082). O padrão é true: contas criadas pela
+    // equipe (coletor, admin, seed) e as anteriores à verificação contam como
+    // verificadas; só o cadastro público grava false até a confirmação.
+    // Leituras devem tratar o campo ausente como verificado.
+    emailVerificado: { type: Boolean, default: true },
+    // Hash SHA-256 do token enviado por e-mail; o token em si nunca é guardado.
+    emailVerificacaoTokenHash: { type: String, default: null, select: false },
+    emailVerificacaoExpiraEm: { type: Date, default: null, select: false },
   },
   {
     timestamps: true,
@@ -61,6 +71,12 @@ const userSchema = new Schema(
 
 // E-mail único (BR-005, 07 §12.1).
 userSchema.index({ email: 1 }, { unique: true });
+
+// Busca do token de verificação (DEC-082); só documentos com token pendente.
+userSchema.index(
+  { emailVerificacaoTokenHash: 1 },
+  { partialFilterExpression: { emailVerificacaoTokenHash: { $type: "string" } } },
+);
 
 export type UserAttributes = InferSchemaType<typeof userSchema>;
 export type UserDocument = HydratedDocument<UserAttributes>;

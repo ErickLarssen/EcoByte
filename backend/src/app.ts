@@ -5,6 +5,8 @@ import { errorHandler } from "./middlewares/error-handler.js";
 import { notFoundHandler } from "./middlewares/not-found.js";
 import { createOriginGuard } from "./middlewares/verify-origin.js";
 import { createApiRouter } from "./routes/index.js";
+import type { CepProvider } from "./services/cep.service.js";
+import type { Mailer } from "./services/mailer.js";
 
 export type AppOptions = {
   frontendUrl: string;
@@ -15,6 +17,9 @@ export type AppOptions = {
     secureCookies: boolean;
     store: Store;
   };
+  // Serviços externos (DEC-081, DEC-082).
+  mailer: Mailer;
+  cepProvider: CepProvider;
 };
 
 // Monta a aplicação sem abrir porta nem conectar ao banco,
@@ -32,7 +37,11 @@ export function createApp(options: AppOptions): Express {
   // Limite de payload (09 §89): suficiente para os JSON do domínio.
   app.use(express.json({ limit: "100kb" }));
 
-  app.use("/api/v1", createSessionMiddleware(options.session), createApiRouter());
+  app.use(
+    "/api/v1",
+    createSessionMiddleware(options.session),
+    createApiRouter({ mailer: options.mailer, cepProvider: options.cepProvider, frontendUrl: options.frontendUrl }),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

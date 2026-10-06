@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clientCollectionKeys } from "@/hooks/use-client-collections";
-import { buildCollection, failure, mockApi, paginated, renderWithQuery, success } from "@/test/utils";
+import { buildCollection, failure, mockApi as mockApiBase, paginated, renderWithQuery, success } from "@/test/utils";
 import { CollectionRequestForm } from "./collection-request-form";
 
 const router = vi.hoisted(() => ({ push: vi.fn() }));
@@ -10,14 +10,26 @@ vi.mock("next/navigation", () => ({ useRouter: () => router }));
 
 beforeEach(() => router.push.mockReset());
 
+// Consulta de CEP de Diadema-SP (DEC-081), presente em todos os testes do formulário.
+const diademaAddress = {
+  cep: "09900001",
+  logradouro: "Rua das Palmeiras",
+  bairro: "Centro",
+  cidade: "Diadema",
+  estado: "SP",
+  atendido: true,
+};
+
+type Routes = Parameters<typeof mockApiBase>[0];
+const CEP_ROUTE = { path: "/cep/09900001", response: success({ address: diademaAddress }) };
+const mockApi = (routes: Routes) => mockApiBase([CEP_ROUTE, ...routes]);
+
+// O CEP preenche logradouro e bairro; cidade e UF já vêm fixas.
 async function fillAddress(user: UserEvent) {
   await user.type(screen.getByLabelText(/^CEP/), "09900-001");
+  await waitFor(() => expect(screen.getByLabelText(/^Logradouro/)).toHaveValue("Rua das Palmeiras"));
   await user.type(screen.getByLabelText(/^Número/), "120");
-  await user.type(screen.getByLabelText(/^Logradouro/), "Rua das Palmeiras");
   await user.type(screen.getByLabelText(/^Complemento/), "Casa 2");
-  await user.type(screen.getByLabelText(/^Bairro/), "Centro");
-  await user.type(screen.getByLabelText(/^Cidade/), "Diadema");
-  await user.type(screen.getByLabelText(/^Estado/), "sp");
 }
 
 async function fillFirstItem(user: UserEvent) {
@@ -35,6 +47,81 @@ async function goToReview(user: UserEvent) {
   await user.click(screen.getByRole("button", { name: /Continuar/ }));
   await screen.findByRole("heading", { name: "Revise e confirme" });
 }
+
+describe("CollectionRequestForm — endereço pelo CEP (DEC-081)", () => {
+  it("preenche logradouro e bairro, com cidade e UF fixas em Diadema-SP", async () => {
+    const user = userEvent.setup();
+    mockApi([]);
+    renderWithQuery(<CollectionRequestForm />);
+
+    expect(screen.getByLabelText(/^Cidade/)).toHaveValue("Diadema");
+    expect(screen.getByLabelText(/^Cidade/)).toHaveAttribute("readonly");
+    expect(screen.getByLabelText(/^Estado/)).toHaveValue("SP");
+
+    await user.type(screen.getByLabelText(/^CEP/), "09900001");
+
+    await waitFor(() => expect(screen.getByLabelText(/^Logradouro/)).toHaveValue("Rua das Palmeiras"));
+    expect(screen.getByLabelText(/^Bairro/)).toHaveValue("Centro");
+    expect(screen.getByText("Endereço preenchido pelo CEP. Confira e informe o número.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Número/)).toHaveFocus();
+  });
+
+  it("CEP de fora de Diadema-SP é recusado e impede o avanço", async () => {
+    const user = userEvent.setup();
+    mockApiBase([
+      {
+        path: "/cep/01001000",
+        response: success({ address: { ...diademaAddress, cep: "01001000", cidade: "São Paulo", atendido: false } }),
+      },
+    ]);
+    renderWithQuery(<CollectionRequestForm />);
+
+    await user.type(screen.getByLabelText(/^CEP/), "01001000");
+    expect(await screen.findByText("Atendemos apenas endereços em Diadema-SP.")).toBeInTheDocument();
+
+    for (const [label, value] of [
+      [/^Número/, "10"],
+      [/^Logradouro/, "Praça da Sé"],
+      [/^Bairro/, "Sé"],
+    ] as const) {
+      await user.type(screen.getByLabelText(label), value);
+    }
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(screen.getByText("Etapa 1 de 3: Endereço")).toBeInTheDocument();
+    expect(screen.getByText("Atendemos apenas endereços em Diadema-SP.")).toBeInTheDocument();
+  });
+
+  it("CEP inexistente mostra o erro no campo", async () => {
+    const user = userEvent.setup();
+    mockApiBase([{ path: "/cep/99999999", response: failure(404, "RESOURCE_NOT_FOUND", "CEP não encontrado.") }]);
+    renderWithQuery(<CollectionRequestForm />);
+
+    await user.type(screen.getByLabelText(/^CEP/), "99999999");
+
+    expect(await screen.findByText("CEP não encontrado.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^CEP/)).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("com o serviço de CEP indisponível, segue com preenchimento manual", async () => {
+    const user = userEvent.setup();
+    mockApiBase([
+      { path: "/cep/09900001", response: failure(503, "CEP_SERVICE_UNAVAILABLE", "Não foi possível consultar o CEP agora.") },
+    ]);
+    renderWithQuery(<CollectionRequestForm />);
+
+    await user.type(screen.getByLabelText(/^CEP/), "09900001");
+    expect(
+      await screen.findByText("Não foi possível buscar o CEP agora. Preencha o endereço manualmente."),
+    ).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/^Número/), "120");
+    await user.type(screen.getByLabelText(/^Logradouro/), "Rua das Palmeiras");
+    await user.type(screen.getByLabelText(/^Bairro/), "Centro");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(await screen.findByText("Etapa 2 de 3: Itens")).toBeInTheDocument();
+  });
+});
 
 describe("CollectionRequestForm (11 §64, 17_TESTING §78, DEC-073)", () => {
   it("começa no endereço e indica a etapa também em texto (12 §55)", () => {

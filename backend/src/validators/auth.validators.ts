@@ -81,3 +81,10 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+// POST /api/v1/auth/verify-email (DEC-082): token recebido no link.
+export const verifyEmailSchema = z.object({
+  token: z.string({ error: "Link de confirmação inválido." }).min(1, "Link de confirmação inválido.").max(200, "Link de confirmação inválido."),
+});
+
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;

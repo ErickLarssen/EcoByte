@@ -94,7 +94,9 @@ As principais questões ainda abertas são:
 
 # 5. OQ-001 — Verificação de E-mail
 
-**Status:** ABERTA
+**Status:** DECIDIDA
+
+**Decidido em `DEC-082` (2026-10-05):** o cadastro público exige a confirmação do e-mail por link, válido por 24 horas. Antes da confirmação, o cliente entra, mas não solicita coletas.
 
 ## Questão
 
@@ -628,7 +630,9 @@ A lista oficial ainda precisa ser consolidada.
 
 # 18. OQ-014 — Provedor de E-mail
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-082` (2026-10-05):** envio por SMTP genérico (`nodemailer`), configurado por variáveis de ambiente. Em desenvolvimento, sem SMTP, o e-mail aparece no console. Continua em aberto qual provedor SMTP será usado em produção.
 
 ## Questão
 
@@ -2244,9 +2248,6 @@ DEC-XXX
 No momento, as questões consideradas especialmente importantes para a próxima etapa são:
 
 ```text
-OQ-001
-Verificação de e-mail
-
 OQ-003
 Endereço definitivo do ecoponto
 

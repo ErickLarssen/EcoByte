@@ -193,6 +193,9 @@ INVALID_ORIGIN
 ECOPOINT_UNAVAILABLE
 CONFLICT
 USER_HAS_ACTIVE_COLLECTIONS
+EMAIL_NOT_VERIFIED
+EMAIL_ALREADY_VERIFIED
+CEP_SERVICE_UNAVAILABLE
 ```
 
 `RATE_LIMIT_EXCEEDED` (429): limite de requisições excedido (`DEC-067`).
@@ -204,6 +207,14 @@ USER_HAS_ACTIVE_COLLECTIONS
 `CONFLICT` (409): o recurso foi alterado por outra operação entre a tentativa e a verificação; a requisição pode ser repetida.
 
 `USER_HAS_ACTIVE_COLLECTIONS` (409): desativação de um coletor que ainda tem coletas em andamento (`DEC-075`).
+
+`EMAIL_NOT_VERIFIED` (403): solicitação de coleta antes de confirmar o e-mail (`DEC-082`).
+
+`EMAIL_ALREADY_VERIFIED` (409): reenvio do link para uma conta já verificada (`DEC-082`).
+
+`CEP_SERVICE_UNAVAILABLE` (503): o serviço externo de CEP não respondeu (`DEC-081`).
+
+`INVALID_TOKEN` e `TOKEN_EXPIRED` (400) também respondem ao link de confirmação do e-mail inválido ou vencido (`DEC-082`).
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
 
@@ -473,11 +484,55 @@ Sim
       "email": "erick@email.com",
       "role": "CLIENTE",
       "tipoCadastro": "PF",
-      "status": "ATIVO"
+      "status": "ATIVO",
+      "emailVerificado": true
     }
   }
 }
 ```
+
+`emailVerificado` também aparece no cadastro e no login. Ele é `false` até o cliente confirmar o e-mail (`DEC-082`).
+
+---
+
+## 9.6 Verificação de e-mail (`DEC-082`)
+
+```http
+POST /api/v1/auth/verify-email
+```
+
+Pública. O corpo é `{ "token": "..." }`, com o token recebido no link `/verificar-email?token=...`. A resposta `200` traz a mensagem "E-mail confirmado com sucesso.". Erros: `400 INVALID_TOKEN` (token inválido ou já usado) e `400 TOKEN_EXPIRED` (vencido, depois de 24 horas).
+
+```http
+POST /api/v1/auth/verify-email/resend
+```
+
+Com sessão. Envia um novo link e invalida o anterior. Erro: `409 EMAIL_ALREADY_VERIFIED`.
+
+---
+
+## 9.7 Consulta de CEP (`DEC-081`)
+
+```http
+GET /api/v1/cep/:cep
+```
+
+Com sessão. O CEP pode vir com ou sem hífen.
+
+```json
+{
+  "address": {
+    "cep": "09910720",
+    "logradouro": "Rua Manoel da Nóbrega",
+    "bairro": "Centro",
+    "cidade": "Diadema",
+    "estado": "SP",
+    "atendido": true
+  }
+}
+```
+
+Erros: `400` (formato), `404` (CEP não encontrado) e `503 CEP_SERVICE_UNAVAILABLE`.
 
 ---
 
@@ -683,6 +738,12 @@ Implementado (`DEC-076`):
 ```http
 POST /api/v1/collections
 ```
+
+Regras adicionais (`DEC-081`, `DEC-082`):
+
+- **E-mail não confirmado:** responde `403 EMAIL_NOT_VERIFIED`;
+- **Área de atendimento:** `enderecoColeta.cidade` e `estado` precisam ser Diadema-SP, senão `400` em `enderecoColeta.cidade`, e são gravados como `Diadema` e `SP`;
+- **CEP:** inexistente ou de fora da área responde `400` em `enderecoColeta.cep`. Com o serviço de CEP indisponível, vale só a validação de cidade e UF.
 
 ### Acesso
 

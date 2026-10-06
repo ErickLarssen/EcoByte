@@ -1,10 +1,17 @@
 import { z } from "zod";
+import { OUTSIDE_SERVICE_AREA_MESSAGE, SERVICE_AREA, isWithinServiceArea } from "../domain/service-area.js";
 import { enderecoShape, localizacaoSchema, optionalText, text } from "./address.validators.js";
 
-const enderecoColetaSchema = z.object(
-  { ...enderecoShape, localizacao: localizacaoSchema.optional() },
-  { error: "Informe o endereço da coleta." },
-);
+// Endereço da coleta: somente na área de atendimento, Diadema-SP (DEC-081).
+const enderecoColetaSchema = z
+  .object({ ...enderecoShape, localizacao: localizacaoSchema.optional() }, { error: "Informe o endereço da coleta." })
+  .superRefine((endereco, ctx) => {
+    if (!isWithinServiceArea(endereco.cidade, endereco.estado)) {
+      ctx.addIssue({ code: "custom", path: ["cidade"], message: OUTSIDE_SERVICE_AREA_MESSAGE });
+    }
+  })
+  // Grava a grafia oficial da área de atendimento.
+  .transform((endereco) => ({ ...endereco, cidade: SERVICE_AREA.cidade, estado: SERVICE_AREA.estado }));
 
 // Item de descarte (BR-014). categoria/condicao sem lista fechada enquanto
 // OQ-007/OQ-010 estiverem abertas; quantidade > 0, unidade em aberto (OQ-009).
