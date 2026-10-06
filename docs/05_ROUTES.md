@@ -770,7 +770,16 @@ Retornar somente coletas com:
 coletorId = usuário autenticado
 ```
 
-Os agrupamentos exibidos na interface permanecem dependentes de `OQ-047`.
+### Filtro por grupo (`DEC-084`)
+
+O parâmetro opcional `grupo` restringe a lista:
+
+```text
+andamento  → ACEITA, A_CAMINHO, RECOLHIDA, ENTREGUE_ECOPONTO
+concluidas → CONCLUIDA
+```
+
+Sem `grupo`, a lista traz todas as atribuídas. Outro valor responde `400`.
 
 ### Observação de implementação
 
@@ -1096,6 +1105,40 @@ ADMIN
 
 ---
 
+## 13.1.1 Cadastrar coletor
+
+```http
+POST /api/v1/admin/users
+```
+
+### Objetivo
+
+Cadastrar um coletor com senha provisória (`DEC-083`).
+
+### Role
+
+```text
+ADMIN
+```
+
+### Body
+
+```json
+{
+  "nome": "Carlos Coletor",
+  "email": "carlos@ecobyte.local",
+  "telefone": "11988887777",
+  "senha": "SenhaProvisoria@123",
+  "confirmacaoSenha": "SenhaProvisoria@123"
+}
+```
+
+### Regra
+
+A conta é criada com `role = COLETOR`, `status = ATIVO`, e-mail já verificado e `trocaSenhaObrigatoria = true`. `role` e `status` enviados são descartados.
+
+---
+
 ## 13.2 Visualizar usuário
 
 ```http
@@ -1362,6 +1405,7 @@ GET /api/v1/ecopoint
 PATCH /api/v1/ecopoint
 
 GET /api/v1/admin/users
+POST /api/v1/admin/users
 GET /api/v1/admin/users/:id
 PATCH /api/v1/admin/users/:id/status
 
@@ -1521,6 +1565,7 @@ A escolha deve representar corretamente o motivo da falha.
 | POST | `/api/v1/collections/:id/deliver` | COLETOR | Confirmar entrega |
 | POST | `/api/v1/collections/:id/complete` | COLETOR | Concluir coleta |
 | GET | `/api/v1/admin/users` | ADMIN | Listar usuários |
+| POST | `/api/v1/admin/users` | ADMIN | Cadastrar coletor |
 | GET | `/api/v1/admin/users/:id` | ADMIN | Detalhes do usuário |
 | PATCH | `/api/v1/admin/users/:id/status` | ADMIN | Ativar/desativar usuário |
 | GET | `/api/v1/admin/collections` | ADMIN | Listar coletas |

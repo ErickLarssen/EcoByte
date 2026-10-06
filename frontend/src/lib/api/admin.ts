@@ -15,6 +15,8 @@ export type AdminUser = {
   tipoCadastro: TipoCadastro;
   dadosEmpresa: { razaoSocial: string | null; nomeFantasia: string | null } | null;
   status: RecordStatus;
+  // Senha provisória ainda não trocada pelo coletor (DEC-083).
+  trocaSenhaObrigatoria: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -62,4 +64,18 @@ export async function getAdminCollection(id: string, signal?: AbortSignal): Prom
     signal,
   });
   return data.collection;
+}
+
+// Cadastro de coletor pelo administrador (DEC-083), com senha provisória.
+export type CreateCollectorPayload = {
+  nome: string;
+  email: string;
+  telefone: string;
+  senha: string;
+  confirmacaoSenha: string;
+};
+
+export async function createCollector(payload: CreateCollectorPayload): Promise<AdminUser> {
+  const { data } = await apiRequest<{ user: AdminUser }>("/admin/users", { method: "POST", body: payload });
+  return data.user;
 }

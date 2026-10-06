@@ -14,6 +14,8 @@ export const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 export const LOGIN_PATH = "/entrar";
+// Troca obrigatória da senha provisória (DEC-083).
+export const CHANGE_PASSWORD_PATH = "/trocar-senha";
 export const RETURN_PARAM = "proximo";
 
 // Somente caminhos internos: bloqueia "//site.com", "/\site.com" e URLs absolutas,

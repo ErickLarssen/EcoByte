@@ -2819,6 +2819,8 @@ Complemento (2026-10-01, `DEC-077`, `DEC-078`): `/cliente/notificacoes` e `/cole
 
 Complemento (2026-10-03, `DEC-079`): páginas públicas `/sobre`, `/ecoponto`, `/solicitar-coleta` e `/como-funciona`, acessíveis a todos.
 
+Complemento (2026-10-06, `DEC-083`, `DEC-084`): `/admin/usuarios/novo` (`ADMIN`), `/coletor/ecoponto` (`COLETOR`) e `/trocar-senha` (usuário autenticado com troca de senha pendente).
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -3338,7 +3340,109 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 85. Registro Atual de Decisões Pendentes
+# 85. DEC-083 — Voltar ao Site e Cadastro de Coletores pelo Administrador
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+O responsável pelo projeto pediu duas mudanças:
+
+- uma opção de voltar ao site institucional nas páginas de login e cadastro;
+- o cadastro de coletores feito pelo administrador.
+
+Até aqui, coletores só existiam no seed (`DEC-034`), e o cadastro público cria somente clientes (`DEC-066`).
+
+## Decisão
+
+### Voltar ao site
+
+As telas de autenticação (`AuthLayout`) mostram o link "Voltar ao site", que leva a `/`. Isso vale para `/entrar`, `/cadastro` e `/verificar-email`. O logo também continua levando à página inicial.
+
+### Cadastro de coletor
+
+- `POST /api/v1/admin/users`, somente `ADMIN`, cadastra um coletor com nome, e-mail, telefone (obrigatório, para o contato da operação), senha provisória e confirmação;
+- **senha provisória:** segue a mesma política do cadastro (`DEC-019`) e é guardada só como hash;
+- **dados gravados pelo servidor:** a conta é criada com `role: COLETOR`, `tipoCadastro: PF`, `status: ATIVO` e `emailVerificado: true`. O cadastro foi feito pela equipe (`DEC-082`). `role` e `status` enviados no corpo são descartados;
+- **e-mail já cadastrado:** responde `409 EMAIL_ALREADY_EXISTS`;
+- **interface:** a página `/admin/usuarios/novo` abre pelo botão "Cadastrar coletor" da lista de usuários. Depois do cadastro, a interface abre o detalhe do coletor com a confirmação.
+
+O administrador cadastra somente coletores. Criar outros administradores, editar dados e alterar `role` continuam em aberto (`OQ-054`).
+
+### Troca obrigatória da senha provisória
+
+- o coletor cadastrado recebe `trocaSenhaObrigatoria: true`. O administrador repassa a senha provisória por fora do sistema;
+- **na API:** enquanto a troca não é feita, o login funciona, mas as rotas autenticadas respondem `403 PASSWORD_CHANGE_REQUIRED`. As exceções são `/api/v1/auth/*` (sessão, saída) e `PATCH /api/v1/profile/password`;
+- **ao trocar:** a troca segue o `DEC-078` (senha atual, que é a provisória, nova senha e confirmação) e desliga a marca;
+- **na interface:** quem tem a troca pendente é enviado a `/trocar-senha` e, depois da troca, à área do perfil. O detalhe do usuário no admin mostra "Senha: Provisória" enquanto a troca não é feita;
+- o campo tem padrão `false`, e contas existentes não são afetadas.
+
+## Documentos relacionados
+
+```text
+03_BUSINESS_RULES.md
+05_ROUTES.md
+06_API.md
+07_DATABASE_MONGODB.md
+09_AUTHENTICATION_SECURITY.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 86. DEC-084 — Complementos da Área do Coletor
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+O responsável pelo projeto pediu a área do coletor completa, com o que a regra de negócio atribui a ele (BR-034, `13_COLLECTOR_FLOW.md`). As ações da máquina de estados já existiam (`DEC-064`, `DEC-074`). Foram escolhidos quatro complementos.
+
+## Decisão
+
+### "Como chegar" ao endereço da coleta
+
+O detalhe da coleta atribuída tem um link "Como chegar" para o endereço de coleta. Ele abre rotas no Google Maps em nova aba, como o ecoponto (`DEC-079`), sem mapa embutido.
+
+### Coletas em andamento e concluídas
+
+- `GET /api/v1/collections/assigned` aceita `grupo=andamento` ou `grupo=concluidas`. Sem o parâmetro, continua listando todas as atribuídas;
+  - `andamento`: `ACEITA`, `A_CAMINHO`, `RECOLHIDA` e `ENTREGUE_ECOPONTO`;
+  - `concluidas`: `CONCLUIDA`;
+  - outro valor responde `400`;
+- "Minhas coletas" (`/coletor/coletas`) tem as abas "Em andamento" e "Concluídas" (`?grupo=`, padrão em andamento). Concluídas formam o histórico do coletor e não têm prazo de visibilidade;
+- o painel mostra o total "Em andamento" e a prévia das coletas em andamento.
+
+Continua em aberto a "próxima coleta" por prioridade (13 §84, `OQ-047`).
+
+### Aviso de nova coleta
+
+- quando um cliente cria uma coleta, todos os coletores ativos recebem a notificação `NOVA_COLETA` ("Nova coleta disponível"), com referência à coleta;
+- o aviso aparece na central de notificações (`DEC-077`), por consulta periódica;
+- o envio é de melhor esforço: uma falha fica no log e não desfaz a coleta.
+
+### Ecoponto de entrega
+
+- a navegação do coletor ganha "Ecoponto" (`/coletor/ecoponto`), com endereço, horários e "Como chegar" do ecoponto EcoByte (`DEC-076`);
+- no detalhe de uma coleta `RECOLHIDA`, a seção "Entrega no ecoponto" mostra onde entregar o material.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+11_COMPONENTS.md
+13_COLLECTOR_FLOW.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 87. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3352,7 +3456,7 @@ até serem formalmente decididas.
 
 ---
 
-# 86. Como Adicionar uma Nova Decisão
+# 88. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3390,7 +3494,7 @@ arquivo2.md
 
 ---
 
-# 87. Regra Final
+# 89. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

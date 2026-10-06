@@ -15,6 +15,8 @@ export type PublicUser = {
   status: RecordStatus;
   // Campo ausente conta como verificado (DEC-082).
   emailVerificado: boolean;
+  // Senha provisória pendente de troca (DEC-083).
+  trocaSenhaObrigatoria: boolean;
 };
 
 export function toPublicUser(user: UserDocument): PublicUser {
@@ -26,6 +28,7 @@ export function toPublicUser(user: UserDocument): PublicUser {
     tipoCadastro: user.tipoCadastro,
     status: user.status,
     emailVerificado: user.emailVerificado !== false,
+    trocaSenhaObrigatoria: user.trocaSenhaObrigatoria === true,
   };
 }
 

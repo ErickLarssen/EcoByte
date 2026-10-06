@@ -21,7 +21,16 @@ export function useUpdateProfile() {
       queryClient.setQueryData(profileKeys.current, profile);
       const { id, nome, email, role, tipoCadastro, status } = profile;
       // O perfil não altera a verificação do e-mail: mantém o valor atual.
-      updateUser({ id, nome, email, role, tipoCadastro, status, emailVerificado: user?.emailVerificado ?? true });
+      updateUser({
+        id,
+        nome,
+        email,
+        role,
+        tipoCadastro,
+        status,
+        emailVerificado: user?.emailVerificado ?? true,
+        trocaSenhaObrigatoria: user?.trocaSenhaObrigatoria ?? false,
+      });
     },
   });
 }

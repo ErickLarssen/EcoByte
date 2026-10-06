@@ -1,24 +1,17 @@
 import { Types, isValidObjectId } from "mongoose";
-import {
-  COLLECTION_STATUSES,
-  INITIAL_COLLECTION_STATUS,
-  isTerminalStatus,
-} from "../domain/collection-status.js";
+import { ACTIVE_COLLECTION_STATUSES } from "../domain/collection-status.js";
 import type { RecordStatus } from "../domain/constants.js";
 import { Collection, User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { paginate, type Paginated } from "../utils/pagination.js";
-import type { AdminCollectionsQuery } from "../validators/admin.validators.js";
+import { hashPassword } from "../utils/password.js";
+import type { AdminCollectionsQuery, CreateCollectorInput } from "../validators/admin.validators.js";
 import type { PaginationQuery } from "../validators/collection.validators.js";
 import { toAdminView, type AdminCollectionView, type CollectionRecord } from "./collection.views.js";
 import { toUserDetailView, type UserDetailView, type UserRecord } from "./user.views.js";
 
 const USER_REF_FIELDS = "nome email telefone";
 
-// Coletas em andamento: já atribuídas e ainda não encerradas (13 §39).
-const ACTIVE_COLLECTION_STATUSES = COLLECTION_STATUSES.filter(
-  (status) => status !== INITIAL_COLLECTION_STATUS && !isTerminalStatus(status),
-);
 
 // :id inválido é tratado como inexistente (09 §43).
 function toObjectId(id: string, notFound: () => AppError): Types.ObjectId {
@@ -121,4 +114,40 @@ export async function getCollection(id: string): Promise<AdminCollectionView> {
 
   if (!record) throw collectionNotFound();
   return toAdminView(record as unknown as CollectionRecord);
+}
+
+// ---------------------------------------------------------------------------
+// Cadastro de coletor (DEC-083)
+// ---------------------------------------------------------------------------
+
+function isDuplicateKeyError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === 11000;
+}
+
+const emailInUse = () => new AppError(409, "EMAIL_ALREADY_EXISTS", "Este e-mail já está cadastrado.");
+
+// O administrador cadastra coletores: não há cadastro público de COLETOR
+// (DEC-066). A senha é provisória e deve ser trocada no primeiro acesso; o
+// e-mail já conta como verificado, pois a conta é criada pela equipe (DEC-082).
+export async function createCollector(input: CreateCollectorInput): Promise<UserDetailView> {
+  if (await User.exists({ email: input.email })) throw emailInUse();
+
+  try {
+    const user = await User.create({
+      nome: input.nome,
+      email: input.email,
+      telefone: input.telefone,
+      senhaHash: await hashPassword(input.senha),
+      role: "COLETOR",
+      tipoCadastro: "PF",
+      status: "ATIVO",
+      emailVerificado: true,
+      trocaSenhaObrigatoria: true,
+    });
+
+    return toUserDetailView(user.toObject() as unknown as UserRecord);
+  } catch (error) {
+    if (isDuplicateKeyError(error)) throw emailInUse();
+    throw error;
+  }
 }

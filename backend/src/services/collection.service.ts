@@ -1,5 +1,6 @@
 import { Types, isValidObjectId } from "mongoose";
 import {
+  ACTIVE_COLLECTION_STATUSES,
   COLLECTION_EVENTS,
   INITIAL_COLLECTION_STATUS,
   type CollectionEvent,
@@ -9,7 +10,7 @@ import { Collection, Ecopoint } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { notifyClientOfEvent } from "./notification.service.js";
 import { paginate, type Paginated } from "../utils/pagination.js";
-import type { CreateCollectionInput, PaginationQuery } from "../validators/collection.validators.js";
+import type { AssignedQuery, CreateCollectionInput, PaginationQuery } from "../validators/collection.validators.js";
 import {
   toClientView,
   toCollectorView,
@@ -107,9 +108,16 @@ export async function listAvailableCollections(
 // Atribuídas ao coletor autenticado, em qualquer status (RF-028, DEC-064).
 export async function listAssignedCollections(
   coletorId: string,
-  pagination: PaginationQuery,
+  pagination: AssignedQuery,
 ): Promise<Paginated<CollectorCollectionView>> {
-  const filter = { coletorId: new Types.ObjectId(coletorId) };
+  // Grupo opcional: em andamento ou concluídas (DEC-084).
+  const status =
+    pagination.grupo === "andamento"
+      ? { status: { $in: [...ACTIVE_COLLECTION_STATUSES] } }
+      : pagination.grupo === "concluidas"
+        ? { status: "CONCLUIDA" as const }
+        : {};
+  const filter = { coletorId: new Types.ObjectId(coletorId), ...status };
   const [records, total] = await Promise.all([
     Collection.find(filter)
       .sort({ createdAt: -1, _id: -1 })

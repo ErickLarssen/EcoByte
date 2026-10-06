@@ -216,6 +216,8 @@ CEP_SERVICE_UNAVAILABLE
 
 `INVALID_TOKEN` e `TOKEN_EXPIRED` (400) também respondem ao link de confirmação do e-mail inválido ou vencido (`DEC-082`).
 
+`PASSWORD_CHANGE_REQUIRED` (403): o usuário ainda não trocou a senha provisória. Valem somente as rotas `/api/v1/auth/*` e `PATCH /api/v1/profile/password` (`DEC-083`).
+
 O conjunto definitivo de códigos pode crescer conforme a implementação.
 
 Não criar códigos duplicados para representar o mesmo problema.
@@ -485,13 +487,16 @@ Sim
       "role": "CLIENTE",
       "tipoCadastro": "PF",
       "status": "ATIVO",
-      "emailVerificado": true
+      "emailVerificado": true,
+      "trocaSenhaObrigatoria": false
     }
   }
 }
 ```
 
 `emailVerificado` também aparece no cadastro e no login. Ele é `false` até o cliente confirmar o e-mail (`DEC-082`).
+
+`trocaSenhaObrigatoria` também aparece no cadastro e no login. Ele é `true` para o coletor cadastrado pelo administrador até a troca da senha provisória (`DEC-083`).
 
 ---
 
@@ -949,6 +954,8 @@ Referência: `RF-028`, `DEC-064`.
 
 Resposta paginada (§7.1) na visão do coletor, mais recentes primeiro, em todos os status.
 
+Filtro opcional `grupo` (`DEC-084`): `andamento` (`ACEITA`, `A_CAMINHO`, `RECOLHIDA`, `ENTREGUE_ECOPONTO`) ou `concluidas` (`CONCLUIDA`). Outro valor responde `400 VALIDATION_ERROR`.
+
 ---
 
 ## 14.3 Respostas comuns das ações do coletor (§15–§19)
@@ -1256,10 +1263,48 @@ Implementado (`DEC-075`): somente `page` e `limit` (06 §7), com os mais recente
   "tipoCadastro": "PF",
   "dadosEmpresa": null,
   "status": "ATIVO",
+  "trocaSenhaObrigatoria": false,
   "createdAt": "2026-09-26T10:00:00.000Z",
   "updatedAt": "2026-09-26T10:00:00.000Z"
 }
 ```
+
+---
+
+## 22.1.1 Cadastrar coletor (`DEC-083`)
+
+```http
+POST /api/v1/admin/users
+```
+
+### Acesso
+
+```text
+ADMIN
+```
+
+### Body
+
+```json
+{
+  "nome": "Carlos Coletor",
+  "email": "carlos@ecobyte.local",
+  "telefone": "11988887777",
+  "senha": "SenhaProvisoria@123",
+  "confirmacaoSenha": "SenhaProvisoria@123"
+}
+```
+
+- `nome`, `email`, `telefone` (até 20 caracteres), `senha` e `confirmacaoSenha` são obrigatórios. A senha segue a política do `DEC-019`;
+- a conta é criada com `role = COLETOR`, `tipoCadastro = PF`, `status = ATIVO`, e-mail verificado e `trocaSenhaObrigatoria = true`. `role` e `status` enviados são descartados.
+
+Resposta `201`: `{ "user": { ... } }`, no formato da lista, com a mensagem "Coletor cadastrado. Repasse a senha provisória: ela deve ser trocada no primeiro acesso.".
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | campo ausente ou inválido, senha fora da política, confirmação diferente |
+| `403` | `FORBIDDEN` | sessão sem role `ADMIN` |
+| `409` | `EMAIL_ALREADY_EXISTS` | e-mail já cadastrado |
 
 ---
 
@@ -1424,6 +1469,8 @@ A API deve verificar se a notificação pertence ao usuário autenticado.
 | `collect` | `COLETA_RECOLHIDA` |
 | `deliver` | `COLETA_ENTREGUE_ECOPONTO` |
 | `complete` | `COLETA_CONCLUIDA` |
+
+Quando um cliente cria uma coleta, cada coletor `ATIVO` recebe `NOVA_COLETA` ("Nova coleta disponível"), com referência à coleta (`DEC-084`). O envio é de melhor esforço: uma falha fica no log e não desfaz a coleta.
 
 ---
 

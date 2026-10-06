@@ -1,6 +1,6 @@
 import { Types, isValidObjectId } from "mongoose";
 import type { CollectionEvent } from "../domain/collection-status.js";
-import { Notification } from "../models/index.js";
+import { Notification, User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { paginate, type Paginated } from "../utils/pagination.js";
 import type { NotificationsQuery } from "../validators/notification.validators.js";
@@ -48,6 +48,30 @@ export async function notifyClientOfEvent(
   } catch (error) {
     console.error(
       `[backend] Falha ao registrar notificação (${event}, coleta ${String(collectionId)}):`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
+// Nova coleta disponível (DEC-084, OQ-013): uma notificação para cada coletor
+// ativo. Assim como as do cliente, é efeito secundário e não desfaz a criação.
+export async function notifyCollectorsOfNewCollection(collectionId: string): Promise<void> {
+  try {
+    const collectors = await User.find({ role: "COLETOR", status: "ATIVO" }).select("_id").lean();
+    if (collectors.length === 0) return;
+
+    await Notification.insertMany(
+      collectors.map((collector) => ({
+        usuarioId: collector._id,
+        tipo: "NOVA_COLETA",
+        titulo: "Nova coleta disponível",
+        mensagem: "Uma nova coleta está disponível para atendimento.",
+        referencia: { tipo: "COLETA", id: new Types.ObjectId(collectionId) },
+      })),
+    );
+  } catch (error) {
+    console.error(
+      `[backend] Falha ao avisar coletores da coleta ${collectionId}:`,
       error instanceof Error ? error.message : error,
     );
   }

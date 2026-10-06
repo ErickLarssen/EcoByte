@@ -192,6 +192,7 @@ Armazenar os usuários do sistema.
 | `emailVerificado` | Boolean | Não (padrão `true`) | `false` no cadastro público até a confirmação; ausente conta como verificado (`DEC-082`) |
 | `emailVerificacaoTokenHash` | String/null | Não | Hash SHA-256 do token do link; nunca retornado (`select: false`) |
 | `emailVerificacaoExpiraEm` | Date/null | Não | Validade do token (24 horas) |
+| `trocaSenhaObrigatoria` | Boolean | Não (padrão `false`) | `true` para o coletor cadastrado pelo administrador até a troca da senha provisória (`DEC-083`) |
 | `createdAt` | Date | Sim | Data de criação |
 | `updatedAt` | Date | Sim | Última atualização |
 

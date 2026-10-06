@@ -2,11 +2,13 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createCollector,
   getAdminCollection,
   getUser,
   listAdminCollections,
   listUsers,
   updateUserStatus,
+  type CreateCollectorPayload,
   type RecordStatus,
 } from "@/lib/api/admin";
 import type { CollectionStatus } from "@/lib/collection-status";
@@ -59,4 +61,17 @@ export function useAdminCollections(page: number, status: CollectionStatus | nul
 
 export function useAdminCollection(id: string) {
   return useQuery({ queryKey: adminKeys.collection(id), queryFn: ({ signal }) => getAdminCollection(id, signal) });
+}
+
+// Cadastro de coletor (DEC-083): guarda o detalhe e atualiza a lista de usuários.
+export function useCreateCollector() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateCollectorPayload) => createCollector(payload),
+    onSuccess: (user) => {
+      queryClient.setQueryData(adminKeys.user(user.id), user);
+      return queryClient.invalidateQueries({ queryKey: [...adminKeys.users(), "list"] });
+    },
+  });
 }

@@ -48,3 +48,13 @@ export const paginationQuerySchema = z.object({
 });
 
 export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
+
+// Coletas atribuídas ao coletor: grupo opcional (DEC-084). "andamento" vai de
+// ACEITA a ENTREGUE_ECOPONTO; "concluidas" é CONCLUIDA.
+export const ASSIGNED_GROUPS = ["andamento", "concluidas"] as const;
+
+export const assignedQuerySchema = paginationQuerySchema.extend({
+  grupo: z.enum(ASSIGNED_GROUPS, { error: "grupo deve ser andamento ou concluidas." }).optional(),
+});
+
+export type AssignedQuery = z.infer<typeof assignedQuerySchema>;

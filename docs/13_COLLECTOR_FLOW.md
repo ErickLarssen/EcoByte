@@ -100,6 +100,8 @@ ADMIN
 
 não devem executar as ações operacionais exclusivas do coletor.
 
+Contas de coletor são cadastradas pelo administrador, com senha provisória que deve ser trocada no primeiro acesso (`DEC-083`). Até a troca, o coletor só acessa a página `/trocar-senha`.
+
 ---
 
 # 5. Entrada no painel
@@ -423,6 +425,8 @@ O fluxo principal não deve depender exclusivamente dela.
 
 A implementação dessa funcionalidade depende dos requisitos aprovados do projeto.
 
+Implementado (`DEC-084`): o detalhe da coleta atribuída tem "Como chegar" ao endereço de coleta, que abre rotas no Google Maps em nova aba (`DEC-079`). O fluxo não depende do link.
+
 ---
 
 # 24. Confirmar recolhimento
@@ -687,7 +691,7 @@ Endpoint (`DEC-064`):
 GET /api/v1/collections/assigned
 ```
 
-Os agrupamentos e os status exibidos em cada um permanecem dependentes de `OQ-047`.
+Agrupamentos implementados (`DEC-084`): "Em andamento" (§39) e "Concluídas" (`CONCLUIDA`), pelo parâmetro `grupo`. "Agendadas" depende do agendamento (`OQ-020`).
 
 A lista pode separar:
 
@@ -720,6 +724,8 @@ A categorização visual não deve criar novos estados de domínio.
 
 O coletor deve poder consultar suas coletas concluídas quando essa funcionalidade fizer parte do painel.
 
+Implementado (`DEC-084`): a aba "Concluídas" de "Minhas coletas", sem prazo de visibilidade.
+
 Cada registro deve preservar:
 
 ```text
@@ -745,6 +751,8 @@ atualização da coleta
 ```
 
 O conteúdo final das notificações deve acompanhar os requisitos implementados.
+
+Implementado (`DEC-084`): `NOVA_COLETA` ("Nova coleta disponível") para todos os coletores ativos quando um cliente cria uma coleta. Ela leva aos detalhes da coleta.
 
 ---
 
@@ -783,6 +791,8 @@ Estrutura conceitual:
 ```
 
 Os números devem ser carregados da API.
+
+Implementado (`DEC-084`): coletas disponíveis e em andamento, com a prévia das coletas em andamento. A "próxima coleta" depende do critério de prioridade (§84, `OQ-047`).
 
 ---
 
@@ -1479,6 +1489,8 @@ O ecoponto da EcoByte é o destino oficial do fluxo.
 
 Não permitir seleção arbitrária de terceiros no MVP.
 
+Implementado (`DEC-084`): a página `/coletor/ecoponto` e a seção "Entrega no ecoponto" no detalhe da coleta `RECOLHIDA` mostram endereço, horários e "Como chegar" do ecoponto.
+
 ---
 
 # 89. Terceiros
@@ -1573,6 +1585,8 @@ Antes de uma coleta ser considerada encerrada:
 ```
 
 Situação (2026-09-28): API e regras na Fase 4 (`DEC-064`, `DEC-070`); telas na Fase 7 (`DEC-074`). Todos os itens acima estão implementados. A transição de cada etapa é testada no backend e, na interface, com a API simulada (`frontend/src/components/features/collector/collector-collections.test.tsx`). Em aberto: agrupamentos, "em andamento" e "próxima coleta" no painel (`OQ-047`), rotas, notificações e perfil.
+
+Atualização (2026-10-06, `DEC-084`): agrupamentos, total em andamento, histórico de concluídas, aviso `NOVA_COLETA`, "Como chegar" e ecoponto de entrega implementados. Continua em aberto a "próxima coleta" por prioridade.
 
 ---
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, CheckCircle2, SearchX, UserCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, ExternalLink, SearchX, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { BackLink, DetailSection, DetailSkeleton } from "@/components/common/detail-parts";
 import { EmptyState } from "@/components/common/empty-state";
+import { EcopointInfo } from "@/components/features/ecopoint/ecopoint-info";
 import { ErrorState } from "@/components/common/error-state";
 import { AddressCard } from "@/components/domain/address-card";
 import { CollectionActions } from "@/components/domain/collection-actions";
@@ -19,6 +20,7 @@ import type { CollectorEvent } from "@/lib/api/collections";
 import { ApiError } from "@/lib/api/client";
 import { describeActionFailure, type ActionFailure } from "@/lib/collector-actions";
 import { NOT_INFORMED, formatDate } from "@/lib/format";
+import { directionsUrl } from "@/lib/maps";
 
 type Feedback = { kind: "success"; message: string } | { kind: "failure"; failure: ActionFailure };
 
@@ -152,7 +154,26 @@ export function CollectorCollectionDetail({ id }: { id: string }) {
         <div className="grid gap-5">
           <DetailSection title="Endereço da coleta">
             <AddressCard address={collection.enderecoColeta} />
+            {/* Rotas até o cliente em um app de mapas (DEC-084); não é roteirização (13 §45). */}
+            <Button asChild variant="outline" className="w-full sm:w-auto sm:justify-self-start">
+              <a
+                href={directionsUrl({ endereco: collection.enderecoColeta, localizacao: collection.enderecoColeta.localizacao })}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Como chegar
+                <ExternalLink aria-hidden="true" data-icon="inline-end" />
+                <span className="sr-only"> ao endereço da coleta (abre o mapa em uma nova aba)</span>
+              </a>
+            </Button>
           </DetailSection>
+
+          {/* Próxima etapa é a entrega: o coletor vê o ecoponto de destino (BR-034, DEC-084). */}
+          {collection.status === "RECOLHIDA" && (
+            <DetailSection title="Entrega no ecoponto">
+              <EcopointInfo />
+            </DetailSection>
+          )}
 
           {/* Dados do cliente só nas coletas atribuídas ao coletor (DEC-070, 13 §21). */}
           {!isAvailable && (

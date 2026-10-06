@@ -59,7 +59,7 @@ describe("GET /api/v1/admin/users (RF-041, RF-042)", () => {
       expect(user).not.toHaveProperty("senhaHash");
       expect(user).not.toHaveProperty("documento");
       expect(Object.keys(user).sort()).toEqual(
-        ["createdAt", "dadosEmpresa", "email", "id", "nome", "role", "status", "telefone", "tipoCadastro", "updatedAt"].sort(),
+        ["createdAt", "dadosEmpresa", "email", "id", "nome", "role", "status", "telefone", "tipoCadastro", "trocaSenhaObrigatoria", "updatedAt"].sort(),
       );
     }
   });

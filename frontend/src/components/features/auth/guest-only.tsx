@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { PageLoader } from "@/components/common/page-loader";
-import { RETURN_PARAM, postLoginDestination } from "@/lib/navigation";
+import { CHANGE_PASSWORD_PATH, RETURN_PARAM, postLoginDestination } from "@/lib/navigation";
 import { useAuth } from "./auth-provider";
 
 // Páginas de visitante (login e cadastro). Quando há usuário autenticado,
@@ -16,7 +16,12 @@ export function GuestOnly({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace(postLoginDestination(user.role, searchParams.get(RETURN_PARAM)));
+      // Senha provisória: primeiro a troca obrigatória (DEC-083).
+      router.replace(
+        user.trocaSenhaObrigatoria
+          ? CHANGE_PASSWORD_PATH
+          : postLoginDestination(user.role, searchParams.get(RETURN_PARAM)),
+      );
     }
   }, [status, user, router, searchParams]);
 

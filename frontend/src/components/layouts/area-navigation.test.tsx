@@ -49,7 +49,7 @@ describe("navegação da área do coletor (DEC-074)", () => {
     expect(activeHref(coletorItems, pathname)).toBe(expected);
   });
 
-  it("lista Início, Disponíveis e Minhas coletas", () => {
+  it("lista Início, Disponíveis, Minhas coletas e Ecoponto", () => {
     navigation.pathname = "/coletor/disponiveis";
     render(<MobileNavigation items={coletorItems} />);
 
@@ -58,6 +58,7 @@ describe("navegação da área do coletor (DEC-074)", () => {
       "Início",
       "Disponíveis",
       "Minhas coletas",
+      "Ecoponto",
     ]);
     expect(within(nav).getByRole("link", { name: "Disponíveis" })).toHaveAttribute("aria-current", "page");
   });

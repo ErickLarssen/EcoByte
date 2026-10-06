@@ -606,6 +606,8 @@ A estratégia de atualização em tempo real ainda não foi definida.
 
 **Decidido em `DEC-077` (2026-09-30):** o cliente é notificado a cada etapa da coleta: `COLETA_ACEITA`, `COLETA_A_CAMINHO`, `COLETA_RECOLHIDA`, `COLETA_ENTREGUE_ECOPONTO` e `COLETA_CONCLUIDA`. Continuam em aberto `COLETA_CRIADA`, `NOVA_COLETA` (aviso aos coletores) e notificações de outros perfis. Elas existem apenas no seed de demonstração.
 
+**Decidido em `DEC-084` (2026-10-06):** `NOVA_COLETA` avisa todos os coletores ativos quando um cliente cria uma coleta. Continuam em aberto `COLETA_CRIADA` e notificações do administrador.
+
 ## Questão
 
 Quais eventos deverão gerar notificações?
@@ -1096,6 +1098,8 @@ mas a estratégia concreta de geração dessas rotas ainda não foi definida.
 
 **Decidido em `DEC-079` (2026-10-03):** "Como chegar" abre rotas no Google Maps em uma nova aba, por link externo, sem mapa embutido. Continuam em aberto: mapa na página, serviço definitivo e chaves de API.
 
+**Complemento (2026-10-06, `DEC-084`):** o coletor também tem "Como chegar" ao endereço da coleta e ao ecoponto, pelo mesmo link externo.
+
 ## Questão
 
 Qual tecnologia será utilizada para mapas e localização, caso sejam necessários?
@@ -1512,6 +1516,8 @@ Nenhuma opção deve ser tratada como definitiva sem decisão formal.
 
 **Interface enquanto aberta (2026-09-28, `DEC-074`):** "Minhas coletas" lista todas as atribuídas, em qualquer status, sem agrupamentos, e as concluídas continuam visíveis. O painel mostra o total de atribuídas, mas não o total "em andamento" (13 §43) nem uma "próxima coleta": para isso, é preciso definir os agrupamentos e o critério de prioridade (13 §84) e incluir na API um filtro por status.
 
+**Decidido em `DEC-084` (2026-10-06):** "Minhas coletas" tem os grupos "Em andamento" (`ACEITA` a `ENTREGUE_ECOPONTO`) e "Concluídas" (`CONCLUIDA`), pelo filtro `grupo` da API. As concluídas ficam visíveis sem prazo, como histórico, e o painel mostra o total em andamento. Continua em aberto a "próxima coleta" por prioridade (13 §84).
+
 ## Questão
 
 Quais coletas um coletor poderá visualizar?
@@ -1697,6 +1703,8 @@ ACEITA → PENDENTE
 **Status:** ABERTA (parcialmente decidida)
 
 **Decidido em `DEC-075` (2026-09-29):** o administrador visualiza, desativa e reativa clientes e coletores. Contas `ADMIN` não têm o status alterado, e um coletor com coletas em andamento não pode ser desativado. Continuam em aberto: editar dados, alterar `role` e consultar histórico.
+
+**Decidido em `DEC-083` (2026-10-06):** o administrador cadastra coletores com uma senha provisória, que deve ser trocada no primeiro acesso. Continuam em aberto: cadastrar outros administradores, editar dados, alterar `role` e consultar histórico.
 
 ## Questão
 
@@ -1894,6 +1902,8 @@ A política definitiva dependerá do mecanismo de autenticação escolhido.
 **Status:** ABERTA (parcialmente decidida)
 
 **Decidido em `DEC-078` (2026-10-01):** o usuário troca a própria senha no perfil. A troca exige a senha atual, a nova senha com confirmação e a mesma política do cadastro (`DEC-019`), e a nova senha deve ser diferente da atual. A sessão atual continua, com novo identificador. Continua em aberto invalidar as demais sessões do usuário (`OQ-060`).
+
+**Decidido em `DEC-083` (2026-10-06):** a senha provisória de um coletor cadastrado pelo administrador deve ser trocada no primeiro acesso. Até a troca, a API responde `403 PASSWORD_CHANGE_REQUIRED` fora das rotas de sessão e da troca de senha.
 
 ## Questão
 

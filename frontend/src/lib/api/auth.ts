@@ -13,6 +13,8 @@ export type User = {
   status: "ATIVO" | "INATIVO";
   // false até o cliente confirmar o e-mail pelo link (DEC-082).
   emailVerificado: boolean;
+  // Senha provisória definida pelo admin, ainda não trocada (DEC-083).
+  trocaSenhaObrigatoria: boolean;
 };
 
 export type LoginPayload = {

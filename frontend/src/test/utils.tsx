@@ -114,6 +114,7 @@ export const clienteUser = {
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
   emailVerificado: true,
+  trocaSenhaObrigatoria: false,
 };
 
 // Coleta na visão do coletor (06_API §13.4, DEC-070): `cliente` é null em
@@ -132,6 +133,7 @@ export const coletorUser = {
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
   emailVerificado: true,
+  trocaSenhaObrigatoria: false,
 };
 
 // Usuário na visão administrativa (DEC-075), para testes.
@@ -145,6 +147,7 @@ export function buildAdminUser(overrides: Partial<AdminUser> = {}): AdminUser {
     tipoCadastro: "PF",
     dadosEmpresa: null,
     status: "ATIVO",
+    trocaSenhaObrigatoria: false,
     createdAt: "2026-09-20T13:00:00.000Z",
     updatedAt: "2026-09-20T13:00:00.000Z",
     ...overrides,
@@ -171,4 +174,5 @@ export const adminUser = {
   tipoCadastro: "PF" as const,
   status: "ATIVO" as const,
   emailVerificado: true,
+  trocaSenhaObrigatoria: false,
 };
