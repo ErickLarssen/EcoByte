@@ -20,6 +20,7 @@
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",
     "mongoose": "^9.10.2",
+    "nodemailer": "^10.0.15",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.19.0",
     "@types/node": "^22.20.4",
+    "@types/nodemailer": "^8.0.2",
     "@types/supertest": "^7.2.1",
     "eslint": "^10.11.0",
     "globals": "^17.12.0",

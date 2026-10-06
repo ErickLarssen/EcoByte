@@ -13,14 +13,15 @@ export function useProfile() {
 // Após salvar, o perfil em cache e o usuário do cabeçalho passam a refletir a API.
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
-  const { updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
 
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: (profile) => {
       queryClient.setQueryData(profileKeys.current, profile);
       const { id, nome, email, role, tipoCadastro, status } = profile;
-      updateUser({ id, nome, email, role, tipoCadastro, status });
+      // O perfil não altera a verificação do e-mail: mantém o valor atual.
+      updateUser({ id, nome, email, role, tipoCadastro, status, emailVerificado: user?.emailVerificado ?? true });
     },
   });
 }

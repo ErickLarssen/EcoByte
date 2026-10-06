@@ -11,6 +11,8 @@ export type User = {
   role: UserRole;
   tipoCadastro: TipoCadastro;
   status: "ATIVO" | "INATIVO";
+  // false até o cliente confirmar o e-mail pelo link (DEC-082).
+  emailVerificado: boolean;
 };
 
 export type LoginPayload = {
@@ -48,4 +50,15 @@ export async function logout(): Promise<void> {
 export async function getCurrentUser(signal?: AbortSignal): Promise<User> {
   const { data } = await apiRequest<UserResponse>("/auth/me", { signal });
   return data.user;
+}
+
+// Verificação de e-mail (DEC-082). Pública: o link pode ser aberto em outro navegador.
+export async function verifyEmail(token: string): Promise<void> {
+  await apiRequest<null>("/auth/verify-email", { method: "POST", body: { token } });
+}
+
+// Novo link para o usuário da sessão.
+export async function resendVerificationEmail(): Promise<string> {
+  const { message } = await apiRequest<null>("/auth/verify-email/resend", { method: "POST" });
+  return message;
 }

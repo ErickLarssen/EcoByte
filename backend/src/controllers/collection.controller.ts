@@ -10,16 +10,20 @@ import {
   listAvailableCollections,
   listClientCollections,
 } from "../services/collection.service.js";
+import { assertCepInServiceArea, type CepProvider } from "../services/cep.service.js";
 import { sendSuccess } from "../utils/api-response.js";
 import { paginationQuerySchema } from "../validators/collection.validators.js";
 
 // req.user é garantido por requireAuth nas rotas de coleta.
 const userId = (req: Request) => req.user!.id;
 
-// POST /api/v1/collections
-export async function create(req: Request, res: Response): Promise<void> {
-  const collection = await createCollection(userId(req), req.body);
-  sendSuccess(res, 201, "Coleta solicitada com sucesso.", { collection });
+// POST /api/v1/collections — o CEP é conferido na área de atendimento (DEC-081).
+export function create(cepProvider: CepProvider) {
+  return async (req: Request, res: Response): Promise<void> => {
+    await assertCepInServiceArea(cepProvider, req.body.enderecoColeta.cep, "enderecoColeta.cep");
+    const collection = await createCollection(userId(req), req.body);
+    sendSuccess(res, 201, "Coleta solicitada com sucesso.", { collection });
+  };
 }
 
 // GET /api/v1/collections

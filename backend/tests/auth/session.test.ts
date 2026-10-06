@@ -29,6 +29,7 @@ describe("GET /api/v1/auth/me (17_TESTING §32)", () => {
           role: "CLIENTE",
           tipoCadastro: "PF",
           status: "ATIVO",
+          emailVerificado: true,
         },
       },
     });

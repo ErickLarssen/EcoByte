@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useCreateCollection } from "@/hooks/use-client-collections";
 import type { CreateCollectionPayload } from "@/lib/api/collections";
 import { applyApiErrors } from "@/lib/form-errors";
+import { SERVICE_AREA } from "@/lib/service-area";
 import {
   EMPTY_ITEM,
   collectionRequestSchema,
@@ -56,6 +57,7 @@ export function CollectionRequestForm() {
   const createCollection = useCreateCollection();
   const [step, setStep] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
+  const [cepRejection, setCepRejection] = useState<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
@@ -63,7 +65,16 @@ export function CollectionRequestForm() {
     resolver: zodResolver(collectionRequestSchema),
     mode: "onTouched",
     defaultValues: {
-      enderecoColeta: { cep: "", logradouro: "", numero: "", complemento: "", bairro: "", cidade: "", estado: "" },
+      // Cidade e UF fixas na área de atendimento (DEC-081).
+      enderecoColeta: {
+        cep: "",
+        logradouro: "",
+        numero: "",
+        complemento: "",
+        bairro: "",
+        cidade: SERVICE_AREA.cidade,
+        estado: SERVICE_AREA.estado,
+      },
       itensDescarte: [{ ...EMPTY_ITEM }],
       observacoes: "",
     },
@@ -81,6 +92,14 @@ export function CollectionRequestForm() {
 
   async function goNext() {
     const valid = await form.trigger(STEP_FIELDS[step], { shouldFocus: true });
+
+    // CEP recusado na consulta (fora de Diadema-SP ou inexistente, DEC-081):
+    // a validação do formulário não conhece o CEP, então o bloqueio é feito aqui.
+    if (valid && step === 0 && cepRejection) {
+      form.setError("enderecoColeta.cep", { type: "cep", message: cepRejection }, { shouldFocus: true });
+      return;
+    }
+
     if (valid) setStep((current) => current + 1);
   }
 
@@ -129,7 +148,7 @@ export function CollectionRequestForm() {
             </Alert>
           )}
 
-          {step === 0 && <AddressFields name="enderecoColeta" />}
+          {step === 0 && <AddressFields name="enderecoColeta" serviceArea onCepRejected={setCepRejection} />}
           {step === 1 && <WasteItemsFields />}
           {step === 2 && <CollectionReview onEditStep={setStep} />}
         </div>
