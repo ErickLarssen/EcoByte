@@ -3442,7 +3442,52 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 87. Registro Atual de Decisões Pendentes
+# 87. DEC-085 — Acabamento Premium da Autenticação e das Áreas Autenticadas
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+O responsável pelo projeto pediu acabamento premium e moderno para as telas de login e cadastro, com um fundo elaborado, e também para as áreas do cliente, do coletor e do administrador. Tudo sem sair da linguagem do site institucional (`DEC-080`) e da paleta do `DEC-071`.
+
+A área autenticada deve continuar priorizando clareza e leitura rápida, sem excesso de efeitos (10 §64, DS-004).
+
+## Decisão
+
+### Telas de autenticação
+
+Valem para `/entrar`, `/cadastro`, `/verificar-email` e `/trocar-senha`.
+
+- **Painel da marca, a partir de `lg`:** à esquerda, fixo na altura da tela. Usa a linguagem do hero do site: foto com movimento lento, véu escuro da paleta, símbolo como marca d'água e um texto curto sobre o serviço. No celular não aparece, e o formulário vem primeiro (mobile-first);
+- **Fundo do formulário (`BrandBackdrop`):** malha fina na cor primária, que se dissolve nas bordas, e brilhos desfocados em azul e verde. Os brilhos têm deriva lenta, de 22 s, desativada com movimento reduzido;
+- **Cartão do formulário:** em vidro, com contorno em degradê azul-verde e sombra suave;
+- no desktop, o logotipo acima do cartão dá lugar ao do painel. "Voltar ao site" continua visível (`DEC-083`).
+
+### Áreas autenticadas
+
+- **Cabeçalho e barra inferior:** em vidro (10 §24, navegação). Na barra do celular, o item ativo ganha uma pílula atrás do ícone;
+- **Fundo:** faixa discreta no topo, com a malha e os brilhos parados. Nas áreas não há animação de fundo (10 §64, 15 §84);
+- **Abertura dos painéis (`DashboardHero`):** bloco escuro com o nome da área, a saudação e a ação principal, como o rodapé do site. No coletor e no admin, a partir de `sm`, os totais sobrepõem a borda inferior do bloco;
+- **Superfícies:** os cartões das áreas usam o utilitário `surface-card`, com cantos `2xl`, sombra discreta e contorno fino. Os interativos somam `surface-card-interactive`, que eleva o cartão 2 px no hover e reforça a sombra (15 §87). Sem elevação com movimento reduzido. O hover é só reforço (10 §76);
+- **Totais (`CountTile`):** ícone em placa com degradê suave, valor maior e seta indicando o destino.
+
+### Limites
+
+Nenhuma cor, fonte ou dependência nova. Degradês e vidro ficam restritos à navegação, à abertura dos painéis e às telas de autenticação. Os elementos decorativos são `aria-hidden` e não recebem foco.
+
+## Documentos relacionados
+
+```text
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+15_INTERACTIONS_MOTION.md
+```
+
+---
+
+# 88. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3456,7 +3501,7 @@ até serem formalmente decididas.
 
 ---
 
-# 88. Como Adicionar uma Nova Decisão
+# 89. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3494,7 +3539,7 @@ arquivo2.md
 
 ---
 
-# 89. Regra Final
+# 90. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

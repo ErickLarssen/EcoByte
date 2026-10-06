@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="grid gap-3 rounded-xl border bg-card p-4 sm:p-5" aria-label={title}>
+    <section className="grid gap-3 surface-card p-4 sm:p-6" aria-label={title}>
       <h2 className="font-semibold">{title}</h2>
       {children}
     </section>

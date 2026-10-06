@@ -21,7 +21,7 @@ export function NotificationItem({ notification, href, pending = false, onMarkAs
   return (
     <article
       aria-labelledby={`notificacao-${notification.id}`}
-      className={cn("flex gap-3 rounded-xl border bg-card p-4", unread && "border-primary/40")}
+      className={cn("flex gap-3 surface-card p-4", unread && "ring-primary/30")}
     >
       <span
         aria-hidden="true"

@@ -20,7 +20,7 @@ export function CollectionCard({ collection, href, nextAction }: CollectionCardP
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-xl border bg-card p-4 outline-none transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="group flex items-center gap-3 surface-card surface-card-interactive p-4 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:p-5"
     >
       <div className="grid min-w-0 flex-1 gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -41,7 +41,7 @@ export function CollectionCard({ collection, href, nextAction }: CollectionCardP
         )}
       </div>
       <ChevronRight
-        className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+        className="size-5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary"
         aria-hidden="true"
       />
     </Link>

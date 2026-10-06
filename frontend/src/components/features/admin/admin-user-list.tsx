@@ -29,7 +29,7 @@ function UserCards({ users }: { users: AdminUser[] }) {
         <li key={user.id}>
           <Link
             href={userHref(user)}
-            className="group flex items-center gap-3 rounded-xl border bg-card p-4 outline-none transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="group flex items-center gap-3 surface-card surface-card-interactive p-4 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <div className="grid min-w-0 flex-1 gap-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -52,7 +52,7 @@ function UserCards({ users }: { users: AdminUser[] }) {
 // A partir de md: tabela com cabeçalhos semânticos (12 §67).
 function UserTable({ users }: { users: AdminUser[] }) {
   return (
-    <div className="hidden overflow-hidden rounded-xl border bg-card md:block">
+    <div className="hidden overflow-hidden surface-card md:block">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Usuários cadastrados</caption>
         <thead className="border-b bg-muted/50 text-muted-foreground">

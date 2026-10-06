@@ -70,7 +70,7 @@ function StatusFilter({ current }: { current: CollectionStatus | null }) {
 
 function CollectionTable({ collections }: { collections: AdminCollection[] }) {
   return (
-    <div className="hidden overflow-hidden rounded-xl border bg-card md:block">
+    <div className="hidden overflow-hidden surface-card md:block">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Coletas</caption>
         <thead className="border-b bg-muted/50 text-muted-foreground">

@@ -1661,6 +1661,8 @@ DashboardLayout
 └── MainContent
 ```
 
+Acabamento (`DEC-085`): cabeçalho em vidro sobre o `BrandBackdrop` (`components/common/brand-backdrop.tsx`, variante `area`). A abertura dos painéis é o `DashboardHero` (`components/common/dashboard-hero.tsx`), e as superfícies usam `surface-card` (`app/globals.css`).
+
 ---
 
 # 75. AuthLayout
@@ -1676,7 +1678,7 @@ recuperação
 redefinição
 ```
 
-Implementação (`DEC-083`): `components/layouts/auth-layout.tsx`, com o link "Voltar ao site" para `/` acima do logo. É usado em `/entrar`, `/cadastro`, `/verificar-email` e `/trocar-senha`. A troca obrigatória da senha provisória fica em `features/profile/change-password-required.tsx`, que reaproveita o `PasswordForm` do perfil.
+Implementação (`DEC-083`): `components/layouts/auth-layout.tsx`, com o link "Voltar ao site" para `/` acima do logo. É usado em `/entrar`, `/cadastro`, `/verificar-email` e `/trocar-senha`. Desde o `DEC-085`, tem o painel da marca a partir de `lg`, o `BrandBackdrop` atrás do formulário e o cartão em vidro. A troca obrigatória da senha provisória fica em `features/profile/change-password-required.tsx`, que reaproveita o `PasswordForm` do perfil.
 
 ---
 

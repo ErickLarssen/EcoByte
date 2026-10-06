@@ -4,6 +4,7 @@ import { ClipboardList, Hourglass, Users } from "lucide-react";
 import Link from "next/link";
 import { CollectionListSkeleton } from "@/components/common/collection-card-skeleton";
 import { CountTile } from "@/components/common/count-tile";
+import { DashboardHero } from "@/components/common/dashboard-hero";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { useAuth } from "@/components/features/auth/auth-provider";
@@ -13,7 +14,8 @@ import { useAdminCollections, useAdminUsers } from "@/hooks/use-admin";
 const RECENT_LIMIT = 3;
 
 // Painel administrativo (RF-040, 10 §67): totais vindos da API e as coletas
-// mais recentes. Relatórios e indicadores dependem de OQ-016.
+// mais recentes. Relatórios e indicadores dependem de OQ-016. Abertura com o
+// DashboardHero, e os totais sobrepostos a ele (DEC-085).
 export function AdminDashboard() {
   const { user } = useAuth();
   const firstName = user?.nome.split(" ")[0];
@@ -24,10 +26,13 @@ export function AdminDashboard() {
   return (
     <div className="grid gap-8">
       <section aria-labelledby="boas-vindas" className="grid gap-4">
-        <h1 id="boas-vindas" className="text-2xl font-semibold tracking-tight">
-          Olá{firstName ? `, ${firstName}` : ""}!
-        </h1>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <DashboardHero
+          eyebrow="Administração"
+          firstName={firstName}
+          withTiles
+          description="Acompanhe usuários, coletas e o ecoponto EcoByte."
+        />
+        <div className="relative grid gap-3 sm:-mt-10 sm:grid-cols-3 sm:px-5">
           <CountTile
             href="/admin/usuarios"
             label="Usuários"

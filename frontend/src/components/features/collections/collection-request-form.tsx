@@ -136,7 +136,7 @@ export function CollectionRequestForm() {
       <form onSubmit={handleFormSubmit} method="post" noValidate aria-label="Solicitar coleta" className="grid gap-6">
         <RequestSteps current={step} />
 
-        <div className="grid gap-5 rounded-xl border bg-card p-4 sm:p-6">
+        <div className="grid gap-5 surface-card p-4 sm:p-6">
           <h2 ref={headingRef} tabIndex={-1} className="text-lg font-semibold outline-none">
             {STEP_TITLES[step]}
           </h2>

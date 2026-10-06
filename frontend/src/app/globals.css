@@ -162,3 +162,42 @@
 @utility animate-ken-burns {
   animation: ken-burns 28s ease-in-out infinite alternate;
 }
+
+/* Fundos especiais das telas de autenticação e das áreas autenticadas
+   (10 §25, DEC-085): malha fina que se dissolve nas bordas e brilhos suaves
+   da paleta. São decorativos, ficam atrás do conteúdo e não recebem foco. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+/* Superfície elevada dos cartões das áreas autenticadas (10 §23, §42,
+   DEC-085): cantos maiores, sombra discreta e contorno fino no lugar da borda.
+   Os interativos somam `surface-card-interactive`, com elevação no hover. */
+@utility surface-card {
+  @apply rounded-2xl bg-card shadow-xs ring-1 ring-foreground/6;
+}
+
+@utility surface-card-interactive {
+  @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-primary/25 motion-reduce:hover:translate-y-0;
+}
+
+/* Deriva lenta dos brilhos (15 §80). Desativada com movimento reduzido. */
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, -4%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-4%, 5%, 0) scale(0.96);
+  }
+}
+
+@utility animate-aurora {
+  animation: aurora 22s ease-in-out infinite alternate;
+}

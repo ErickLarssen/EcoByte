@@ -11,7 +11,7 @@ export function EcopointCard({ ecopoint }: { ecopoint: Ecopoint }) {
   const inactive = ecopoint.status === "INATIVO";
 
   return (
-    <article className="grid gap-4 rounded-xl border bg-card p-4 sm:p-5" aria-labelledby="ecoponto-nome">
+    <article className="grid gap-4 surface-card p-4 sm:p-6" aria-labelledby="ecoponto-nome">
       <header className="grid gap-1">
         <h2 id="ecoponto-nome" className="text-lg font-semibold">
           {ecopoint.nome}
