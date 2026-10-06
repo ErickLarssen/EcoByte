@@ -62,5 +62,7 @@ export async function changePassword(userId: string, input: ChangePasswordInput)
   }
 
   user.senhaHash = await hashPassword(input.novaSenha);
+  // Uma senha provisória deixa de ser obrigatória de trocar (DEC-083).
+  user.trocaSenhaObrigatoria = false;
   await user.save();
 }

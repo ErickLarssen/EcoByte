@@ -84,11 +84,11 @@ describe("CollectorCollectionList — disponíveis e atribuídas (13 §8, §38)"
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  it("atribuídas: mostra a próxima ação de cada status e pagina pela URL", async () => {
+  it("atribuídas: mostra a próxima ação de cada status e pagina pela URL, mantendo o grupo", async () => {
     navigation.search = "pagina=2";
     mockApi([
       {
-        path: "/collections/assigned?page=2&limit=10",
+        path: "/collections/assigned?page=2&limit=10&grupo=andamento",
         response: success(
           paginated(
             [
@@ -104,19 +104,39 @@ describe("CollectorCollectionList — disponíveis e atribuídas (13 §8, §38)"
     ]);
     renderWithQuery(<CollectorCollectionList variant="assigned" />);
 
-    const cards = within(await screen.findByRole("list")).getAllByRole("link");
+    const cards = within(await screen.findByRole("list", { name: "Coletas" })).getAllByRole("link");
     expect(within(cards[0]!).getByText("Confirmar recolhimento")).toBeInTheDocument();
     expect(within(cards[1]!).queryByText(/Próxima ação/)).not.toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "Paginação" });
-    expect(within(nav).getByRole("link", { name: /Anterior/ })).toHaveAttribute("href", "/coletor/coletas?pagina=1");
+    expect(within(nav).getByRole("link", { name: /Anterior/ })).toHaveAttribute("href", "/coletor/coletas?grupo=andamento");
+  });
+
+  it("separa em andamento e concluídas pela URL (DEC-084)", async () => {
+    navigation.search = "grupo=concluidas";
+    const { calls } = mockApi([
+      {
+        path: "/collections/assigned?page=1&limit=10&grupo=concluidas",
+        response: success(paginated([buildCollectorCollection({ id: "c9", status: "CONCLUIDA", cliente })])),
+      },
+    ]);
+    renderWithQuery(<CollectorCollectionList variant="assigned" />);
+
+    const groups = screen.getByRole("navigation", { name: "Grupos de coletas" });
+    expect(within(groups).getByRole("link", { name: "Concluídas" })).toHaveAttribute("aria-current", "page");
+    expect(within(groups).getByRole("link", { name: "Em andamento" })).toHaveAttribute(
+      "href",
+      "/coletor/coletas?grupo=andamento",
+    );
+    expect(await screen.findByText("1 coleta")).toBeInTheDocument();
+    expect(calls[0]?.path).toBe("/api/v1/collections/assigned?page=1&limit=10&grupo=concluidas");
   });
 
   it("atribuídas vazias levam às disponíveis", async () => {
-    mockApi([{ path: "/collections/assigned?page=1&limit=10", response: success(paginated([])) }]);
+    mockApi([{ path: "/collections/assigned?page=1&limit=10&grupo=andamento", response: success(paginated([])) }]);
     renderWithQuery(<CollectorCollectionList variant="assigned" />);
 
-    expect(await screen.findByText("Você ainda não aceitou nenhuma coleta.")).toBeInTheDocument();
+    expect(await screen.findByText("Nenhuma coleta em andamento.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver coletas disponíveis" })).toHaveAttribute("href", "/coletor/disponiveis");
   });
 });
@@ -130,7 +150,7 @@ describe("CollectorDashboard (13 §43)", () => {
         response: success(paginated([buildCollectorCollection({ id: "d1" })], 1, 3, 12)),
       },
       {
-        path: "/collections/assigned?page=1&limit=3",
+        path: "/collections/assigned?page=1&limit=3&grupo=andamento",
         response: success(paginated([buildCollectorCollection({ id: "a1", status: "ACEITA", cliente })], 1, 3, 2)),
       },
     ]);
@@ -138,7 +158,7 @@ describe("CollectorDashboard (13 §43)", () => {
 
     const availableTile = await screen.findByRole("link", { name: /Coletas disponíveis\s*12/ });
     expect(availableTile).toHaveAttribute("href", "/coletor/disponiveis");
-    expect(screen.getByRole("link", { name: /Atribuídas a você\s*2/ })).toHaveAttribute("href", "/coletor/coletas");
+    expect(screen.getByRole("link", { name: /Em andamento\s*2/ })).toHaveAttribute("href", "/coletor/coletas?grupo=andamento");
     expect(await screen.findByRole("heading", { name: "Olá, Carlos!" })).toBeInTheDocument();
     expect(screen.getByText("Iniciar rota")).toBeInTheDocument();
   });

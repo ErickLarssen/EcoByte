@@ -26,6 +26,7 @@ describe("POST /api/v1/auth/register (17_TESTING §29, §40)", () => {
           tipoCadastro: "PF",
           status: "ATIVO",
           emailVerificado: false,
+          trocaSenhaObrigatoria: false,
         },
       },
     });

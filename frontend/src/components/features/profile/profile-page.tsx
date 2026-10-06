@@ -176,7 +176,16 @@ function resolvePasswordField(apiField: string): FieldPath<PasswordChangeFormVal
     : undefined;
 }
 
-function PasswordForm() {
+type PasswordFormProps = {
+  // Rótulo do campo da senha atual (ex.: "Senha provisória", DEC-083).
+  currentLabel?: string;
+  // Chamado após a troca confirmada pela API.
+  onChanged?: () => void;
+};
+
+// Troca de senha (DEC-078), também usada na troca obrigatória da senha
+// provisória (DEC-083).
+export function PasswordForm({ currentLabel = "Senha atual", onChanged }: PasswordFormProps = {}) {
   const mutation = useChangePassword();
   const { node: feedback, setFeedback } = useFeedback();
   const form = useForm<PasswordChangeFormValues>({
@@ -200,6 +209,7 @@ function PasswordForm() {
       onSuccess: () => {
         reset(EMPTY_PASSWORDS);
         setFeedback({ kind: "success", message: "Senha alterada com sucesso." });
+        onChanged?.();
       },
       onError: (error) => {
         const { message } = applyApiErrors(error, setError, resolvePasswordField);
@@ -212,7 +222,7 @@ function PasswordForm() {
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5">
       {feedback}
 
-      <FormField id="senhaAtual" label="Senha atual" required error={errors.senhaAtual?.message}>
+      <FormField id="senhaAtual" label={currentLabel} required error={errors.senhaAtual?.message}>
         <PasswordInput autoComplete="current-password" {...register("senhaAtual")} />
       </FormField>
 

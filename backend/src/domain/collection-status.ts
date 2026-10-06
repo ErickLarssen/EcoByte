@@ -105,3 +105,9 @@ export function requiresColetor(status: CollectionStatus): boolean {
 export function requiresEcoponto(status: CollectionStatus): boolean {
   return status === "ENTREGUE_ECOPONTO" || status === "CONCLUIDA";
 }
+
+// Coletas em andamento: já atribuídas e ainda não concluídas (13 §39). Usado na
+// desativação de coletor (DEC-075) e no grupo "Em andamento" (DEC-084).
+export const ACTIVE_COLLECTION_STATUSES: readonly CollectionStatus[] = COLLECTION_STATUSES.filter(
+  (status) => status !== INITIAL_COLLECTION_STATUS && !isTerminalStatus(status),
+);

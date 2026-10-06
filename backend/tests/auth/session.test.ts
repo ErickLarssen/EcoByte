@@ -30,6 +30,7 @@ describe("GET /api/v1/auth/me (17_TESTING §32)", () => {
           tipoCadastro: "PF",
           status: "ATIVO",
           emailVerificado: true,
+          trocaSenhaObrigatoria: false,
         },
       },
     });

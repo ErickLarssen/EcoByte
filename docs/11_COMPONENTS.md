@@ -1429,7 +1429,7 @@ Error
 Filters
 ```
 
-Implementação (Fase 7, `DEC-074`): `features/collector/collector-collection-list.tsx` (variantes `available` e `assigned`), sem agrupamentos nem filtros enquanto `OQ-047` estiver aberta. O `CollectorRouteCard` não é um componente separado: é o `CollectionCard` com a propriedade `nextAction` (§135).
+Implementação (Fase 7, `DEC-074`): `features/collector/collector-collection-list.tsx` (variantes `available` e `assigned`), sem agrupamentos nem filtros enquanto `OQ-047` estiver aberta. Desde o `DEC-084`, a variante `assigned` tem as abas "Em andamento" e "Concluídas" (`?grupo=`), e o detalhe da coleta tem "Como chegar" e, em `RECOLHIDA`, a seção "Entrega no ecoponto" (`EcopointInfo`). O `CollectorRouteCard` não é um componente separado: é o `CollectionCard` com a propriedade `nextAction` (§135).
 
 ---
 
@@ -1676,6 +1676,8 @@ recuperação
 redefinição
 ```
 
+Implementação (`DEC-083`): `components/layouts/auth-layout.tsx`, com o link "Voltar ao site" para `/` acima do logo. É usado em `/entrar`, `/cadastro`, `/verificar-email` e `/trocar-senha`. A troca obrigatória da senha provisória fica em `features/profile/change-password-required.tsx`, que reaproveita o `PasswordForm` do perfil.
+
 ---
 
 # 76. PublicLayout
@@ -1771,6 +1773,8 @@ ações
 ```
 
 Implementação (Fase 8, `DEC-075`): `features/admin/admin-user-list.tsx`. No celular, cartões; a partir de `md`, tabela com `caption` e `th scope` (12 §11, §67). As ações ficam no detalhe (`admin-user-detail.tsx`), e o status aparece em `components/domain/user-status-badge.tsx`.
+
+Cadastro de coletor (`DEC-083`): `features/admin/admin-collector-form.tsx`, em `/admin/usuarios/novo`, aberto pelo botão "Cadastrar coletor" da lista. O esquema fica em `lib/validation/collector.ts`.
 
 ---
 

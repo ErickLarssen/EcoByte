@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/common/logo";
@@ -9,11 +10,22 @@ type AuthLayoutProps = {
   children: ReactNode;
 };
 
-// Layout de login e cadastro (11 §75). Mobile-first: uma coluna, conteúdo a
-// partir do topo; centralizado verticalmente a partir de telas maiores.
+// Layout de login, cadastro e confirmação de e-mail (11 §75). Mobile-first:
+// uma coluna, conteúdo a partir do topo; centralizado verticalmente a partir de
+// telas maiores. "Voltar ao site" e o logotipo levam à página inicial (DEC-083).
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
     <main className="flex min-h-dvh flex-col items-center bg-muted px-4 py-8 sm:justify-center sm:py-12">
+      <div className="mb-4 w-full max-w-md">
+        <Link
+          href="/"
+          className="inline-flex h-11 items-center gap-1.5 rounded-lg text-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Voltar ao site
+        </Link>
+      </div>
+
       <Link
         href="/"
         aria-label="EcoByte, página inicial"

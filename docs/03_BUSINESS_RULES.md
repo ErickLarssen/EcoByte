@@ -576,7 +576,7 @@ O coletor não pode:
 
 O administrador possui permissões administrativas para:
 
-- gerenciar usuários
+- gerenciar usuários, incluindo o cadastro de coletores (`DEC-083`)
 - visualizar coletas
 - consultar informações gerais do sistema
 - gerenciar o ecoponto

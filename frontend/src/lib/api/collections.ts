@@ -99,9 +99,18 @@ export async function listAvailableCollections(page: number, limit: number, sign
   return data;
 }
 
-export async function listAssignedCollections(page: number, limit: number, signal?: AbortSignal) {
+// Grupos das coletas atribuídas (DEC-084): em andamento ou concluídas.
+export type AssignedGroup = "andamento" | "concluidas";
+
+export async function listAssignedCollections(
+  page: number,
+  limit: number,
+  group: AssignedGroup | null = null,
+  signal?: AbortSignal,
+) {
+  const filter = group ? `&grupo=${group}` : "";
   const { data } = await apiRequest<Paginated<CollectorCollection>>(
-    `/collections/assigned?page=${page}&limit=${limit}`,
+    `/collections/assigned?page=${page}&limit=${limit}${filter}`,
     { signal },
   );
   return data;

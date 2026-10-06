@@ -13,6 +13,8 @@ export type UserDetailView = {
   tipoCadastro: TipoCadastro;
   dadosEmpresa: { razaoSocial: string | null; nomeFantasia: string | null } | null;
   status: RecordStatus;
+  // Senha provisória ainda não trocada (DEC-083).
+  trocaSenhaObrigatoria: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -26,6 +28,7 @@ export type UserRecord = {
   tipoCadastro: TipoCadastro;
   dadosEmpresa?: { razaoSocial?: string | null; nomeFantasia?: string | null } | null;
   status: RecordStatus;
+  trocaSenhaObrigatoria?: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -42,6 +45,7 @@ export function toUserDetailView(user: UserRecord): UserDetailView {
       ? { razaoSocial: user.dadosEmpresa.razaoSocial ?? null, nomeFantasia: user.dadosEmpresa.nomeFantasia ?? null }
       : null,
     status: user.status,
+    trocaSenhaObrigatoria: user.trocaSenhaObrigatoria === true,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

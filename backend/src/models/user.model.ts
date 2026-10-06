@@ -62,6 +62,9 @@ const userSchema = new Schema(
     // Hash SHA-256 do token enviado por e-mail; o token em si nunca é guardado.
     emailVerificacaoTokenHash: { type: String, default: null, select: false },
     emailVerificacaoExpiraEm: { type: Date, default: null, select: false },
+    // Senha provisória definida pelo administrador (DEC-083): a troca é
+    // obrigatória antes de usar o sistema.
+    trocaSenhaObrigatoria: { type: Boolean, default: false },
   },
   {
     timestamps: true,

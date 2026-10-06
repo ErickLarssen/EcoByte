@@ -6,6 +6,7 @@ import {
   listAssignedCollections,
   listAvailableCollections,
   runCollectorEvent,
+  type AssignedGroup,
   type CollectorEvent,
 } from "@/lib/api/collections";
 
@@ -14,7 +15,8 @@ export const collectorCollectionKeys = {
   all: ["collections", "collector"] as const,
   lists: () => [...collectorCollectionKeys.all, "list"] as const,
   available: (page: number, limit: number) => [...collectorCollectionKeys.lists(), "available", page, limit] as const,
-  assigned: (page: number, limit: number) => [...collectorCollectionKeys.lists(), "assigned", page, limit] as const,
+  assigned: (page: number, limit: number, group: AssignedGroup | null = null) =>
+    [...collectorCollectionKeys.lists(), "assigned", page, limit, group] as const,
   detail: (id: string) => [...collectorCollectionKeys.all, "detail", id] as const,
 };
 
@@ -26,10 +28,10 @@ export function useAvailableCollections(page: number, limit = 10) {
   });
 }
 
-export function useAssignedCollections(page: number, limit = 10) {
+export function useAssignedCollections(page: number, limit = 10, group: AssignedGroup | null = null) {
   return useQuery({
-    queryKey: collectorCollectionKeys.assigned(page, limit),
-    queryFn: ({ signal }) => listAssignedCollections(page, limit, signal),
+    queryKey: collectorCollectionKeys.assigned(page, limit, group),
+    queryFn: ({ signal }) => listAssignedCollections(page, limit, group, signal),
     placeholderData: keepPreviousData,
   });
 }

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { parseInput } from "../middlewares/validate-body.js";
 import {
+  createCollector,
   getCollection,
   getUser,
   listCollections,
@@ -8,13 +9,23 @@ import {
   updateUserStatus,
 } from "../services/admin.service.js";
 import { sendSuccess } from "../utils/api-response.js";
-import { adminCollectionsQuerySchema, type UpdateUserStatusInput } from "../validators/admin.validators.js";
+import {
+  adminCollectionsQuerySchema,
+  type CreateCollectorInput,
+  type UpdateUserStatusInput,
+} from "../validators/admin.validators.js";
 import { paginationQuerySchema } from "../validators/collection.validators.js";
 
 // GET /api/v1/admin/users
 export async function listUsersHandler(req: Request, res: Response): Promise<void> {
   const page = await listUsers(parseInput(paginationQuerySchema, req.query));
   sendSuccess(res, 200, "Usuários encontrados.", page);
+}
+
+// POST /api/v1/admin/users — cadastro de coletor (DEC-083)
+export async function createCollectorHandler(req: Request, res: Response): Promise<void> {
+  const user = await createCollector(req.body as CreateCollectorInput);
+  sendSuccess(res, 201, "Coletor cadastrado. Repasse a senha provisória: ela deve ser trocada no primeiro acesso.", { user });
 }
 
 // GET /api/v1/admin/users/:id

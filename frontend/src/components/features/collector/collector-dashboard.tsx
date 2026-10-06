@@ -59,12 +59,12 @@ function PreviewSection({
 }
 
 // Painel do coletor (11 §79, 13 §6, §43): quantas coletas estão disponíveis e
-// atribuídas, e a próxima ação de cada coleta atribuída. Sem "próxima coleta"
+// em andamento (DEC-084), e a próxima ação de cada uma. Sem "próxima coleta"
 // ordenada por prioridade: o critério não está definido (13 §84, OQ-047).
 export function CollectorDashboard() {
   const { user } = useAuth();
   const firstName = user?.nome.split(" ")[0];
-  const assigned = useAssignedCollections(1, PREVIEW_LIMIT);
+  const assigned = useAssignedCollections(1, PREVIEW_LIMIT, "andamento");
   const available = useAvailableCollections(1, PREVIEW_LIMIT);
 
   return (
@@ -82,8 +82,8 @@ export function CollectorDashboard() {
             failed={available.isError}
           />
           <CountTile
-            href="/coletor/coletas"
-            label="Atribuídas a você"
+            href="/coletor/coletas?grupo=andamento"
+            label="Em andamento"
             icon={ClipboardList}
             value={assigned.data?.pagination.total}
             failed={assigned.isError}
@@ -92,14 +92,14 @@ export function CollectorDashboard() {
       </section>
 
       <PreviewSection
-        id="minhas-coletas"
-        title="Suas coletas recentes"
-        href="/coletor/coletas"
+        id="em-andamento"
+        title="Suas coletas em andamento"
+        href="/coletor/coletas?grupo=andamento"
         query={assigned}
         empty={
           <EmptyState
             icon={ClipboardList}
-            title="Você ainda não aceitou nenhuma coleta."
+            title="Nenhuma coleta em andamento."
             description="Aceite uma coleta disponível para começar."
           />
         }

@@ -15,7 +15,7 @@ export type NavItem = {
 
 export type Area = "cliente" | "coletor" | "admin";
 
-// Destinos de cada área (DEC-073 a DEC-076, 10 §58, §62).
+// Destinos de cada área (DEC-073 a DEC-076, DEC-084, 10 §58, §62).
 export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
   cliente: [
     { href: "/cliente", label: "Início", icon: House, exact: true },
@@ -27,6 +27,7 @@ export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
     { href: "/coletor", label: "Início", icon: House, exact: true },
     { href: "/coletor/disponiveis", label: "Disponíveis", icon: Inbox },
     { href: "/coletor/coletas", label: "Minhas coletas", icon: ClipboardList },
+    { href: "/coletor/ecoponto", label: "Ecoponto", icon: MapPin },
   ],
   admin: [
     { href: "/admin", label: "Início", icon: House, exact: true },

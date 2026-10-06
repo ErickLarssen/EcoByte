@@ -13,7 +13,7 @@ export const passwordSchema = z
   .regex(/[^A-Za-z0-9]/, "A senha deve conter pelo menos um caractere especial.");
 
 // E-mail normalizado em minúsculas (BR-005, 09 §11).
-const emailSchema = z
+export const emailSchema = z
   .string({ error: "Informe o e-mail." })
   .trim()
   .toLowerCase()

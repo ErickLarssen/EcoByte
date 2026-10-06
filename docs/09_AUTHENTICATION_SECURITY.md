@@ -225,6 +225,7 @@ O administrador pode, conforme as funcionalidades implementadas:
 
 - consultar usuários;
 - gerenciar status de usuários;
+- cadastrar coletores (`DEC-083`);
 - consultar coletas;
 - visualizar informações administrativas;
 - gerenciar informações do ecoponto;
@@ -250,6 +251,8 @@ O cadastro deve:
 6. gerar hash seguro da senha;
 7. persistir o usuário;
 8. evitar armazenamento da senha em texto puro.
+
+O cadastro público cria somente clientes. Coletores são cadastrados pelo administrador (`POST /api/v1/admin/users`), com as mesmas validações de e-mail e senha. A senha provisória deve ser trocada no primeiro acesso: até lá, a API responde `403 PASSWORD_CHANGE_REQUIRED` fora das rotas de sessão e da troca de senha (`DEC-083`).
 
 ---
 

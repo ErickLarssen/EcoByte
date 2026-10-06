@@ -44,6 +44,7 @@ function UserData({ user }: { user: AdminUser }) {
         </>
       )}
       <Field label="Cadastrado em" value={formatDate(user.createdAt)} />
+      {user.trocaSenhaObrigatoria && <Field label="Senha" value="Provisória: ainda não trocada pelo usuário" />}
     </dl>
   );
 }
@@ -51,7 +52,7 @@ function UserData({ user }: { user: AdminUser }) {
 // Detalhe do usuário (RF-042) e controle de status (RF-043, DEC-075).
 // As regras (administradores, coletor com coletas em andamento) são da API;
 // a tela só oculta a ação para contas ADMIN, que a API também recusa.
-export function AdminUserDetail({ id }: { id: string }) {
+export function AdminUserDetail({ id, justCreated = false }: { id: string; justCreated?: boolean }) {
   const query = useAdminUser(id);
   const mutation = useUpdateUserStatus(id);
   const [confirming, setConfirming] = useState(false);
@@ -121,6 +122,16 @@ export function AdminUserDetail({ id }: { id: string }) {
         <h1 className="text-2xl font-semibold tracking-tight break-words">{user.nome}</h1>
         <UserStatusBadge status={user.status} />
       </header>
+
+      {justCreated && !feedback && (
+        <Alert role="status" className="border-success/30 bg-success-surface text-success">
+          <CheckCircle2 aria-hidden="true" />
+          <AlertTitle>Coletor cadastrado.</AlertTitle>
+          <AlertDescription className="text-success">
+            Repasse a senha provisória ao coletor. Ela deve ser trocada no primeiro acesso.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div ref={feedbackRef} tabIndex={-1} className="outline-none empty:hidden">
         {feedback?.kind === "success" && (

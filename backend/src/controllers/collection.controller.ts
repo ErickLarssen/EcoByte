@@ -11,8 +11,9 @@ import {
   listClientCollections,
 } from "../services/collection.service.js";
 import { assertCepInServiceArea, type CepProvider } from "../services/cep.service.js";
+import { notifyCollectorsOfNewCollection } from "../services/notification.service.js";
 import { sendSuccess } from "../utils/api-response.js";
-import { paginationQuerySchema } from "../validators/collection.validators.js";
+import { assignedQuerySchema, paginationQuerySchema } from "../validators/collection.validators.js";
 
 // req.user é garantido por requireAuth nas rotas de coleta.
 const userId = (req: Request) => req.user!.id;
@@ -22,6 +23,8 @@ export function create(cepProvider: CepProvider) {
   return async (req: Request, res: Response): Promise<void> => {
     await assertCepInServiceArea(cepProvider, req.body.enderecoColeta.cep, "enderecoColeta.cep");
     const collection = await createCollection(userId(req), req.body);
+    // Coletores ativos são avisados da nova coleta disponível (DEC-084).
+    await notifyCollectorsOfNewCollection(collection.id);
     sendSuccess(res, 201, "Coleta solicitada com sucesso.", { collection });
   };
 }
@@ -40,7 +43,7 @@ export async function listAvailable(req: Request, res: Response): Promise<void> 
 
 // GET /api/v1/collections/assigned
 export async function listAssigned(req: Request, res: Response): Promise<void> {
-  const page = await listAssignedCollections(userId(req), parseInput(paginationQuerySchema, req.query));
+  const page = await listAssignedCollections(userId(req), parseInput(assignedQuerySchema, req.query));
   sendSuccess(res, 200, "Coletas atribuídas.", page);
 }
 
