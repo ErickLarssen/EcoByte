@@ -88,3 +88,27 @@ export const verifyEmailSchema = z.object({
 });
 
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+
+// POST /api/v1/auth/forgot-password (06 §10.1, DEC-088).
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+// POST /api/v1/auth/reset-password (06 §10.2, DEC-088): token do link e a
+// nova senha, com a política do cadastro (DEC-019).
+export const resetPasswordSchema = z
+  .object({
+    token: z
+      .string({ error: "Link de redefinição inválido." })
+      .min(1, "Link de redefinição inválido.")
+      .max(200, "Link de redefinição inválido."),
+    novaSenha: passwordSchema,
+    confirmacaoSenha: z.string({ error: "Confirme a nova senha." }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.novaSenha !== data.confirmacaoSenha) {
+      ctx.addIssue({ code: "custom", path: ["confirmacaoSenha"], message: "A confirmação deve ser igual à nova senha." });
+    }
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

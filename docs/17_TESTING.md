@@ -2579,6 +2579,8 @@ build
 
 E E2E conforme a estratégia definida.
 
+Implementação (`DEC-089`): GitHub Actions (`.github/workflows/ci.yml`), com lint, typecheck, testes e build do backend e do frontend. E2E ainda não fazem parte.
+
 ---
 
 # 156. Pull Request

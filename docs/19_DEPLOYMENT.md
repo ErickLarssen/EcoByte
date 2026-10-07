@@ -532,7 +532,64 @@ Sem essas condições:
 - o rate limiting (`DEC-067`) passa a tratar todos os usuários como um único IP, ou pode ser burlado com headers forjados;
 - o cookie de sessão `Secure` não é emitido, pois o backend não reconhece a conexão original como HTTPS, e o login deixa de funcionar.
 
-O valor concreto de `TRUST_PROXY` depende da hospedagem, ainda em aberto (`OQ-034`), e deve ser validado com um teste de fumaça após o primeiro deploy.
+Com a hospedagem do `DEC-086` (Vercel à frente do Render), o valor é `TRUST_PROXY=2`. Ele deve ser validado com o teste de fumaça do §21.2 após o primeiro deploy.
+
+---
+
+# 21.2 Publicação no Atlas, Render e Vercel (DEC-086)
+
+Ordem do primeiro deploy: banco, backend, frontend, inicialização e teste de fumaça.
+
+## 1. MongoDB Atlas
+
+1. Crie um cluster **M0** (gratuito) em `mongodb.com`, provedor AWS, região N. Virginia (`us-east-1`).
+2. **Database Access:** crie um usuário só para a aplicação, com senha forte e permissão de leitura e escrita no banco `ecobyte`.
+3. **Network Access:** o plano free do Render não tem IP fixo, então libere `0.0.0.0/0`. A proteção fica com o usuário e a senha do banco (19 §32).
+4. Copie a connection string (`mongodb+srv://...`) e inclua o nome do banco: `.../ecobyte?retryWrites=true&w=majority`.
+
+## 2. Backend no Render
+
+1. Em `render.com`, **New > Blueprint** e selecione o repositório: o `render.yaml` cria o serviço `ecobyte-api`.
+2. Informe os segredos pedidos:
+   - `MONGODB_URI`: a string do Atlas;
+   - `FRONTEND_URL`: o endereço da Vercel, que pode ser ajustado depois do passo 3;
+   - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` e `MAIL_FROM`: os dados do provedor de e-mail.
+3. `SESSION_SECRET` é gerada pelo Render. `SMTP_PORT` já vem como 2525, porque o plano free bloqueia 25, 465 e 587.
+4. Confira `https://<serviço>.onrender.com/api/v1/health`.
+
+## 3. Frontend na Vercel
+
+1. **Add New > Project** e importe o repositório. Em **Root Directory**, escolha `frontend`. O framework (Next.js) e a instalação pelo workspace npm são detectados.
+2. Em **Environment Variables**, defina `API_INTERNAL_URL=https://<serviço>.onrender.com`. Ela é lida no build (§6): ao mudar, faça um novo deploy.
+3. Depois do deploy, copie o domínio (`https://<projeto>.vercel.app`) para `FRONTEND_URL` no Render. Os links dos e-mails e a validação de Origin dependem dele.
+
+## 4. Inicialização (DEC-087)
+
+Na máquina do responsável, sem gravar valores em arquivos versionados:
+
+```bash
+MONGODB_URI="mongodb+srv://..." \
+BOOTSTRAP_ADMIN_NOME="..." BOOTSTRAP_ADMIN_EMAIL="..." BOOTSTRAP_ADMIN_SENHA="..." \
+ECOPONTO_NOME="..." ECOPONTO_LOGRADOURO="..." ECOPONTO_NUMERO="..." ECOPONTO_BAIRRO="..." \
+ECOPONTO_CIDADE="Diadema" ECOPONTO_ESTADO="SP" ECOPONTO_CEP="..." \
+npm run bootstrap --workspace backend
+```
+
+O seed **nunca** é executado nesse banco (§36).
+
+## 5. Teste de fumaça (§78, §79)
+
+1. `/api/v1/health` pela Vercel: `https://<projeto>.vercel.app/api/v1/health`.
+2. Login do administrador, troca da senha provisória e conferência do ecoponto.
+3. **Cookie seguro:** depois do login, o cookie `ecobyte.sid` deve ter `Secure`. Se o login não persistir, `TRUST_PROXY` está baixo.
+4. **IP real:** dez logins errados seguidos devem bloquear só o seu IP, com `429`, e não os outros usuários. Se bloquear todos, revise `TRUST_PROXY`.
+5. Cadastro de cliente, e-mail de confirmação, solicitação de coleta e o fluxo do coletor até a conclusão.
+
+## Riscos conhecidos dos planos gratuitos
+
+- **Primeiro acesso lento:** o Render "dorme" após 15 minutos sem tráfego, e a primeira requisição leva cerca de 1 minuto. Antes de uma apresentação, abra `/api/v1/health` alguns minutos antes.
+- **Backend com endereço público:** no Render free, o endereço `onrender.com` é público, e não só a rede interna do item 2 do §21.1. Quem chamar a API direto pode forjar `X-Forwarded-For` e contornar o limite de tentativas por IP (`DEC-067`). Autenticação, autorização, validação de Origin e o hash Argon2id continuam valendo. Para uma operação real, restrinja o acesso ao backend, por exemplo com um plano que ofereça rede privada.
+- **Sem backup automático no M0** (`OQ-036`).
 
 ---
 
@@ -981,6 +1038,8 @@ Deploy Production
 ```
 
 A pipeline real pode conter etapas adicionais.
+
+Implementação (`DEC-089`): `.github/workflows/ci.yml`, com lint, typecheck, testes e build do backend e do frontend em cada pull request e push para `main`. O Render publica a `main` só depois do CI aprovado. Staging e E2E continuam fora do escopo.
 
 ---
 

@@ -19,6 +19,11 @@ export type PublicUser = {
   trocaSenhaObrigatoria: boolean;
 };
 
+// Usuário com a versão atual das sessões dele (DEC-088).
+export type SessionUser = { user: PublicUser; sessaoVersao: number };
+
+export const sessionVersionOf = (user: { sessaoVersao?: number | null }): number => user.sessaoVersao ?? 0;
+
 export function toPublicUser(user: UserDocument): PublicUser {
   return {
     id: String(user._id),
@@ -79,7 +84,7 @@ export async function registerClient(input: RegisterInput): Promise<PublicUser> 
 
 // Login (09 §17): a senha é verificada antes do status, para que
 // USER_INACTIVE só seja revelado a quem conhece a senha.
-export async function authenticate({ email, senha }: LoginInput): Promise<PublicUser> {
+export async function authenticate({ email, senha }: LoginInput): Promise<SessionUser> {
   const user = await User.findOne({ email }).select("+senhaHash");
 
   if (!user) {
@@ -95,14 +100,14 @@ export async function authenticate({ email, senha }: LoginInput): Promise<Public
     throw new AppError(403, "USER_INACTIVE", "Usuário inativo.");
   }
 
-  return toPublicUser(user);
+  return { user: toPublicUser(user), sessaoVersao: sessionVersionOf(user) };
 }
 
 // Usuário da sessão, recarregado do banco a cada requisição protegida
 // para refletir desativações e mudanças de role imediatamente.
-export async function findSessionUser(userId: string): Promise<PublicUser | null> {
+export async function findSessionUser(userId: string): Promise<SessionUser | null> {
   if (!isValidObjectId(userId)) return null;
 
   const user = await User.findById(userId);
-  return user ? toPublicUser(user) : null;
+  return user ? { user: toPublicUser(user), sessaoVersao: sessionVersionOf(user) } : null;
 }

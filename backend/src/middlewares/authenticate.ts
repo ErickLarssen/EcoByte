@@ -19,12 +19,20 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     throw new AppError(401, "UNAUTHORIZED", "Autenticação necessária.");
   }
 
-  const user = await findSessionUser(userId);
+  const found = await findSessionUser(userId);
 
-  if (!user) {
+  if (!found) {
     await endSession(req, res);
     throw new AppError(401, "UNAUTHORIZED", "Autenticação necessária.");
   }
+
+  // Sessão emitida antes de uma troca ou redefinição de senha (DEC-088).
+  if ((req.session.sessaoVersao ?? 0) !== found.sessaoVersao) {
+    await endSession(req, res);
+    throw new AppError(401, "UNAUTHORIZED", "Sua sessão foi encerrada. Entre novamente.");
+  }
+
+  const { user } = found;
 
   // Usuário desativado com sessão ativa (06_API §27.3).
   if (user.status !== "ATIVO") {

@@ -364,13 +364,9 @@ Não
 }
 ```
 
-### Observação
+### Implementação (`DEC-088`)
 
-O mecanismo de envio da recuperação ainda depende das decisões registradas em:
-
-```text
-docs/OPEN_QUESTIONS.md
-```
+Responde sempre `200` com a mesma mensagem, com ou sem conta. Contas `ATIVO` recebem por e-mail o link `/redefinir-senha?token=...`, válido por 1 hora.
 
 ---
 
@@ -399,6 +395,10 @@ Não necessariamente
   "confirmacaoSenha": "NovaSenha@123"
 }
 ```
+
+### Implementação (`DEC-088`)
+
+Pública. O token é de uso único, e a nova senha segue o `DEC-019`. Todas as sessões da conta são encerradas.
 
 ### Regras
 

@@ -4,12 +4,14 @@ import { SESSION_COOKIE_NAME, sessionCookieOptions } from "../config/session.js"
 // Versões com Promise das operações de sessão do express-session.
 
 // Novo identificador de sessão no login/cadastro, evitando fixação de sessão (09 §20).
-export function startSession(req: Request, userId: string): Promise<void> {
+// A versão permite encerrar as sessões antigas após uma troca de senha (DEC-088).
+export function startSession(req: Request, userId: string, sessaoVersao: number): Promise<void> {
   return new Promise((resolve, reject) => {
     req.session.regenerate((regenerateError) => {
       if (regenerateError) return reject(regenerateError);
 
       req.session.userId = userId;
+      req.session.sessaoVersao = sessaoVersao;
       req.session.save((saveError) => (saveError ? reject(saveError) : resolve()));
     });
   });

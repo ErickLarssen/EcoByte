@@ -214,7 +214,7 @@ CEP_SERVICE_UNAVAILABLE
 
 `CEP_SERVICE_UNAVAILABLE` (503): o serviço externo de CEP não respondeu (`DEC-081`).
 
-`INVALID_TOKEN` e `TOKEN_EXPIRED` (400) também respondem ao link de confirmação do e-mail inválido ou vencido (`DEC-082`).
+`INVALID_TOKEN` e `TOKEN_EXPIRED` (400) também respondem ao link de confirmação do e-mail inválido ou vencido (`DEC-082`) e ao link de redefinição de senha (`DEC-088`).
 
 `PASSWORD_CHANGE_REQUIRED` (403): o usuário ainda não trocou a senha provisória. Valem somente as rotas `/api/v1/auth/*` e `PATCH /api/v1/profile/password` (`DEC-083`).
 
@@ -561,6 +561,12 @@ POST /api/v1/auth/forgot-password
 
 O sistema não deve revelar informações desnecessárias sobre a existência do e-mail.
 
+### Implementação (`DEC-088`)
+
+- Resposta `200`, sempre com a mensagem "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha em instantes." e `data: null`;
+- contas `ATIVO` recebem o link `{FRONTEND_URL}/redefinir-senha?token=...`, válido por 1 hora. Um pedido novo invalida o anterior;
+- e-mail com formato inválido responde `400 VALIDATION_ERROR`, e mais de 5 pedidos por hora por IP, `429 RATE_LIMIT_EXCEEDED`.
+
 A implementação deve seguir:
 
 ```text
@@ -584,6 +590,17 @@ POST /api/v1/auth/reset-password
   "confirmacaoSenha": "NovaSenha@123"
 }
 ```
+
+### Implementação (`DEC-088`)
+
+Resposta `200` com a mensagem "Senha redefinida. Entre com a nova senha.". Todas as sessões da conta são encerradas, inclusive a do navegador em uso, e a troca provisória (`DEC-083`) deixa de ser exigida.
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | senha fora da política ou confirmação diferente. O token não é consumido |
+| `400` | `INVALID_TOKEN` | token inexistente, já usado ou de conta desativada |
+| `400` | `TOKEN_EXPIRED` | token com mais de 1 hora |
+| `429` | `RATE_LIMIT_EXCEEDED` | mais de 20 tentativas em 15 minutos por IP |
 
 ---
 
@@ -1597,6 +1614,8 @@ Código: `FORBIDDEN`.
 Se um usuário for desativado (`INATIVO`) enquanto possui sessão, a próxima requisição protegida retorna `403` com `USER_INACTIVE` e a sessão é encerrada no servidor (09 §19, `DEC-021`).
 
 Se o usuário da sessão não existir mais, a sessão é encerrada e a resposta é `401 UNAUTHORIZED`.
+
+Depois de uma troca ou redefinição de senha, as sessões anteriores da conta são encerradas na próxima requisição protegida: `401 UNAUTHORIZED`, com a mensagem "Sua sessão foi encerrada. Entre novamente." (`DEC-088`).
 
 ---
 

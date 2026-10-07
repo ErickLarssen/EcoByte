@@ -16,10 +16,10 @@ export async function updateProfileHandler(req: Request, res: Response): Promise
 }
 
 // PATCH /api/v1/profile/password — a sessão atual continua, com novo
-// identificador (09 §20); as demais sessões dependem de OQ-060.
+// identificador (09 §20); as demais são encerradas (DEC-088).
 export async function changePasswordHandler(req: Request, res: Response): Promise<void> {
   const userId = req.user!.id;
-  await changePassword(userId, req.body);
-  await startSession(req, userId);
+  const sessaoVersao = await changePassword(userId, req.body);
+  await startSession(req, userId, sessaoVersao);
   sendSuccess(res, 200, "Senha alterada com sucesso.", null);
 }

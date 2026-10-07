@@ -29,6 +29,24 @@ export const loginFormSchema = z.object({
 
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 
+// Recuperação de senha (DEC-088).
+export const forgotPasswordFormSchema = z.object({ email: emailSchema });
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
+
+export const resetPasswordFormSchema = z
+  .object({
+    novaSenha: passwordSchema,
+    confirmacaoSenha: z.string().min(1, "Confirme a nova senha."),
+  })
+  .superRefine((values, ctx) => {
+    if (values.confirmacaoSenha && values.novaSenha !== values.confirmacaoSenha) {
+      ctx.addIssue({ code: "custom", path: ["confirmacaoSenha"], message: "A confirmação deve ser igual à nova senha." });
+    }
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
+
 // Campos do formulário de cadastro (DEC-066). Razão social só é exigida para PJ.
 export const registrationFormSchema = z
   .object({

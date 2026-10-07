@@ -26,6 +26,8 @@ O seed **não deve ser utilizado como fonte de dados reais de produção**.
 
 ---
 
+> **Seed não é inicialização.** Para preparar um banco de produção (primeiro administrador e ecoponto), use `npm run bootstrap --workspace backend` (`DEC-087`). Ele só cria o que falta e nunca apaga dados. O seed é só para desenvolvimento e demonstração, e é bloqueado em produção.
+
 # 2. Princípios do Seed
 
 ## 2.1 Reprodutibilidade

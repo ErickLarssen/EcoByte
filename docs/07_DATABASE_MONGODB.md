@@ -193,6 +193,9 @@ Armazenar os usuários do sistema.
 | `emailVerificacaoTokenHash` | String/null | Não | Hash SHA-256 do token do link; nunca retornado (`select: false`) |
 | `emailVerificacaoExpiraEm` | Date/null | Não | Validade do token (24 horas) |
 | `trocaSenhaObrigatoria` | Boolean | Não (padrão `false`) | `true` para o coletor cadastrado pelo administrador até a troca da senha provisória (`DEC-083`) |
+| `senhaResetTokenHash` | String/null | Não | Hash SHA-256 do token de redefinição de senha; nunca retornado (`select: false`, `DEC-088`) |
+| `senhaResetExpiraEm` | Date/null | Não | Validade do token de redefinição (1 hora) |
+| `sessaoVersao` | Number | Não (padrão `0`) | Incrementada a cada troca ou redefinição de senha. Sessões com versão anterior são encerradas (`DEC-088`) |
 | `createdAt` | Date | Sim | Data de criação |
 | `updatedAt` | Date | Sim | Última atualização |
 

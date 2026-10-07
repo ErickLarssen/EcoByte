@@ -69,9 +69,18 @@ export function LoginForm({ returnTo }: { returnTo?: string | null } = {}) {
           <Input type="email" inputMode="email" autoComplete="email" {...register("email")} />
         </FormField>
 
-        <FormField id="senha" label="Senha" required error={errors.senha?.message}>
-          <PasswordInput autoComplete="current-password" {...register("senha")} />
-        </FormField>
+        <div className="grid gap-1">
+          <FormField id="senha" label="Senha" required error={errors.senha?.message}>
+            <PasswordInput autoComplete="current-password" {...register("senha")} />
+          </FormField>
+          {/* Recuperação de senha por link (DEC-088). */}
+          <Link
+            href="/esqueci-senha"
+            className="inline-flex h-11 items-center justify-self-end rounded-lg text-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            Esqueci minha senha
+          </Link>
+        </div>
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>

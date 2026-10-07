@@ -246,7 +246,8 @@ O backend em desenvolvimento é executado com `tsx` em modo watch.
 | `test` | Vitest (unitários e integração) |
 | `lint` | ESLint (typescript-eslint) |
 | `typecheck` | `tsc --noEmit` |
-| `seed` | Seed mínimo (`docs/20_SEED_DATA.md`) |
+| `seed` | Seed mínimo (`docs/20_SEED_DATA.md`). Bloqueado em produção |
+| `bootstrap` | Inicialização de um banco novo: primeiro administrador e ecoponto, sem apagar dados (`DEC-087`). Pode rodar em produção |
 | `seed:full` | Seed completo (ainda não implementado; `20_SEED_DATA.md` §41) |
 
 ## 7.3 Frontend

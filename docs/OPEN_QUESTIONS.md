@@ -204,6 +204,8 @@ deploy
 
 **Status:** ABERTA
 
+**Observação (2026-10-06, `DEC-087`):** em um banco novo, o script de inicialização cria o ecoponto a partir das variáveis `ECOPONTO_*`. Sem o endereço real, ele não é criado.
+
 **Comportamento enquanto aberta (2026-09-30, `DEC-076`):** o endereço vem do seed e pode ser alterado pelo administrador em `/admin/ecoponto`.
 
 ## Questão
@@ -636,6 +638,8 @@ A lista oficial ainda precisa ser consolidada.
 
 **Decidido em `DEC-082` (2026-10-05):** envio por SMTP genérico (`nodemailer`), configurado por variáveis de ambiente. Em desenvolvimento, sem SMTP, o e-mail aparece no console. Continua em aberto qual provedor SMTP será usado em produção.
 
+**Restrição (2026-10-06, `DEC-086`):** no plano free do Render, as portas 25, 465 e 587 são bloqueadas. O provedor escolhido precisa aceitar SMTP na porta 2525 (ex.: Brevo), ou o backend precisa de um plano pago.
+
 ## Questão
 
 Qual serviço será utilizado para envio de e-mails?
@@ -673,7 +677,7 @@ ambiente de produção
 
 # 19. OQ-015 — Recuperação de Senha
 
-**Status:** ABERTA
+**Status:** RESOLVIDA por `DEC-088` (2026-10-06): link por e-mail, válido por 1 hora e de uso único. Ao redefinir, todas as sessões da conta são encerradas.
 
 **Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê "Recuperar Senha" no fluxo de login. Continua indisponível até esta questão e a OQ-014 serem decididas.
 
@@ -1179,7 +1183,7 @@ Nenhum asset de terceiros deve ser incorporado sem verificar sua licença.
 
 # 38. OQ-034 — Provedor de Hospedagem Definitivo
 
-**Status:** ABERTA
+**Status:** RESOLVIDA por `DEC-086` (2026-10-06): frontend na Vercel (Hobby), backend no Render (free) e banco no MongoDB Atlas (M0). Domínio próprio e armazenamento de arquivos não são necessários no escopo atual.
 
 ## Questão
 
@@ -1202,7 +1206,9 @@ A escolha deve ser documentada antes do deployment final.
 
 # 39. OQ-035 — Ambiente de Produção do MongoDB
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-086` (2026-10-06):** MongoDB Atlas, cluster M0 gratuito em AWS N. Virginia. Continua em aberto um plano pago para uma operação real (backup, `OQ-036`).
 
 ## Questão
 
@@ -1233,6 +1239,8 @@ rede
 # 40. OQ-036 — Estratégia de Backup
 
 **Status:** ABERTA
+
+**Observação (2026-10-06, `DEC-086`):** o cluster M0 do Atlas não tem backup automático. Enquanto esta questão estiver aberta, a demonstração não guarda dados reais.
 
 ## Questão
 
@@ -1836,7 +1844,9 @@ Nenhum desses estados adicionais deve ser implementado sem decisão.
 
 # 64. OQ-060 — Sessões Simultâneas
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-088` (2026-10-06):** a troca e a redefinição de senha encerram as demais sessões da conta. Continuam em aberto: limite de sessões simultâneas e encerramento manual pelo usuário.
 
 ## Questão
 
@@ -1902,6 +1912,8 @@ A política definitiva dependerá do mecanismo de autenticação escolhido.
 **Status:** ABERTA (parcialmente decidida)
 
 **Decidido em `DEC-078` (2026-10-01):** o usuário troca a própria senha no perfil. A troca exige a senha atual, a nova senha com confirmação e a mesma política do cadastro (`DEC-019`), e a nova senha deve ser diferente da atual. A sessão atual continua, com novo identificador. Continua em aberto invalidar as demais sessões do usuário (`OQ-060`).
+
+**Decidido em `DEC-088` (2026-10-06):** a troca de senha encerra as demais sessões do usuário, e a atual continua.
 
 **Decidido em `DEC-083` (2026-10-06):** a senha provisória de um coletor cadastrado pelo administrador deve ser trocada no primeiro acesso. Até a troca, a API responde `403 PASSWORD_CHANGE_REQUIRED` fora das rotas de sessão e da troca de senha.
 

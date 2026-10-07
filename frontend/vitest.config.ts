@@ -13,5 +13,8 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
     css: false,
+    // Testes de formulário digitam campo a campo (user-event); com todos os
+    // arquivos em paralelo, ou no CI com poucos núcleos, passam dos 5 s padrão.
+    testTimeout: 15_000,
   },
 });
