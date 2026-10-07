@@ -1678,7 +1678,7 @@ recuperação
 redefinição
 ```
 
-Implementação (`DEC-083`): `components/layouts/auth-layout.tsx`, com o link "Voltar ao site" para `/` acima do logo. É usado em `/entrar`, `/cadastro`, `/verificar-email` e `/trocar-senha`. Desde o `DEC-085`, tem o painel da marca a partir de `lg`, o `BrandBackdrop` atrás do formulário e o cartão em vidro. A troca obrigatória da senha provisória fica em `features/profile/change-password-required.tsx`, que reaproveita o `PasswordForm` do perfil.
+Implementação (`DEC-083`): `components/layouts/auth-layout.tsx`, com o link "Voltar ao site" para `/` acima do logo. É usado em `/entrar`, `/cadastro`, `/verificar-email`, `/trocar-senha`, `/esqueci-senha` e `/redefinir-senha` (`DEC-088`, com `features/auth/forgot-password-form.tsx` e `reset-password-form.tsx`). Desde o `DEC-085`, tem o painel da marca a partir de `lg`, o `BrandBackdrop` atrás do formulário e o cartão em vidro. A troca obrigatória da senha provisória fica em `features/profile/change-password-required.tsx`, que reaproveita o `PasswordForm` do perfil.
 
 ---
 

@@ -18,6 +18,9 @@ function userToJson(doc: unknown, ret: Record<string, unknown>): Record<string, 
   delete json.senhaHash;
   delete json.emailVerificacaoTokenHash;
   delete json.emailVerificacaoExpiraEm;
+  delete json.senhaResetTokenHash;
+  delete json.senhaResetExpiraEm;
+  delete json.sessaoVersao;
   return json;
 }
 
@@ -62,6 +65,12 @@ const userSchema = new Schema(
     // Hash SHA-256 do token enviado por e-mail; o token em si nunca é guardado.
     emailVerificacaoTokenHash: { type: String, default: null, select: false },
     emailVerificacaoExpiraEm: { type: Date, default: null, select: false },
+    // Redefinição de senha por link (DEC-088): só o hash do token, por 1 hora.
+    senhaResetTokenHash: { type: String, default: null, select: false },
+    senhaResetExpiraEm: { type: Date, default: null, select: false },
+    // Versão das sessões (DEC-088): incrementada a cada troca ou redefinição
+    // de senha, encerra as sessões emitidas antes. Ausente conta como 0.
+    sessaoVersao: { type: Number, default: 0 },
     // Senha provisória definida pelo administrador (DEC-083): a troca é
     // obrigatória antes de usar o sistema.
     trocaSenhaObrigatoria: { type: Boolean, default: false },
@@ -79,6 +88,12 @@ userSchema.index({ email: 1 }, { unique: true });
 userSchema.index(
   { emailVerificacaoTokenHash: 1 },
   { partialFilterExpression: { emailVerificacaoTokenHash: { $type: "string" } } },
+);
+
+// Busca do token de redefinição de senha (DEC-088), também parcial.
+userSchema.index(
+  { senhaResetTokenHash: 1 },
+  { partialFilterExpression: { senhaResetTokenHash: { $type: "string" } } },
 );
 
 export type UserAttributes = InferSchemaType<typeof userSchema>;

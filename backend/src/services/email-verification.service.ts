@@ -1,7 +1,7 @@
-import { createHash, randomBytes } from "node:crypto";
 import { Types } from "mongoose";
 import { User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
+import { createLinkToken, escapeHtml, hashLinkToken } from "../utils/token.js";
 import type { Mailer } from "./mailer.js";
 
 // Verificação de e-mail por link (DEC-082, OQ-001).
@@ -9,8 +9,6 @@ export const VERIFICATION_TTL_HOURS = 24;
 const VERIFICATION_TTL_MS = VERIFICATION_TTL_HOURS * 60 * 60 * 1000;
 
 export const VERIFY_EMAIL_PATH = "/verificar-email";
-
-const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
 export type VerificationContext = { mailer: Mailer; frontendUrl: string };
 
@@ -20,12 +18,12 @@ export async function sendVerificationEmail(
   userId: Types.ObjectId | string,
   { mailer, frontendUrl }: VerificationContext,
 ): Promise<void> {
-  const token = randomBytes(32).toString("base64url");
+  const { token, tokenHash } = createLinkToken();
   const user = await User.findByIdAndUpdate(
     userId,
     {
       $set: {
-        emailVerificacaoTokenHash: hashToken(token),
+        emailVerificacaoTokenHash: tokenHash,
         emailVerificacaoExpiraEm: new Date(Date.now() + VERIFICATION_TTL_MS),
       },
     },
@@ -63,13 +61,9 @@ export async function sendVerificationEmail(
   }
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
 // Confirma o e-mail a partir do token do link. O token é de uso único.
 export async function verifyEmail(token: string): Promise<void> {
-  const tokenHash = hashToken(token);
+  const tokenHash = hashLinkToken(token);
   const user = await User.findOne({ emailVerificacaoTokenHash: tokenHash }).select("+emailVerificacaoExpiraEm").lean();
 
   if (!user) throw new AppError(400, "INVALID_TOKEN", "Link de confirmação inválido ou já utilizado.");

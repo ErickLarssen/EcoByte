@@ -33,6 +33,9 @@ export function createAuthRateLimiters() {
     // Verificação de e-mail (DEC-082): tentativas de token e reenvios.
     verifyEmail: createLimiter({ windowMs: 15 * MINUTE_MS, limit: 20 }),
     resendVerification: createLimiter({ windowMs: 60 * MINUTE_MS, limit: 5 }),
+    // Recuperação de senha (DEC-088): pedidos de link e tentativas de token.
+    forgotPassword: createLimiter({ windowMs: 60 * MINUTE_MS, limit: 5 }),
+    resetPassword: createLimiter({ windowMs: 15 * MINUTE_MS, limit: 20 }),
   };
 }
 

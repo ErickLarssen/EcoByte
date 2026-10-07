@@ -64,3 +64,17 @@ export async function resendVerificationEmail(): Promise<string> {
   const { message } = await apiRequest<null>("/auth/verify-email/resend", { method: "POST" });
   return message;
 }
+
+// Recuperação de senha por link (DEC-088). A resposta é a mesma com ou sem
+// conta para o e-mail; a mensagem vem da API.
+export async function forgotPassword(email: string): Promise<string> {
+  const { message } = await apiRequest<null>("/auth/forgot-password", { method: "POST", body: { email } });
+  return message;
+}
+
+export type ResetPasswordPayload = { token: string; novaSenha: string; confirmacaoSenha: string };
+
+export async function resetPassword(payload: ResetPasswordPayload): Promise<string> {
+  const { message } = await apiRequest<null>("/auth/reset-password", { method: "POST", body: payload });
+  return message;
+}

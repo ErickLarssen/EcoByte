@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx --env-file-if-exists=.env src/database/seed/index.ts"
+    "seed": "tsx --env-file-if-exists=.env src/database/seed/index.ts",
+    "bootstrap": "tsx --env-file-if-exists=.env src/database/bootstrap/index.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",

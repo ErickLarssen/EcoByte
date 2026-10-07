@@ -1,0 +1,74 @@
+# Integração contínua (DEC-089, 19_DEPLOYMENT §47): em cada pull request e em
+# cada push para a main, valida backend e frontend antes do merge e do deploy.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Um push novo na mesma branch cancela a execução anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Binário do mongod usado pelo mongodb-memory-server nos testes (DEC-062).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Lint
+        run: npm run lint --workspace backend
+      - name: Typecheck
+        run: npm run typecheck --workspace backend
+      - name: Testes
+        run: npm run test --workspace backend
+      - name: Build
+        run: npm run build --workspace backend
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint --workspace frontend
+      - name: Typecheck
+        run: npm run typecheck --workspace frontend
+      - name: Testes
+        run: npm run test --workspace frontend
+      # O build exige API_INTERNAL_URL (DEC-063); no CI basta um endereço
+      # fictício, pois nada é publicado.
+      - name: Build
+        run: npm run build --workspace frontend
+        env:
+          API_INTERNAL_URL: http://localhost:4000
+          NEXT_TELEMETRY_DISABLED: "1"

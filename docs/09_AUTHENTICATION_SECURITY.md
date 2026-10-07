@@ -1044,6 +1044,8 @@ O processo deve:
 4. evitar exposição da existência da conta;
 5. permitir redefinição da senha sem revelar a senha anterior.
 
+Implementação (`DEC-088`): a resposta é a mesma com ou sem conta, e o envio do e-mail não é aguardado, para o tempo de resposta não revelar a conta. O link vale 1 hora e leva a `/redefinir-senha`. Ao redefinir, todas as sessões da conta são encerradas.
+
 ---
 
 # 51. Token de recuperação
@@ -1055,6 +1057,8 @@ Quando tokens forem utilizados para recuperação de senha, eles devem:
 - não ser reutilizados indefinidamente;
 - ser invalidados após utilização;
 - não ser armazenados de forma insegura.
+
+Implementação (`DEC-088`): 32 bytes aleatórios, só o hash SHA-256 no banco, uso único e validade de 1 hora. Um novo pedido invalida o anterior.
 
 ---
 

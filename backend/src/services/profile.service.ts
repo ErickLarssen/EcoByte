@@ -3,6 +3,7 @@ import { User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
 import type { ChangePasswordInput, UpdateProfileInput } from "../validators/profile.validators.js";
+import { sessionVersionOf } from "./auth.service.js";
 import { toUserDetailView, type UserDetailView, type UserRecord } from "./user.views.js";
 
 // O usuário vem sempre da sessão, nunca de um id enviado (05 RT-005).
@@ -47,7 +48,9 @@ export async function updateProfile(userId: string, input: UpdateProfileInput): 
 
 // Troca de senha (DEC-078). Senha atual incorreta responde 400 no próprio
 // campo: não é falha de sessão, e o usuário continua autenticado.
-export async function changePassword(userId: string, input: ChangePasswordInput): Promise<void> {
+// Retorna a nova versão das sessões: a atual continua, as demais são
+// encerradas (DEC-088).
+export async function changePassword(userId: string, input: ChangePasswordInput): Promise<number> {
   const user = await User.findById(new Types.ObjectId(userId)).select("+senhaHash");
   if (!user) throw notFound();
 
@@ -64,5 +67,8 @@ export async function changePassword(userId: string, input: ChangePasswordInput)
   user.senhaHash = await hashPassword(input.novaSenha);
   // Uma senha provisória deixa de ser obrigatória de trocar (DEC-083).
   user.trocaSenhaObrigatoria = false;
+  user.sessaoVersao = sessionVersionOf(user) + 1;
   await user.save();
+
+  return user.sessaoVersao;
 }

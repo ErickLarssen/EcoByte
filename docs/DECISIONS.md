@@ -2821,6 +2821,8 @@ Complemento (2026-10-03, `DEC-079`): páginas públicas `/sobre`, `/ecoponto`, `
 
 Complemento (2026-10-06, `DEC-083`, `DEC-084`): `/admin/usuarios/novo` (`ADMIN`), `/coletor/ecoponto` (`COLETOR`) e `/trocar-senha` (usuário autenticado com troca de senha pendente).
 
+Complemento (2026-10-06, `DEC-088`): `/esqueci-senha` (visitantes) e `/redefinir-senha` (todos, destino do link enviado por e-mail).
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -3487,7 +3489,164 @@ Nenhuma cor, fonte ou dependência nova. Degradês e vidro ficam restritos à na
 
 ---
 
-# 88. Registro Atual de Decisões Pendentes
+# 88. DEC-086 — Hospedagem: Render, Vercel e MongoDB Atlas
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+A `OQ-034` deixava a hospedagem em aberto. O responsável pelo projeto escolheu o backend no Render, o frontend na Vercel e o banco no MongoDB Atlas.
+
+## Decisão
+
+| Parte | Serviço | Plano |
+|---|---|---|
+| Frontend (Next.js) | Vercel | Hobby (gratuito, uso pessoal e não comercial) |
+| Backend (Express) | Render, web service (`render.yaml`) | Free |
+| Banco | MongoDB Atlas | M0 (gratuito, 512 MB) |
+
+- **Regiões:** as três partes ficam no leste dos EUA, para reduzir a latência entre elas. Render `virginia`, Atlas AWS N. Virginia (`us-east-1`) e funções da Vercel em `iad1`, o padrão. Nenhum dos três oferece região no Brasil nos planos gratuitos;
+- **Proxy:** o navegador fala só com a Vercel, que repassa `/api/v1/*` ao Render (`DEC-063`). O cookie de sessão continua sendo do domínio do frontend. `API_INTERNAL_URL` é o endereço do serviço no Render, definido no build da Vercel;
+- **`TRUST_PROXY=2`:** há dois proxies à frente da API, o da Vercel e o do Render (`DEC-068`). O valor deve ser confirmado pelo teste de fumaça do 19 §21.1;
+- **Backend com endereço público:** no Render free, o endereço `onrender.com` fica acessível sem passar pela Vercel. Quem chamar a API direto pode forjar `X-Forwarded-For` e contornar o limite por IP (`DEC-067`). Autenticação, autorização e validação de Origin continuam valendo. É um risco aceito para a demonstração, registrado no 19 §21.2;
+- **E-mail:** o plano free do Render bloqueia a saída pelas portas SMTP 25, 465 e 587. O envio usa a porta 2525 do provedor SMTP (`SMTP_PORT=2525`), sem mudança de código. O provedor continua em aberto (`OQ-014`).
+
+### Limites conhecidos dos planos gratuitos
+
+- **Render free:** o serviço "dorme" após 15 minutos sem tráfego e leva cerca de 1 minuto para acordar. Há 750 horas por mês por workspace, o suficiente para um serviço ligado o mês inteiro;
+- **Atlas M0:** não tem backup automático (`OQ-036` continua aberta);
+- **Vercel Hobby:** restrito a uso pessoal e não comercial. Atende à apresentação acadêmica (`OQ-066`), mas não a uma operação comercial.
+
+### Créditos do Azure for Students
+
+Os três planos são gratuitos e não consomem os créditos. Os créditos só seriam usados se o Atlas fosse contratado pelo Azure Marketplace, em um plano pago. O cluster M0 é criado direto em `mongodb.com`.
+
+## Documentos relacionados
+
+```text
+19_DEPLOYMENT.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 89. DEC-087 — Script de Inicialização (Primeiro Administrador e Ecoponto)
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+Em produção, o seed é bloqueado (`DEC-034`) e apaga dados. Sem outro caminho, não havia como criar o primeiro administrador nem o ecoponto central, e sem ecoponto as entregas são recusadas (`DEC-053`).
+
+## Decisão
+
+- **Comando:** `npm run bootstrap --workspace backend` (`backend/src/database/bootstrap`). Pode rodar em produção;
+- **Variáveis:** lidas só pelo script, nunca pelo servidor publicado, e informadas apenas na execução:
+  - `BOOTSTRAP_ADMIN_NOME`, `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_SENHA`;
+  - `ECOPONTO_NOME`, `ECOPONTO_DESCRICAO` (opcional) e o endereço (`ECOPONTO_LOGRADOURO`, `_NUMERO`, `_COMPLEMENTO` opcional, `_BAIRRO`, `_CIDADE`, `_ESTADO`, `_CEP`);
+  - de resto, só `MONGODB_URI` (e `NODE_ENV`, para o resumo);
+- **Só cria o que falta, nunca apaga nem altera:**
+  - os índices são criados com `createIndexes`, que não remove nenhum;
+  - o administrador só é criado se não existir nenhum `ADMIN`;
+  - o ecoponto só é criado se não existir nenhum;
+  - executar de novo não tem efeito;
+- **Administrador:** `role: ADMIN`, `status: ATIVO`, e-mail verificado e `trocaSenhaObrigatoria: true`. A senha da variável é provisória e segue a política do `DEC-019` (`DEC-083`). Um e-mail que já pertence a outra conta interrompe o script, sem promover a conta (`OQ-054`);
+- **Ecoponto:** criado `ATIVO`, sem localização e sem horários, que ficam com o administrador em `/admin/ecoponto` (`OQ-004`, `OQ-005`). Sem as variáveis do ecoponto, nada é inventado: o script avisa que as entregas serão recusadas (`OQ-003`);
+- **Validação e segurança:** as variáveis são validadas antes de conectar. Um grupo incompleto ou inválido é erro, com o nome da variável e nunca o valor. A senha não aparece em nenhuma saída;
+- **Onde executar:** no plano free do Render não há shell nem jobs. O script roda na máquina do responsável, com a `MONGODB_URI` do Atlas (19 §21.2).
+
+## Documentos relacionados
+
+```text
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
+20_SEED_DATA.md
+```
+
+---
+
+# 90. DEC-088 — Recuperação de Senha por Link e Encerramento de Sessões
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+A `OQ-015` deixava a recuperação de senha em aberto, à espera do envio de e-mail, que o `DEC-082` resolveu. O responsável pelo projeto definiu o link com validade de 1 hora e o encerramento de todas as sessões após a troca da senha.
+
+## Decisão
+
+### Fluxo
+
+1. "Esqueci minha senha", no login, leva a `/esqueci-senha`. `POST /api/v1/auth/forgot-password` (`{ email }`, público) responde sempre `200` com a mesma mensagem, com ou sem conta (09 §50):
+   - só contas `ATIVO` recebem o link `{FRONTEND_URL}/redefinir-senha?token=...`;
+   - o envio não é aguardado, para o tempo de resposta não revelar a conta;
+2. Em `/redefinir-senha`, `POST /api/v1/auth/reset-password` (`{ token, novaSenha, confirmacaoSenha }`, público) define a nova senha com a política do `DEC-019`. A troca provisória (`DEC-083`) deixa de ser exigida. O usuário entra de novo com a nova senha.
+
+### Token
+
+- 32 bytes aleatórios. Só o hash SHA-256 fica no usuário (`senhaResetTokenHash`), o mesmo mecanismo do `DEC-082`;
+- vale **1 hora** e é de uso único. Pedir um novo link invalida o anterior;
+- token inválido, já usado ou de conta desativada responde `400 INVALID_TOKEN`, e token vencido `400 TOKEN_EXPIRED`;
+- uma tentativa recusada pela validação da senha não consome o token;
+- **limites por IP:** 5 pedidos por hora e 20 redefinições a cada 15 minutos.
+
+### Encerramento de sessões
+
+- o usuário guarda `sessaoVersao`, e a sessão guarda a versão do momento do login. A cada requisição protegida, uma sessão com versão antiga é encerrada e responde `401 UNAUTHORIZED` ("Sua sessão foi encerrada. Entre novamente.");
+- **redefinição pelo link:** incrementa a versão e encerra todas as sessões da conta, inclusive a do navegador em uso, se houver;
+- **troca no perfil (`DEC-078`):** também incrementa a versão. A sessão atual continua, com novo identificador e a nova versão, e as demais são encerradas;
+- o campo ausente conta como 0, então as sessões existentes continuam válidas.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+07_DATABASE_MONGODB.md
+09_AUTHENTICATION_SECURITY.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 91. DEC-089 — Integração Contínua com GitHub Actions
+
+**Status:** ACEITA
+
+**Data:** 2026-10-06
+
+## Contexto
+
+Não havia CI, e nada validava o código antes do merge ou do deploy (19 §47, 17 §155).
+
+## Decisão
+
+- `.github/workflows/ci.yml` roda em cada pull request e em cada push para `main`, com o Node.js do `.nvmrc` e `npm ci`;
+- **jobs em paralelo:**
+  - **Backend:** lint, typecheck, testes (MongoDB em memória, com o binário em cache) e build;
+  - **Frontend:** lint, typecheck, testes e build, com uma `API_INTERNAL_URL` fictícia;
+- um push novo na mesma branch cancela a execução anterior;
+- o Render publica a `main` só depois do CI aprovado (`autoDeployTrigger: checksPass`). A Vercel publica a cada push, por integração própria;
+- o tempo limite dos testes do frontend sobe para 15 s. Os testes de formulário digitam campo a campo e, em paralelo ou com poucos núcleos, passavam dos 5 s padrão.
+
+Staging e E2E (19 §46) continuam fora do escopo.
+
+## Documentos relacionados
+
+```text
+17_TESTING.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 92. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3501,7 +3660,7 @@ até serem formalmente decididas.
 
 ---
 
-# 89. Como Adicionar uma Nova Decisão
+# 93. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3539,7 +3698,7 @@ arquivo2.md
 
 ---
 
-# 90. Regra Final
+# 94. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

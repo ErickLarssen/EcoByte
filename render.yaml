@@ -1,0 +1,49 @@
+# Backend da API no Render (DEC-086, 19_DEPLOYMENT §45). Blueprint: em
+# render.com, New > Blueprint e selecione este repositório.
+# Os segredos ficam com `sync: false` e são informados no painel do Render,
+# nunca neste arquivo (19 §10).
+services:
+  - type: web
+    name: ecobyte-api
+    runtime: node
+    plan: free
+    # Leste dos EUA: a mesma região das funções da Vercel (iad1) e do cluster
+    # do Atlas (AWS N. Virginia), para reduzir a latência entre as partes.
+    region: virginia
+    branch: main
+    # Deploy só depois do CI aprovado na main (DEC-089).
+    autoDeployTrigger: checksPass
+    buildCommand: npm ci && npm run build --workspace backend
+    startCommand: npm run start --workspace backend
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Versão do Node.js do projeto (.nvmrc).
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      # Endereço público do frontend na Vercel (validação de Origin, DEC-069).
+      - key: FRONTEND_URL
+        sync: false
+      # Proxies à frente da API: o do Render e o da Vercel (DEC-068). Validar
+      # com o teste de fumaça após o primeiro deploy (19 §21.1).
+      - key: TRUST_PROXY
+        value: "2"
+      # No plano free, as portas SMTP 25, 465 e 587 são bloqueadas: use a
+      # porta 2525 do provedor (DEC-086).
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "2525"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
