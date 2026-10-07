@@ -543,8 +543,8 @@ Ordem do primeiro deploy: banco, backend, frontend, inicialização e teste de f
 ## 1. MongoDB Atlas
 
 1. Crie um cluster **M0** (gratuito) em `mongodb.com`, provedor AWS, região N. Virginia (`us-east-1`).
-2. **Database Access:** crie um usuário só para a aplicação, com senha forte e permissão de leitura e escrita no banco `ecobyte`.
-3. **Network Access:** o plano free do Render não tem IP fixo, então libere `0.0.0.0/0`. A proteção fica com o usuário e a senha do banco (19 §32).
+2. **Security > Database & Network Access**, aba **Database Users**, **Add New Database User**: crie um usuário só para a aplicação (ex.: `ecobyte-app`), com **Autogenerate Secure Password** e a função **Read and write to any database**.
+3. Na mesma página, na lista de IPs: o plano free do Render não tem IP fixo, então libere `0.0.0.0/0`. A proteção fica com o usuário e a senha do banco (19 §32).
 4. Copie a connection string (`mongodb+srv://...`) e inclua o nome do banco: `.../ecobyte?retryWrites=true&w=majority`.
 
 ## 2. Backend no Render
@@ -556,6 +556,8 @@ Ordem do primeiro deploy: banco, backend, frontend, inicialização e teste de f
    - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` e `MAIL_FROM`: os dados do provedor de e-mail.
 3. `SESSION_SECRET` é gerada pelo Render. `SMTP_PORT` já vem como 2525, porque o plano free bloqueia 25, 465 e 587.
 4. Confira `https://<serviço>.onrender.com/api/v1/health`.
+
+O build usa `npm ci --include=dev`: com `NODE_ENV=production`, que também vale no build do Render, o `npm ci` pularia as devDependencies (`typescript`, `@types/*`), e o `tsc` falharia com `TS2688: Cannot find type definition file for node`.
 
 ## 3. Frontend na Vercel
 

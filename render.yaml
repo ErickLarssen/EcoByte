@@ -13,7 +13,10 @@ services:
     branch: main
     # Deploy só depois do CI aprovado na main (DEC-089).
     autoDeployTrigger: checksPass
-    buildCommand: npm ci && npm run build --workspace backend
+    # NODE_ENV=production (abaixo) também vale no build, e com ele o npm ci
+    # pula as devDependencies. O build precisa delas (typescript e @types/*),
+    # por isso --include=dev. A execução continua em modo produção.
+    buildCommand: npm ci --include=dev && npm run build --workspace backend
     startCommand: npm run start --workspace backend
     healthCheckPath: /api/v1/health
     envVars:
