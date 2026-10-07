@@ -3633,6 +3633,7 @@ Não havia CI, e nada validava o código antes do merge ou do deploy (19 §47, 1
   - **Frontend:** lint, typecheck, testes e build, com uma `API_INTERNAL_URL` fictícia;
 - um push novo na mesma branch cancela a execução anterior;
 - o Render publica a `main` só depois do CI aprovado (`autoDeployTrigger: checksPass`). A Vercel publica a cada push, por integração própria;
+- o typecheck do frontend roda antes do build, num clone limpo. O `next-env.d.ts`, que o Next.js gera e que fica fora do Git, ainda não existe nesse momento. Os tipos dos imports de imagem vêm de `frontend/src/types/next-image.d.ts`, versionado, que referencia `next/image-types/global`;
 - o tempo limite dos testes do frontend sobe para 15 s. Os testes de formulário digitam campo a campo e, em paralelo ou com poucos núcleos, passavam dos 5 s padrão.
 
 Staging e E2E (19 §46) continuam fora do escopo.
