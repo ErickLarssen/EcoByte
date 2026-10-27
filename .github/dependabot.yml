@@ -1,0 +1,23 @@
+# Atualizações de dependências (DEC-090, 09 §98): o Dependabot abre pull
+# requests semanais, que passam pelo CI antes do merge. Alertas de segurança
+# também geram PRs fora deste calendário.
+version: 2
+updates:
+  # Workspaces npm (backend e frontend) a partir do package-lock.json da raiz.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Atualizações menores e de correção juntas, para não lotar a fila de PRs.
+      minor-e-patch:
+        update-types: [minor, patch]
+
+  # Versões das actions usadas no CI.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { findSessionUser } from "../services/auth.service.js";
 import { AppError } from "../utils/app-error.js";
-import { endSession } from "../utils/session.js";
+import { applyRoleSessionLimit, endSession } from "../utils/session.js";
 
 // Middleware de autenticação (09 §73): exige sessão válida e usuário ATIVO,
 // e disponibiliza o usuário em req.user. A identidade vem sempre da sessão,
@@ -33,6 +33,9 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 
   const { user } = found;
+
+  // Sessões de administrador abertas antes do limite também passam a segui-lo.
+  applyRoleSessionLimit(req, user.role);
 
   // Usuário desativado com sessão ativa (06_API §27.3).
   if (user.status !== "ATIVO") {

@@ -172,6 +172,11 @@ describe("cookie de sessão", () => {
       .send({ email: EMAIL, senha: "Senha@123" });
 
     expect(response.status).toBe(200);
-    expect(sessionCookie(response.headers["set-cookie"])).toMatch(/Secure/);
+    const cookie = sessionCookie(response.headers["set-cookie"]);
+    expect(cookie).toMatch(/Secure/);
+    // __Host-: só aceito com Secure, Path=/ e sem Domain (DEC-091).
+    expect(cookie).toMatch(/^__Host-ecobyte\.sid=/);
+    expect(cookie).toMatch(/Path=\/(;|$)/);
+    expect(cookie).not.toMatch(/Domain=/i);
   });
 });

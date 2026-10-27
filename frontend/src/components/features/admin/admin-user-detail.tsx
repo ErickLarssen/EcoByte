@@ -45,13 +45,15 @@ function UserData({ user }: { user: AdminUser }) {
       )}
       <Field label="Cadastrado em" value={formatDate(user.createdAt)} />
       {user.trocaSenhaObrigatoria && <Field label="Senha" value="Provisória: ainda não trocada pelo usuário" />}
+      {user.excluidoEm && <Field label="Conta excluída em" value={formatDate(user.excluidoEm)} />}
     </dl>
   );
 }
 
 // Detalhe do usuário (RF-042) e controle de status (RF-043, DEC-075).
 // As regras (administradores, coletor com coletas em andamento) são da API;
-// a tela só oculta a ação para contas ADMIN, que a API também recusa.
+// a tela só oculta a ação para contas ADMIN e contas excluídas pelo titular
+// (DEC-095), que a API também recusa.
 export function AdminUserDetail({ id, justCreated = false }: { id: string; justCreated?: boolean }) {
   const query = useAdminUser(id);
   const mutation = useUpdateUserStatus(id);
@@ -156,6 +158,10 @@ export function AdminUserDetail({ id, justCreated = false }: { id: string; justC
       <DetailSection title="Acesso">
         {isAdmin ? (
           <p className="text-sm text-muted-foreground">O status de administradores não pode ser alterado.</p>
+        ) : user.excluidoEm ? (
+          <p className="text-sm text-muted-foreground">
+            A conta foi excluída pelo titular. Os dados pessoais foram removidos e ela não pode ser reativada.
+          </p>
         ) : user.status === "ATIVO" ? (
           <div className="grid gap-3">
             <p className="text-sm text-muted-foreground">

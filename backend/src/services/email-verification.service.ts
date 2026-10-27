@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
+import { errorMessageForLog } from "../utils/log.js";
 import { createLinkToken, escapeHtml, hashLinkToken } from "../utils/token.js";
 import type { Mailer } from "./mailer.js";
 
@@ -57,7 +58,7 @@ export async function sendVerificationEmail(
       ].join(""),
     });
   } catch (error) {
-    console.error("[backend] Falha ao enviar e-mail de verificação:", error instanceof Error ? error.message : error);
+    console.error("[backend] Falha ao enviar e-mail de verificação:", errorMessageForLog(error));
   }
 }
 

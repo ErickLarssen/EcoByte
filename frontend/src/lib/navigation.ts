@@ -18,6 +18,10 @@ export const LOGIN_PATH = "/entrar";
 export const CHANGE_PASSWORD_PATH = "/trocar-senha";
 export const RETURN_PARAM = "proximo";
 
+// Aviso no login depois da exclusão da conta pelo titular (DEC-095).
+export const ACCOUNT_DELETED_PARAM = "conta";
+export const ACCOUNT_DELETED_VALUE = "excluida";
+
 // Somente caminhos internos: bloqueia "//site.com", "/\site.com" e URLs absolutas,
 // evitando redirecionamento aberto para outro domínio.
 export function isSafeInternalPath(path: string | null | undefined): path is string {

@@ -3,6 +3,7 @@ import type { Store } from "express-session";
 import { createSessionMiddleware } from "./config/session.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { notFoundHandler } from "./middlewares/not-found.js";
+import { securityHeaders } from "./middlewares/security-headers.js";
 import { createOriginGuard } from "./middlewares/verify-origin.js";
 import { createApiRouter } from "./routes/index.js";
 import type { CepProvider } from "./services/cep.service.js";
@@ -28,9 +29,17 @@ export function createApp(options: AppOptions): Express {
   const app = express();
 
   app.disable("x-powered-by");
+  // ETag permitiria revalidar respostas com dados pessoais; elas não vão para cache.
+  app.disable("etag");
 
   // Quantos proxies confiáveis existem à frente do backend (DEC-068).
   app.set("trust proxy", options.trustProxy);
+
+  // Nome e opções do cookie de sessão, também usados ao removê-lo (logout).
+  app.locals.secureCookies = options.session.secureCookies;
+
+  // Antes de tudo, para valer também em erros e 404 (DEC-091).
+  app.use(securityHeaders);
 
   app.use(createOriginGuard(options.frontendUrl));
 

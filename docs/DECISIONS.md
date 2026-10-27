@@ -2823,6 +2823,8 @@ Complemento (2026-10-06, `DEC-083`, `DEC-084`): `/admin/usuarios/novo` (`ADMIN`)
 
 Complemento (2026-10-06, `DEC-088`): `/esqueci-senha` (visitantes) e `/redefinir-senha` (todos, destino do link enviado por e-mail).
 
+Complemento (2026-10-26, `DEC-094`, `DEC-095`): `/privacidade` (pública) e `/admin/auditoria` (`ADMIN`).
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -3647,7 +3649,239 @@ Staging e E2E (19 §46) continuam fora do escopo.
 
 ---
 
-# 92. Registro Atual de Decisões Pendentes
+# 92. DEC-090 — Vulnerabilidades Conhecidas e Atualização de Dependências
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+Na auditoria de segurança, o `npm audit` apontou 12 vulnerabilidades em dependências de produção (1 crítica, 7 altas):
+
+- **Next.js 16.3.6:** duas falhas de execução remota de código, além de SSRF e DoS;
+- **outras:** `zod`, `nodemailer`, o `body-parser` do Express, `sharp` e `undici`;
+- **fora do runtime:** o SDK de MCP e o `hono`, trazidos pela CLI do shadcn, listada como dependência de produção sem ser usada em execução.
+
+## Decisão
+
+- **Atualizações:** Next.js e `eslint-config-next` em 16.4.3 (versão fixa). Correções de `npm audit fix` sem mudança de versão maior. Mínimos de `zod` (`^4.6.7`) e `nodemailer` (`^10.2.1`) elevados, para nenhuma instalação aceitar as versões vulneráveis. Resultado: 0 vulnerabilidades;
+- **`shadcn`:** passa para `devDependencies`. É só um gerador de componentes;
+- **Dependabot (`.github/dependabot.yml`):** PRs semanais de npm e de GitHub Actions, com atualizações menores agrupadas. Alertas de segurança abrem PRs fora do calendário. Todos passam pelo CI;
+- **CI:** novo job "Auditoria de dependências" (`npm audit --omit=dev --audit-level=high`). Uma falha alta ou crítica em produção reprova o CI e, com ele, o deploy do Render (`DEC-089`).
+
+## Documentos relacionados
+
+```text
+09_AUTHENTICATION_SECURITY.md
+17_TESTING.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 93. DEC-091 — Cabeçalhos de Segurança, CSP com Nonce e Cookie __Host-
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+O site e a API não enviavam cabeçalhos de segurança (09 §60, §61). O responsável pelo projeto escolheu a CSP estrita, com nonce.
+
+## Decisão
+
+### Site (Next.js)
+
+- **CSP com nonce por requisição** (`frontend/src/proxy.ts`, `lib/security-headers.ts`):
+  - `script-src 'self' 'nonce-…' 'strict-dynamic'`: só executam scripts do próprio Next. HTML injetado com `<script>`, `onerror=` ou `javascript:` é bloqueado;
+  - `style-src` aceita `'unsafe-inline'`, porque o nonce não cobre atributos `style=""` (next/image, Radix, navegação);
+  - `default-src`, `img-src`, `font-src` e `connect-src` ficam em `'self'`. Nenhum domínio externo;
+  - `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'` e `upgrade-insecure-requests`. Em desenvolvimento, `'unsafe-eval'` e WebSocket para o React;
+- **renderização a cada acesso:** o nonce exige `connection()` no layout raiz. Todas as páginas ficam dinâmicas, sem cache estático, um pouco mais lentas e ainda dentro do plano Hobby (`DEC-086`);
+- **cabeçalhos fixos** (`next.config.ts`):
+  - `Strict-Transport-Security` (2 anos, só em produção);
+  - `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` e `Referrer-Policy: strict-origin-when-cross-origin`;
+  - `Permissions-Policy` sem câmera, microfone, geolocalização, pagamento, USB nem tópicos;
+  - `Cross-Origin-Opener-Policy: same-origin`.
+
+### API (Express)
+
+- `middlewares/security-headers.ts`, sem biblioteca, em todas as respostas, inclusive erros e 404. São eles:
+  - `Cache-Control: no-store`: respostas com dados pessoais não ficam em cache do navegador, de proxies nem da CDN;
+  - `X-Content-Type-Options: nosniff`;
+  - `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` e `X-Frame-Options: DENY`;
+  - `Referrer-Policy: no-referrer` e `Cross-Origin-Resource-Policy: same-origin`;
+- `ETag` desativado.
+
+### Cookie de sessão
+
+Em produção, o nome passa a `__Host-ecobyte.sid`. O navegador só aceita o cookie com `Secure`, `Path=/` e sem `Domain`, o que impede outro subdomínio de injetá-lo ou sobrescrevê-lo. Em HTTP local, segue `ecobyte.sid`. Na primeira publicação, as sessões abertas são encerradas uma vez.
+
+### Validação
+
+- **Build de produção:** os 15 scripts da página saem com o nonce, e o nonce muda a cada acesso;
+- **No navegador:** `onerror`, `<script>` em `srcdoc` e `javascript:` foram bloqueados, com eventos de violação. Login, navegação e chamadas à API funcionaram sem violações.
+
+## Documentos relacionados
+
+```text
+09_AUTHENTICATION_SECURITY.md
+15_INTERACTIONS_MOTION.md
+19_DEPLOYMENT.md
+```
+
+---
+
+# 94. DEC-092 — Sessão Curta do Administrador
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+A conta `ADMIN` é a de maior impacto. Antes, ela seguia a sessão de 7 dias sem uso (`DEC-021`). O responsável pelo projeto escolheu uma sessão curta, sem 2FA (`OQ-061`).
+
+## Decisão
+
+- A sessão do administrador expira após **30 minutos sem uso**. Como a sessão é renovada a cada resposta, o prazo conta a partir do último uso;
+- o limite vale para o cookie e para a expiração da sessão no store. É aplicado no login e a cada requisição autenticada, então também alcança sessões de admin abertas antes desta decisão;
+- os demais perfis seguem com 7 dias (`SESSION_MAX_AGE`).
+
+## Documentos relacionados
+
+```text
+09_AUTHENTICATION_SECURITY.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 95. DEC-093 — Bloqueio Temporário por Conta Contra Força Bruta
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+O limite de login era só por IP (`DEC-067`). Isso não protege contra tentativas distribuídas entre vários IPs, nem contra o `X-Forwarded-For` forjado no acesso direto ao Render (19 §21.2).
+
+## Decisão
+
+- **Regra:** 10 senhas erradas para um e-mail em 15 minutos bloqueiam o login desse e-mail por 15 minutos, de qualquer IP, mesmo com a senha certa. Responde `429 RATE_LIMIT_EXCEEDED` com a mesma mensagem do limite por IP;
+- **verificado antes da senha,** para não virar oráculo. Vale também para e-mails sem conta, com a mesma resposta, sem revelar quais contas existem (09 §87);
+- **contagem:** um login correto zera a contagem. Redefinir a senha pelo link também libera a conta, porque o titular provou o acesso ao e-mail;
+- **armazenamento:** coleção `login_throttles`, só com o hash SHA-256 do e-mail, nunca o e-mail. O registro é apagado sozinho por índice TTL em até 30 minutos. A contagem é atômica: tentativas em paralelo não escapam;
+- **risco aceito:** alguém pode bloquear a conta de outra pessoa por 15 minutos errando a senha de propósito. O limite por IP continua valendo à parte.
+
+## Documentos relacionados
+
+```text
+07_DATABASE_MONGODB.md
+09_AUTHENTICATION_SECURITY.md
+```
+
+---
+
+# 96. DEC-094 — Registro de Auditoria
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+A `OQ-056` perguntava se as ações administrativas sensíveis seriam registradas. O responsável pelo projeto incluiu a auditoria nesta entrega.
+
+## Decisão
+
+- **Coleção `audit_logs`**, que só recebe inclusões. O Mongoose recusa atualizações e exclusões, e nenhuma rota altera registros. Só o seed, fora de produção, limpa a coleção direto no driver;
+- **ações registradas:**
+  - `ADMIN_INICIAL_CRIADO` (script de inicialização, ator `SISTEMA`);
+  - `COLETOR_CADASTRADO`, `USUARIO_ATIVADO` e `USUARIO_DESATIVADO` (só quando o status muda);
+  - `ECOPONTO_ATUALIZADO`, com os nomes dos campos alterados;
+  - `CONTA_EXCLUIDA` (pelo titular, `DEC-095`);
+- **conteúdo:** ação, ator (id e papel), alvo (tipo e id), detalhes sem dados pessoais e data. Nomes, e-mails e telefones não são gravados. O nome do ator é lido na consulta, então uma conta excluída não deixa o nome no registro;
+- **consulta:** `GET /api/v1/admin/audit`, paginada e mais recentes primeiro, só para `ADMIN`, na página `/admin/auditoria`, que ganha item na navegação do admin;
+- **gravação:** acontece depois que a ação deu certo. Uma falha ao gravar fica no log e não desfaz a ação;
+- **em aberto:** retenção dos registros e eventos de login (`OQ-057`).
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+07_DATABASE_MONGODB.md
+09_AUTHENTICATION_SECURITY.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 97. DEC-095 — Direitos do Titular (LGPD): Política, Exportação e Exclusão
+
+**Status:** ACEITA
+
+**Data:** 2026-10-26
+
+## Contexto
+
+O sistema não tinha política de privacidade, nem como o titular acessar ou eliminar os próprios dados (LGPD art. 9º e 18). O responsável pelo projeto incluiu os três itens nesta entrega.
+
+## Decisão
+
+### Política de Privacidade (`/privacidade`)
+
+- **Conteúdo:** descreve só o que o sistema faz de fato, com base nas decisões citadas no código da página:
+  - dados tratados e finalidades, com as bases legais (art. 7º, V e IX);
+  - quem acessa cada dado (`DEC-070`);
+  - operadores e transferência internacional (art. 33): Vercel, Render, Atlas, provedor de e-mail, ViaCEP e Google Maps;
+  - medidas de segurança, retenção ligada à conta, direitos do titular e o cookie essencial;
+- **o que não foi inventado:** o canal de contato (`OQ-046`) e prazos de retenção além da exclusão (`OQ-039`);
+- **onde aparece:** link no rodapé e aviso no cadastro, abrindo em nova aba. A base legal é a execução do serviço, então não há caixa de consentimento.
+
+### Baixar meus dados (`GET /api/v1/profile/export`)
+
+- **Conteúdo:** JSON com titular, coletas solicitadas e notificações, sem hash de senha, tokens nem versão de sessão. Para o coletor, as coletas atendidas trazem só status e datas, sem dados do cliente (09 §69);
+- **entrega:** como anexo (`ecobyte-meus-dados.json`), em "Meu perfil › Seus dados";
+- **limite:** 10 por hora por IP.
+
+### Excluir minha conta (`DELETE /api/v1/profile`, `{ senha }`)
+
+- **Senha:** exige a senha atual. Errada responde `400` em `fields.senha`. Limite de 5 tentativas a cada 15 minutos;
+- **quando é recusada:**
+  - `ADMIN` responde `403`: a conta mantém o sistema operável;
+  - coletas em andamento respondem `409 USER_HAS_ACTIVE_COLLECTIONS`. Para o cliente, conta `PENDENTE` a `ENTREGUE_ECOPONTO`; para o coletor, `ACEITA` a `ENTREGUE_ECOPONTO`;
+- **anonimização:** o documento do usuário fica, porque as coletas o referenciam, com:
+  - nome "Conta excluída" e e-mail `excluido-<id>@excluido.invalid`, o que libera o e-mail original para um novo cadastro;
+  - telefone, documento e dados da empresa apagados, e senha substituída por uma inutilizável;
+  - tokens apagados, `status: INATIVO`, `excluidoEm` preenchido e versão de sessão incrementada: todas as sessões são encerradas;
+- **coletas do cliente:** o endereço vira "Endereço removido", com número, complemento, CEP e localização substituídos. Ficam bairro, cidade e UF, e as observações são apagadas. Status, itens e datas ficam, como histórico da operação;
+- **também apagados:** as notificações do titular e o registro de falhas de login;
+- **depois da exclusão:** gera `CONTA_EXCLUIDA` na auditoria. O administrador não reativa a conta excluída (`409 ACCOUNT_DELETED`);
+- **na interface:** confirmação em diálogo com a senha. Depois, o usuário vai a `/entrar` com o aviso "Sua conta foi excluída…".
+
+### Logs
+
+E-mails em mensagens de erro de serviços externos (SMTP) viram `<e-mail>` nos logs (09 §97).
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+07_DATABASE_MONGODB.md
+09_AUTHENTICATION_SECURITY.md
+11_COMPONENTS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 98. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3661,7 +3895,7 @@ até serem formalmente decididas.
 
 ---
 
-# 93. Como Adicionar uma Nova Decisão
+# 99. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3699,7 +3933,7 @@ arquivo2.md
 
 ---
 
-# 94. Regra Final
+# 100. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

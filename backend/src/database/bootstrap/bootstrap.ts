@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { Collection, Ecopoint, Notification, User } from "../../models/index.js";
+import { AuditLog, Collection, Ecopoint, LoginThrottle, Notification, User } from "../../models/index.js";
 import { hashPassword } from "../../utils/password.js";
+import { recordAudit } from "../../services/audit.service.js";
 import { enderecoShape } from "../../validators/address.validators.js";
 import { emailSchema, passwordSchema, requiredText } from "../../validators/auth.validators.js";
 
@@ -109,7 +110,14 @@ export function parseBootstrapEnv(source: NodeJS.ProcessEnv): BootstrapInput {
 // ecoponto central. Pode ser executado de novo sem efeito.
 export async function runBootstrap(input: BootstrapInput): Promise<BootstrapSummary> {
   // createIndexes só cria os que faltam; não remove nenhum (19 §37).
-  await Promise.all([User.createIndexes(), Collection.createIndexes(), Ecopoint.createIndexes(), Notification.createIndexes()]);
+  await Promise.all([
+    User.createIndexes(),
+    Collection.createIndexes(),
+    Ecopoint.createIndexes(),
+    Notification.createIndexes(),
+    LoginThrottle.createIndexes(),
+    AuditLog.createIndexes(),
+  ]);
 
   return { admin: await ensureAdmin(input.admin), ecopoint: await ensureEcopoint(input.ecopoint) };
 }
@@ -124,7 +132,7 @@ async function ensureAdmin(admin: BootstrapAdminInput | undefined): Promise<Boot
     throw new Error(`O e-mail ${admin.email} já pertence a outra conta. Use outro e-mail para o administrador.`);
   }
 
-  await User.create({
+  const created = await User.create({
     nome: admin.nome,
     email: admin.email,
     senhaHash: await hashPassword(admin.senha),
@@ -134,6 +142,8 @@ async function ensureAdmin(admin: BootstrapAdminInput | undefined): Promise<Boot
     emailVerificado: true,
     trocaSenhaObrigatoria: true,
   });
+
+  await recordAudit("ADMIN_INICIAL_CRIADO", { id: null, role: "SISTEMA" }, { tipo: "USUARIO", id: created._id });
 
   return "CRIADO";
 }

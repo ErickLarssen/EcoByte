@@ -6,6 +6,7 @@ import {
   getAdminCollection,
   getUser,
   listAdminCollections,
+  listAuditLogs,
   listUsers,
   updateUserStatus,
   type CreateCollectorPayload,
@@ -23,6 +24,7 @@ export const adminKeys = {
   collectionList: (page: number, limit: number, status: CollectionStatus | null) =>
     [...adminKeys.collections(), "list", page, limit, status] as const,
   collection: (id: string) => [...adminKeys.collections(), "detail", id] as const,
+  audit: (page: number, limit: number) => [...adminKeys.all, "audit", page, limit] as const,
 };
 
 export function useAdminUsers(page: number, limit = 10) {
@@ -73,5 +75,14 @@ export function useCreateCollector() {
       queryClient.setQueryData(adminKeys.user(user.id), user);
       return queryClient.invalidateQueries({ queryKey: [...adminKeys.users(), "list"] });
     },
+  });
+}
+
+// Registro de auditoria (DEC-094), somente leitura.
+export function useAuditLogs(page: number, limit = 20) {
+  return useQuery({
+    queryKey: adminKeys.audit(page, limit),
+    queryFn: ({ signal }) => listAuditLogs(page, limit, signal),
+    placeholderData: keepPreviousData,
   });
 }

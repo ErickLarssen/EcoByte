@@ -3,6 +3,7 @@ import {
   createCollectorHandler,
   getCollectionHandler,
   getUserHandler,
+  listAuditLogsHandler,
   listCollectionsHandler,
   listUsersHandler,
   updateUserStatusHandler,
@@ -26,6 +27,9 @@ export function createAdminRouter(): Router {
 
   router.get("/collections", listCollectionsHandler);
   router.get("/collections/:id", getCollectionHandler);
+
+  // Registro de auditoria, somente leitura (DEC-094).
+  router.get("/audit", listAuditLogsHandler);
 
   return router;
 }

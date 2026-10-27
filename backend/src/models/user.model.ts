@@ -71,6 +71,9 @@ const userSchema = new Schema(
     // Versão das sessões (DEC-088): incrementada a cada troca ou redefinição
     // de senha, encerra as sessões emitidas antes. Ausente conta como 0.
     sessaoVersao: { type: Number, default: 0 },
+    // Exclusão pelo titular (DEC-095): a conta é anonimizada e fica INATIVO,
+    // sem poder ser reativada. O documento permanece para o histórico das coletas.
+    excluidoEm: { type: Date, default: null },
     // Senha provisória definida pelo administrador (DEC-083): a troca é
     // obrigatória antes de usar o sistema.
     trocaSenhaObrigatoria: { type: Boolean, default: false },

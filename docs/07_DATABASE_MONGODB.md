@@ -140,7 +140,12 @@ collections
 ecopoints
 notifications
 sessions
+login_throttles
+audit_logs
 ```
+
+- **`login_throttles`** (`DEC-093`): falhas de login por conta, com a chave como hash SHA-256 do e-mail. Campos `falhas`, `janelaInicio`, `bloqueadoAte` e `expiraEm`, com índice único em `chave` e índice TTL em `expiraEm`;
+- **`audit_logs`** (`DEC-094`): só recebe inclusões. Campos `acao`, `ator { id, role }`, `alvo { tipo, id }`, `detalhes` e `createdAt`, sem dados pessoais. Índices `{ createdAt: -1, _id: -1 }` e `{ "alvo.tipo": 1, "alvo.id": 1, createdAt: -1 }`.
 
 A coleção `sessions` armazena as sessões de autenticação (`DEC-021`). Ela é gerenciada pelo store de sessão (`connect-mongo`), possui expiração automática e não é acessada diretamente pelos services.
 
@@ -195,6 +200,7 @@ Armazenar os usuários do sistema.
 | `trocaSenhaObrigatoria` | Boolean | Não (padrão `false`) | `true` para o coletor cadastrado pelo administrador até a troca da senha provisória (`DEC-083`) |
 | `senhaResetTokenHash` | String/null | Não | Hash SHA-256 do token de redefinição de senha; nunca retornado (`select: false`, `DEC-088`) |
 | `senhaResetExpiraEm` | Date/null | Não | Validade do token de redefinição (1 hora) |
+| `excluidoEm` | Date/null | Não | Data da exclusão pelo titular. A conta fica anonimizada e `INATIVO` (`DEC-095`) |
 | `sessaoVersao` | Number | Não (padrão `0`) | Incrementada a cada troca ou redefinição de senha. Sessões com versão anterior são encerradas (`DEC-088`) |
 | `createdAt` | Date | Sim | Data de criação |
 | `updatedAt` | Date | Sim | Última atualização |

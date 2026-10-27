@@ -24,6 +24,7 @@ import {
   type PasswordChangeFormValues,
   type ProfileFormValues,
 } from "@/lib/validation/profile";
+import { PrivacySection } from "./privacy-section";
 
 // Feedback de cada formulário, anunciado e com foco (12 §70).
 function useFeedback() {
@@ -287,6 +288,11 @@ export function ProfilePage() {
 
       <DetailSection title="Alterar senha">
         <PasswordForm />
+      </DetailSection>
+
+      {/* Direitos do titular dos dados (LGPD, DEC-095). */}
+      <DetailSection title="Seus dados">
+        <PrivacySection canDelete={profile.role !== "ADMIN"} />
       </DetailSection>
     </div>
   );

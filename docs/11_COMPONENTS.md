@@ -1778,6 +1778,8 @@ Implementação (Fase 8, `DEC-075`): `features/admin/admin-user-list.tsx`. No ce
 
 Cadastro de coletor (`DEC-083`): `features/admin/admin-collector-form.tsx`, em `/admin/usuarios/novo`, aberto pelo botão "Cadastrar coletor" da lista. O esquema fica em `lib/validation/collector.ts`.
 
+Auditoria (`DEC-094`): `features/admin/admin-audit-log.tsx`, em `/admin/auditoria`. Direitos do titular (`DEC-095`): `features/profile/privacy-section.tsx` ("Seus dados" no perfil: baixar e excluir, com diálogo de senha). A Política de Privacidade fica em `app/(site)/privacidade/page.tsx`.
+
 ---
 
 # 81. CollectionManagementTable

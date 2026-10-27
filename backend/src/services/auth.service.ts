@@ -4,6 +4,7 @@ import { User, type UserDocument } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
 import type { LoginInput, RegisterInput } from "../validators/auth.validators.js";
+import { assertLoginAllowed, clearLoginFailures, registerLoginFailure } from "./login-throttle.service.js";
 
 // Dados do usuário expostos pela API (06_API §9.2, 09 §28): nunca senhaHash.
 export type PublicUser = {
@@ -84,17 +85,25 @@ export async function registerClient(input: RegisterInput): Promise<PublicUser> 
 
 // Login (09 §17): a senha é verificada antes do status, para que
 // USER_INACTIVE só seja revelado a quem conhece a senha.
+// O bloqueio por conta (DEC-093) vem antes da senha e vale também para
+// e-mails sem conta, com a mesma resposta: não revela quais contas existem.
 export async function authenticate({ email, senha }: LoginInput): Promise<SessionUser> {
+  await assertLoginAllowed(email);
+
   const user = await User.findOne({ email }).select("+senhaHash");
 
   if (!user) {
     await verifyPassword(await getReferenceHash(), senha);
+    await registerLoginFailure(email);
     throw INVALID_CREDENTIALS();
   }
 
   if (!(await verifyPassword(user.senhaHash, senha))) {
+    await registerLoginFailure(email);
     throw INVALID_CREDENTIALS();
   }
+
+  await clearLoginFailures(email);
 
   if (user.status !== "ATIVO") {
     throw new AppError(403, "USER_INACTIVE", "Usuário inativo.");

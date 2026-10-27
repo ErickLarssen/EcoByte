@@ -74,5 +74,6 @@ export async function loginAgent(app: Express, email: string, senha = VALID_PASS
 
 export function sessionCookie(setCookie: string[] | string | undefined): string | undefined {
   const cookies = Array.isArray(setCookie) ? setCookie : setCookie ? [setCookie] : [];
-  return cookies.find((cookie) => cookie.startsWith("ecobyte.sid="));
+  // Em produção o nome ganha o prefixo __Host- (DEC-091).
+  return cookies.find((cookie) => cookie.startsWith("ecobyte.sid=") || cookie.startsWith("__Host-ecobyte.sid="));
 }

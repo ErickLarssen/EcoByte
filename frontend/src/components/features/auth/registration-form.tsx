@@ -193,6 +193,16 @@ export function RegistrationForm({ initialTipo = "PF", returnTo }: RegistrationF
         </FormField>
       </FieldGroup>
 
+      {/* Transparência sobre o tratamento dos dados (LGPD art. 9º, DEC-095). */}
+      <p className="text-sm text-muted-foreground">
+        Ao criar a conta, você declara que leu a{" "}
+        <Link href="/privacidade" target="_blank" rel="noopener" className="font-medium text-primary underline-offset-4 hover:underline">
+          Política de Privacidade
+          <span className="sr-only"> (abre em uma nova aba)</span>
+        </Link>
+        , que explica quais dados tratamos e como você exerce os seus direitos.
+      </p>
+
       <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
         {isSubmitting ? "Criando conta..." : "Criar conta"}
       </Button>

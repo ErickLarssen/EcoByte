@@ -1217,6 +1217,8 @@ Dados recebidos da API devem ser tratados como não confiáveis.
 
 O backend deve considerar headers de segurança apropriados para a aplicação.
 
+Implementação (`DEC-091`): cabeçalhos próprios na API, sem biblioteca (`no-store`, `nosniff`, CSP `default-src 'none'`, `DENY`, `no-referrer`, CORP), e fixos no site (HSTS, `nosniff`, `DENY`, Referrer-Policy, Permissions-Policy, COOP). Em produção, o cookie de sessão usa o prefixo `__Host-`.
+
 A configuração pode utilizar middleware específico de segurança.
 
 Não adicionar headers sem entender seu efeito sobre:
@@ -1240,6 +1242,8 @@ Content-Security-Policy
 ```
 
 pode ser adotada conforme a arquitetura final.
+
+Implementação (`DEC-091`): CSP estrita com nonce por requisição e `'strict-dynamic'` (`frontend/src/proxy.ts`). Nenhum domínio externo é liberado. Todas as páginas são renderizadas a cada acesso.
 
 Quando implementada, deve ser compatível com:
 
@@ -1393,6 +1397,8 @@ Dados pessoais devem ser retornados somente quando necessários para a operaçã
 Exemplo:
 
 Um cliente não deve receber dados pessoais completos de outros clientes.
+
+Direitos do titular (`DEC-095`): exportação dos próprios dados, exclusão da conta com anonimização e Política de Privacidade em `/privacidade`.
 
 ---
 
@@ -1718,6 +1724,8 @@ Não utilizar um `:id` fornecido pelo frontend para permitir edição arbitrári
 
 Operações públicas como recuperação de senha e autenticação devem evitar revelar informações excessivas sobre quais contas existem no sistema.
 
+Implementação: login com tempo equalizado (§17), recuperação de senha com resposta única (`DEC-088`) e bloqueio por conta também para e-mails sem conta, com a mesma resposta (`DEC-093`). O cadastro responde `409 EMAIL_ALREADY_EXISTS` (`DEC-066`), com limite de 5 cadastros por hora por IP. É o equilíbrio aceito entre usabilidade e enumeração.
+
 ---
 
 # 88. Proteção contra abuso
@@ -1816,6 +1824,8 @@ alteração do ecoponto
 
 Caso um sistema de auditoria completo seja implementado, seus requisitos devem ser documentados separadamente.
 
+Implementação (`DEC-094`): coleção `audit_logs`, só de inclusões e sem dados pessoais, consultada em `/admin/auditoria`.
+
 ---
 
 # 94. Preservação de histórico
@@ -1898,6 +1908,8 @@ configuração
 impacto
 compatibilidade
 ```
+
+Implementação (`DEC-090`): Dependabot semanal e o job de auditoria no CI (`npm audit --omit=dev --audit-level=high`), que reprova o deploy em caso de falha alta ou crítica.
 
 ---
 

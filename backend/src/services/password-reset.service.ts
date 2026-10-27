@@ -1,10 +1,12 @@
 import { User } from "../models/index.js";
 import { AppError } from "../utils/app-error.js";
 import { hashPassword } from "../utils/password.js";
+import { errorMessageForLog } from "../utils/log.js";
 import { createLinkToken, escapeHtml, hashLinkToken } from "../utils/token.js";
 import type { ResetPasswordInput } from "../validators/auth.validators.js";
 import { sessionVersionOf } from "./auth.service.js";
 import type { VerificationContext } from "./email-verification.service.js";
+import { clearLoginFailures } from "./login-throttle.service.js";
 
 // Recuperação de senha por link (DEC-088, OQ-015, 09 §50–§52).
 export const RESET_TTL_MINUTES = 60;
@@ -48,7 +50,7 @@ export async function requestPasswordReset(email: string, { mailer, frontendUrl 
       ].join(""),
     })
     .catch((error: unknown) => {
-      console.error("[backend] Falha ao enviar e-mail de redefinição de senha:", error instanceof Error ? error.message : error);
+      console.error("[backend] Falha ao enviar e-mail de redefinição de senha:", errorMessageForLog(error));
     });
 }
 
@@ -86,4 +88,7 @@ export async function resetPassword({ token, novaSenha }: ResetPasswordInput): P
   if (result.modifiedCount === 0) {
     throw new AppError(400, "INVALID_TOKEN", "Link de redefinição inválido ou já utilizado.");
   }
+
+  // Quem provou o acesso ao e-mail volta a poder entrar na hora (DEC-093).
+  await clearLoginFailures(user.email);
 }
