@@ -47,7 +47,7 @@ jobs:
       - run: npm ci
 
       # Binário do mongod usado pelo mongodb-memory-server nos testes (DEC-062).
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/mongodb-binaries
           key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
