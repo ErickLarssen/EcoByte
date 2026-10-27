@@ -494,6 +494,17 @@ Sim
 
 ---
 
+## 6.4 Direitos do titular (`DEC-095`)
+
+```http
+GET    /api/v1/profile/export
+DELETE /api/v1/profile
+```
+
+Exportação dos próprios dados e exclusão da conta, com a senha atual. Autenticado, qualquer perfil (a exclusão não vale para `ADMIN`).
+
+---
+
 # 7. Ecoponto
 
 Prefixo:
@@ -1178,6 +1189,16 @@ INATIVO
 
 ---
 
+## 13.4 Auditoria (`DEC-094`)
+
+```http
+GET /api/v1/admin/audit
+```
+
+Registro de auditoria, paginado (`page`, `limit`), somente leitura. Role `ADMIN`.
+
+---
+
 # 14. Notificações
 
 Prefixo:
@@ -1551,6 +1572,8 @@ A escolha deve representar corretamente o motivo da falha.
 | POST | `/api/v1/auth/reset-password` | Conforme fluxo | Redefinir senha |
 | GET | `/api/v1/profile` | Autenticado | Visualizar perfil |
 | PATCH | `/api/v1/profile` | Autenticado | Atualizar perfil |
+| GET | `/api/v1/profile/export` | Autenticado | Baixar meus dados (`DEC-095`) |
+| DELETE | `/api/v1/profile` | CLIENTE, COLETOR | Excluir a própria conta (`DEC-095`) |
 | PATCH | `/api/v1/profile/password` | Autenticado | Alterar senha (`DEC-078`) |
 | GET | `/api/v1/ecopoint` | Público (`DEC-076`) | Visualizar ecoponto |
 | PATCH | `/api/v1/ecopoint` | ADMIN | Atualizar ecoponto |
@@ -1568,6 +1591,7 @@ A escolha deve representar corretamente o motivo da falha.
 | POST | `/api/v1/admin/users` | ADMIN | Cadastrar coletor |
 | GET | `/api/v1/admin/users/:id` | ADMIN | Detalhes do usuário |
 | PATCH | `/api/v1/admin/users/:id/status` | ADMIN | Ativar/desativar usuário |
+| GET | `/api/v1/admin/audit` | ADMIN | Registro de auditoria (`DEC-094`) |
 | GET | `/api/v1/admin/collections` | ADMIN | Listar coletas |
 | GET | `/api/v1/admin/collections/:id` | ADMIN | Detalhes administrativos |
 | GET | `/api/v1/notifications` | Autenticado | Listar notificações |

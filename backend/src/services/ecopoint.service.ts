@@ -4,6 +4,7 @@ import { Ecopoint } from "../models/index.js";
 import type { Endereco } from "../models/schemas/endereco.schema.js";
 import type { GeoPoint } from "../models/schemas/geo-point.schema.js";
 import { AppError } from "../utils/app-error.js";
+import { recordAudit } from "./audit.service.js";
 import type { UpdateEcopointInput } from "../validators/ecopoint.validators.js";
 
 // Representação do ecoponto (06_API §12.1).
@@ -61,7 +62,7 @@ export async function getCentralEcopoint(): Promise<EcopointView> {
 // Alteração parcial (DEC-065). A coleta referencia o ecoponto por id
 // (DEC-053), então editar os dados não altera o vínculo das entregas.
 // Com o ecoponto INATIVO, novas entregas falham com ECOPOINT_UNAVAILABLE.
-export async function updateCentralEcopoint(input: UpdateEcopointInput): Promise<EcopointView> {
+export async function updateCentralEcopoint(input: UpdateEcopointInput, actorId: string): Promise<EcopointView> {
   const central = await findCentral().select("_id").lean();
   if (!central) throw notFound();
 
@@ -77,5 +78,11 @@ export async function updateCentralEcopoint(input: UpdateEcopointInput): Promise
   }).lean();
 
   if (!updated) throw notFound();
+
+  // Só os nomes dos campos alterados (DEC-094): o conteúdo fica no próprio ecoponto.
+  await recordAudit("ECOPONTO_ATUALIZADO", { id: actorId, role: "ADMIN" }, { tipo: "ECOPONTO", id: central._id }, {
+    campos: Object.keys(changes),
+  });
+
   return toView(updated as unknown as EcopointRecord);
 }

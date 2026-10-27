@@ -66,7 +66,13 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-sm text-white/60">© {new Date().getFullYear()} EcoByte · Diadema-SP</p>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-sm text-white/60">
+          <p>© {new Date().getFullYear()} EcoByte · Diadema-SP</p>
+          {/* LGPD (DEC-095). */}
+          <Link href="/privacidade" className={FOOTER_LINK}>
+            Política de Privacidade
+          </Link>
+        </div>
       </div>
     </footer>
   );

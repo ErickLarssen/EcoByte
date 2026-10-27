@@ -15,6 +15,8 @@ export type UserDetailView = {
   status: RecordStatus;
   // Senha provisória ainda não trocada (DEC-083).
   trocaSenhaObrigatoria: boolean;
+  // Conta excluída pelo titular (DEC-095); null nas demais.
+  excluidoEm: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -29,6 +31,7 @@ export type UserRecord = {
   dadosEmpresa?: { razaoSocial?: string | null; nomeFantasia?: string | null } | null;
   status: RecordStatus;
   trocaSenhaObrigatoria?: boolean;
+  excluidoEm?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -46,6 +49,7 @@ export function toUserDetailView(user: UserRecord): UserDetailView {
       : null,
     status: user.status,
     trocaSenhaObrigatoria: user.trocaSenhaObrigatoria === true,
+    excluidoEm: user.excluidoEm ?? null,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

@@ -16,7 +16,7 @@ export function register(context: VerificationContext) {
   return async (req: Request, res: Response): Promise<void> => {
     const user = await registerClient(req.body);
     // Conta nova: primeira versão das sessões (DEC-088).
-    await startSession(req, user.id, 0);
+    await startSession(req, user.id, 0, user.role);
     await sendVerificationEmail(user.id, context);
 
     sendSuccess(res, 201, "Cadastro realizado com sucesso. Enviamos um link para confirmar seu e-mail.", { user });
@@ -26,7 +26,7 @@ export function register(context: VerificationContext) {
 // POST /api/v1/auth/login
 export async function login(req: Request, res: Response): Promise<void> {
   const { user, sessaoVersao } = await authenticate(req.body);
-  await startSession(req, user.id, sessaoVersao);
+  await startSession(req, user.id, sessaoVersao, user.role);
 
   sendSuccess(res, 200, "Login realizado com sucesso.", { user });
 }

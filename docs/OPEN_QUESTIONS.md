@@ -1312,6 +1312,8 @@ operações sensíveis
 
 **Status:** ABERTA
 
+**Decidido em `DEC-095` (2026-10-26):** ao excluir a conta, os dados pessoais são removidos na hora, as notificações são apagadas e as coletas concluídas ficam sem o endereço identificável. Registros de falha de login somem em até 30 minutos (`DEC-093`). Continuam em aberto: prazos para contas inativas, notificações antigas, coletas concluídas de contas ativas e registros de auditoria.
+
 ## Questão
 
 Por quanto tempo determinadas informações deverão ser mantidas?
@@ -1333,7 +1335,7 @@ A política definitiva ainda não foi estabelecida.
 
 # 44. OQ-040 — Exclusão de Conta
 
-**Status:** ABERTA
+**Status:** RESOLVIDA por `DEC-095` (2026-10-26): o titular exclui a própria conta no perfil, com a senha. A conta é anonimizada (exclusão lógica com remoção dos dados pessoais), e coletas em andamento impedem a exclusão. A conta `ADMIN` não é excluída pelo perfil.
 
 ## Questão
 
@@ -1497,6 +1499,8 @@ mais de um telefone
 # 50. OQ-046 — Canal Principal de Contato
 
 **Status:** ABERTA
+
+**Observação (2026-10-26, `DEC-095`):** a Política de Privacidade não informa um canal de contato enquanto esta questão estiver aberta. Os direitos do titular são exercidos no próprio sistema (exportação e exclusão).
 
 ## Questão
 
@@ -1751,7 +1755,7 @@ Não assumir que o administrador poderá ignorar automaticamente a máquina de e
 
 # 60. OQ-056 — Auditoria Administrativa
 
-**Status:** ABERTA
+**Status:** RESOLVIDA por `DEC-094` (2026-10-26): coleção `audit_logs`, só de inclusões, com ações administrativas e a exclusão de conta. Não guarda dados pessoais e é consultada pelo admin em `/admin/auditoria`.
 
 ## Questão
 
@@ -1773,6 +1777,8 @@ Ainda não foi definido se haverá uma coleção própria de auditoria.
 # 61. OQ-057 — Logs de Auditoria
 
 **Status:** ABERTA
+
+**Decidido em `DEC-094` (2026-10-26):** cadastro de coletor, ativação e desativação de usuário, edição do ecoponto, criação do admin inicial e exclusão de conta. Continuam em aberto: eventos de login e de senha e a retenção dos registros.
 
 ## Questão
 
@@ -1873,6 +1879,8 @@ revogar dispositivo
 # 65. OQ-061 — Autenticação em Dois Fatores
 
 **Status:** ABERTA
+
+**Observação (2026-10-26, `DEC-092`):** em vez de 2FA, a sessão do administrador expira após 30 minutos sem uso. O 2FA continua em aberto.
 
 ## Questão
 

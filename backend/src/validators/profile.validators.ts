@@ -46,3 +46,10 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+// DELETE /api/v1/profile (DEC-095): a senha atual confirma a exclusão.
+export const deleteAccountSchema = z.object({
+  senha: z.string({ error: "Informe a sua senha." }).min(1, "Informe a sua senha.").max(128, "Senha incorreta."),
+});
+
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;

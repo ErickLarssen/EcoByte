@@ -2581,6 +2581,8 @@ E E2E conforme a estratégia definida.
 
 Implementação (`DEC-089`): GitHub Actions (`.github/workflows/ci.yml`), com lint, typecheck, testes e build do backend e do frontend. E2E ainda não fazem parte.
 
+Auditoria de dependências (`DEC-090`): job `npm audit --omit=dev --audit-level=high`, que reprova o CI em vulnerabilidade alta ou crítica. Testes de segurança em `backend/tests/security/` (cabeçalhos, bloqueio por conta, sessão do admin, auditoria, exportação e exclusão) e em `frontend/src/lib/security-headers.test.ts` (CSP).
+
 ---
 
 # 156. Pull Request

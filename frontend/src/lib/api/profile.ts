@@ -31,3 +31,15 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<Prof
 export async function changePassword(payload: ChangePasswordPayload): Promise<void> {
   await apiRequest<null>("/profile/password", { method: "PATCH", body: payload });
 }
+
+// Direitos do titular (DEC-095). A exportação traz tudo o que o sistema guarda
+// sobre o usuário, sem segredos; o formato segue a API.
+export async function exportMyData(): Promise<unknown> {
+  const { data } = await apiRequest<unknown>("/profile/export");
+  return data;
+}
+
+// A senha atual confirma a exclusão; a API encerra todas as sessões da conta.
+export async function deleteMyAccount(senha: string): Promise<void> {
+  await apiRequest<null>("/profile", { method: "DELETE", body: { senha } });
+}

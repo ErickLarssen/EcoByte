@@ -16,6 +16,22 @@ permissions:
   contents: read
 
 jobs:
+  # Vulnerabilidades conhecidas nas dependências de produção (DEC-090): uma
+  # falha alta ou crítica reprova o CI e, com ela, o deploy do Render.
+  audit:
+    name: Auditoria de dependências
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: npm audit (produção)
+        run: npm audit --omit=dev --audit-level=high
+
   backend:
     name: Backend
     runs-on: ubuntu-latest

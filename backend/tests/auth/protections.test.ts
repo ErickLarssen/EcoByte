@@ -90,8 +90,13 @@ describe("rate limiting (DEC-067, 17_TESTING §110)", () => {
 
   it("separa os limites por IP quando TRUST_PROXY=1 (proxy de borda confiável)", async () => {
     const app = createTestApp({ trustProxy: 1 });
+    // Um e-mail por tentativa: isola o limite por IP do bloqueio por conta (DEC-093).
+    let sequence = 0;
     const attempt = (ip: string) =>
-      request(app).post("/api/v1/auth/login").set("X-Forwarded-For", ip).send({ email: "x@teste.local", senha: "Errada@123" });
+      request(app)
+        .post("/api/v1/auth/login")
+        .set("X-Forwarded-For", ip)
+        .send({ email: `x${(sequence += 1)}@teste.local`, senha: "Errada@123" });
 
     for (let index = 0; index < 10; index += 1) {
       await attempt("203.0.113.10");

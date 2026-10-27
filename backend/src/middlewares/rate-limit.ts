@@ -43,5 +43,8 @@ export function createAuthRateLimiters() {
 export function createProfileRateLimiters() {
   return {
     changePassword: createLimiter({ windowMs: 15 * MINUTE_MS, limit: 10 }),
+    // Direitos do titular (DEC-095): a exclusão confere a senha; a exportação é pesada.
+    deleteAccount: createLimiter({ windowMs: 15 * MINUTE_MS, limit: 5 }),
+    exportData: createLimiter({ windowMs: 60 * MINUTE_MS, limit: 10 }),
   };
 }

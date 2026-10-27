@@ -8,6 +8,7 @@ import { hashPassword } from "../utils/password.js";
 import type { AdminCollectionsQuery, CreateCollectorInput } from "../validators/admin.validators.js";
 import type { PaginationQuery } from "../validators/collection.validators.js";
 import { toAdminView, type AdminCollectionView, type CollectionRecord } from "./collection.views.js";
+import { recordAudit } from "./audit.service.js";
 import { toUserDetailView, type UserDetailView, type UserRecord } from "./user.views.js";
 
 const USER_REF_FIELDS = "nome email telefone";
@@ -50,11 +51,16 @@ export async function getUser(id: string): Promise<UserDetailView> {
 // - um coletor com coletas em andamento não pode ser desativado (OQ-055);
 // - repetir o status atual não é erro (a operação é idempotente).
 // A sessão de quem é desativado é encerrada na próxima requisição (requireAuth, 06 §27.3).
-export async function updateUserStatus(id: string, status: RecordStatus): Promise<UserDetailView> {
+export async function updateUserStatus(id: string, status: RecordStatus, actorId: string): Promise<UserDetailView> {
   const userId = toObjectId(id, userNotFound);
-  const current = await User.findById(userId).select("role status").lean();
+  const current = await User.findById(userId).select("role status excluidoEm").lean();
 
   if (!current) throw userNotFound();
+
+  // Conta excluída pelo titular (DEC-095): anonimizada, não volta a ser ativada.
+  if (current.excluidoEm) {
+    throw new AppError(409, "ACCOUNT_DELETED", "Esta conta foi excluída pelo titular e não pode ser alterada.");
+  }
 
   if (current.role === "ADMIN") {
     throw new AppError(403, "FORBIDDEN", "O status de administradores não pode ser alterado.");
@@ -81,6 +87,16 @@ export async function updateUserStatus(id: string, status: RecordStatus): Promis
   ).lean();
 
   if (!updated) throw userNotFound();
+
+  if (current.status !== status) {
+    await recordAudit(
+      status === "ATIVO" ? "USUARIO_ATIVADO" : "USUARIO_DESATIVADO",
+      { id: actorId, role: "ADMIN" },
+      { tipo: "USUARIO", id: userId },
+      { status },
+    );
+  }
+
   return toUserDetailView(updated as unknown as UserRecord);
 }
 
@@ -129,7 +145,7 @@ const emailInUse = () => new AppError(409, "EMAIL_ALREADY_EXISTS", "Este e-mail 
 // O administrador cadastra coletores: não há cadastro público de COLETOR
 // (DEC-066). A senha é provisória e deve ser trocada no primeiro acesso; o
 // e-mail já conta como verificado, pois a conta é criada pela equipe (DEC-082).
-export async function createCollector(input: CreateCollectorInput): Promise<UserDetailView> {
+export async function createCollector(input: CreateCollectorInput, actorId: string): Promise<UserDetailView> {
   if (await User.exists({ email: input.email })) throw emailInUse();
 
   try {
@@ -144,6 +160,8 @@ export async function createCollector(input: CreateCollectorInput): Promise<User
       emailVerificado: true,
       trocaSenhaObrigatoria: true,
     });
+
+    await recordAudit("COLETOR_CADASTRADO", { id: actorId, role: "ADMIN" }, { tipo: "USUARIO", id: user._id });
 
     return toUserDetailView(user.toObject() as unknown as UserRecord);
   } catch (error) {

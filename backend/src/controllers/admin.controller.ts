@@ -8,6 +8,7 @@ import {
   listUsers,
   updateUserStatus,
 } from "../services/admin.service.js";
+import { listAuditLogs } from "../services/audit.service.js";
 import { sendSuccess } from "../utils/api-response.js";
 import {
   adminCollectionsQuerySchema,
@@ -24,7 +25,7 @@ export async function listUsersHandler(req: Request, res: Response): Promise<voi
 
 // POST /api/v1/admin/users — cadastro de coletor (DEC-083)
 export async function createCollectorHandler(req: Request, res: Response): Promise<void> {
-  const user = await createCollector(req.body as CreateCollectorInput);
+  const user = await createCollector(req.body as CreateCollectorInput, req.user!.id);
   sendSuccess(res, 201, "Coletor cadastrado. Repasse a senha provisória: ela deve ser trocada no primeiro acesso.", { user });
 }
 
@@ -37,7 +38,7 @@ export async function getUserHandler(req: Request<{ id: string }>, res: Response
 // PATCH /api/v1/admin/users/:id/status
 export async function updateUserStatusHandler(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { status } = req.body as UpdateUserStatusInput;
-  const user = await updateUserStatus(req.params.id, status);
+  const user = await updateUserStatus(req.params.id, status, req.user!.id);
   sendSuccess(res, 200, status === "ATIVO" ? "Usuário ativado." : "Usuário desativado.", { user });
 }
 
@@ -51,4 +52,10 @@ export async function listCollectionsHandler(req: Request, res: Response): Promi
 export async function getCollectionHandler(req: Request<{ id: string }>, res: Response): Promise<void> {
   const collection = await getCollection(req.params.id);
   sendSuccess(res, 200, "Coleta encontrada.", { collection });
+}
+
+// GET /api/v1/admin/audit — registro de auditoria, mais recentes primeiro (DEC-094).
+export async function listAuditLogsHandler(req: Request, res: Response): Promise<void> {
+  const page = await listAuditLogs(parseInput(paginationQuerySchema, req.query));
+  sendSuccess(res, 200, "Registro de auditoria.", page);
 }

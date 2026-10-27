@@ -5,7 +5,7 @@ import {
   requiresEcoponto,
   type CollectionStatus,
 } from "../../domain/collection-status.js";
-import { Collection, Ecopoint, Notification, User } from "../../models/index.js";
+import { AuditLog, Collection, Ecopoint, LoginThrottle, Notification, User } from "../../models/index.js";
 import { hashPassword } from "../../utils/password.js";
 import { SEED_COLLECTIONS, SEED_ECOPOINT, SEED_NOTIFICATIONS, SEED_USERS, type SeedUserKey } from "./data.js";
 import { validateSeed, type SeedSummary } from "./validate-seed.js";
@@ -33,9 +33,20 @@ export async function runSeed({ nodeEnv, now = new Date() }: SeedOptions): Promi
   assertSeedAllowed(nodeEnv);
 
   // Índices antes dos dados (20_SEED_DATA §30, passo 4).
-  await Promise.all([User.createIndexes(), Collection.createIndexes(), Ecopoint.createIndexes(), Notification.createIndexes()]);
+  await Promise.all([
+    User.createIndexes(),
+    Collection.createIndexes(),
+    Ecopoint.createIndexes(),
+    Notification.createIndexes(),
+    LoginThrottle.createIndexes(),
+    AuditLog.createIndexes(),
+  ]);
 
   // Limpeza respeitando referências: dependentes primeiro (20_SEED_DATA §28).
+  // Dados de demonstração recomeçam do zero (DEC-034). A auditoria é imutável
+  // pela aplicação (DEC-094); só o seed, fora de produção, a limpa direto no driver.
+  await AuditLog.collection.deleteMany({});
+  await LoginThrottle.deleteMany({});
   await Notification.deleteMany({});
   await Collection.deleteMany({});
   await Ecopoint.deleteMany({});

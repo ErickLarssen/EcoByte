@@ -216,6 +216,10 @@ CEP_SERVICE_UNAVAILABLE
 
 `INVALID_TOKEN` e `TOKEN_EXPIRED` (400) também respondem ao link de confirmação do e-mail inválido ou vencido (`DEC-082`) e ao link de redefinição de senha (`DEC-088`).
 
+`ACCOUNT_DELETED` (409): alteração de status de uma conta excluída pelo titular (`DEC-095`).
+
+`RATE_LIMIT_EXCEEDED` (429) também responde ao login de uma conta bloqueada por 10 senhas erradas em 15 minutos, por 15 minutos e de qualquer IP (`DEC-093`).
+
 `PASSWORD_CHANGE_REQUIRED` (403): o usuário ainda não trocou a senha provisória. Valem somente as rotas `/api/v1/auth/*` e `PATCH /api/v1/profile/password` (`DEC-083`).
 
 O conjunto definitivo de códigos pode crescer conforme a implementação.
@@ -664,6 +668,29 @@ Os campos `email`, `role`, `tipoCadastro`, `status` e `documento` não fazem par
 | `200` | — | senha alterada ("Senha alterada com sucesso."); a sessão atual continua, com novo identificador |
 | `400` | `VALIDATION_ERROR` | `senhaAtual` incorreta (`fields.senhaAtual`), nova senha fora da política (`DEC-019`), confirmação diferente ou nova senha igual à atual |
 | `429` | `RATE_LIMIT_EXCEEDED` | mais de 10 tentativas em 15 minutos (`DEC-067`) |
+
+## 11.4 Direitos do titular (`DEC-095`)
+
+**Exportar:** `GET /api/v1/profile/export` responde `200` como anexo (`Content-Disposition: attachment; filename="ecobyte-meus-dados.json"`). Os campos de `data` são:
+
+- `exportadoEm`;
+- `titular`, no formato de §22.1;
+- `coletasSolicitadas`, com endereço, itens, observações e datas;
+- `coletasAtendidas`: só para coletor, com status e datas, sem dados do cliente;
+- `notificacoes`.
+
+Nunca traz hash de senha, tokens nem versão de sessão. O limite é de 10 por hora por IP.
+
+**Excluir:** `DELETE /api/v1/profile` com `{ "senha": "..." }`. A resposta `200` traz "Conta excluída. Seus dados pessoais foram removidos.", e a sessão é encerrada.
+
+| HTTP | Código | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | senha incorreta (`fields.senha`) ou ausente |
+| `403` | `FORBIDDEN` | conta `ADMIN` |
+| `409` | `USER_HAS_ACTIVE_COLLECTIONS` | coletas em andamento (cliente: `PENDENTE` a `ENTREGUE_ECOPONTO`; coletor: `ACEITA` a `ENTREGUE_ECOPONTO`) |
+| `429` | `RATE_LIMIT_EXCEEDED` | mais de 5 tentativas em 15 minutos |
+
+A anonimização está descrita no `DEC-095`.
 
 ---
 
@@ -1281,10 +1308,31 @@ Implementado (`DEC-075`): somente `page` e `limit` (06 §7), com os mais recente
   "dadosEmpresa": null,
   "status": "ATIVO",
   "trocaSenhaObrigatoria": false,
+  "excluidoEm": null,
   "createdAt": "2026-09-26T10:00:00.000Z",
   "updatedAt": "2026-09-26T10:00:00.000Z"
 }
 ```
+
+---
+
+## 22.0 Auditoria (`DEC-094`)
+
+`GET /api/v1/admin/audit?page=1&limit=20`, somente `ADMIN`, responde a lista paginada (§7.1), com as ações mais recentes primeiro. Cada item:
+
+```json
+{
+  "id": "LOG_ID",
+  "acao": "USUARIO_DESATIVADO",
+  "ator": { "id": "ADMIN_ID", "role": "ADMIN", "nome": "Ana Admin" },
+  "alvo": { "tipo": "USUARIO", "id": "USER_ID" },
+  "detalhes": { "status": "INATIVO" },
+  "createdAt": "2026-10-26T13:00:00.000Z"
+}
+```
+
+- `ator.role` pode ser `SISTEMA` no administrador criado pela inicialização, com `id` e `nome` nulos;
+- `ator.nome` é lido na consulta.
 
 ---
 

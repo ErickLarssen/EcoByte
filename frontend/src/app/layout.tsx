@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/features/auth/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -21,7 +22,11 @@ export const viewport: Viewport = {
   themeColor: "#226891",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+// Renderização a cada acesso: a CSP com nonce (DEC-091) exige que cada página
+// receba o nonce da requisição; uma página pré-gerada no build não o teria.
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  await connection();
+
   return (
     <html lang="pt-BR" className={cn("font-sans", inter.variable)}>
       <body>

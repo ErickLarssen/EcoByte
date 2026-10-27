@@ -543,7 +543,9 @@ Ordem do primeiro deploy: banco, backend, frontend, inicialização e teste de f
 ## 1. MongoDB Atlas
 
 1. Crie um cluster **M0** (gratuito) em `mongodb.com`, provedor AWS, região N. Virginia (`us-east-1`).
-2. **Security > Database & Network Access**, aba **Database Users**, **Add New Database User**: crie um usuário só para a aplicação (ex.: `ecobyte-app`), com **Autogenerate Secure Password** e a função **Read and write to any database**.
+2. **Security > Database & Network Access**, aba **Database Users**, **Add New Database User**:
+   - crie um usuário só para a aplicação (ex.: `ecobyte-app`), com **Autogenerate Secure Password**;
+   - privilégio mínimo (`DEC-090`, 09 §72): em **Specific Privileges**, dê `readWrite` só no banco `ecobyte`, e não "Read and write to any database".
 3. Na mesma página, na lista de IPs: o plano free do Render não tem IP fixo, então libere `0.0.0.0/0`. A proteção fica com o usuário e a senha do banco (19 §32).
 4. Copie a connection string (`mongodb+srv://...`) e inclua o nome do banco: `.../ecobyte?retryWrites=true&w=majority`.
 
@@ -586,6 +588,19 @@ O seed **nunca** é executado nesse banco (§36).
 3. **Cookie seguro:** depois do login, o cookie `ecobyte.sid` deve ter `Secure`. Se o login não persistir, `TRUST_PROXY` está baixo.
 4. **IP real:** dez logins errados seguidos devem bloquear só o seu IP, com `429`, e não os outros usuários. Se bloquear todos, revise `TRUST_PROXY`.
 5. Cadastro de cliente, e-mail de confirmação, solicitação de coleta e o fluxo do coletor até a conclusão.
+
+## Endurecimento das contas (`DEC-090` a `DEC-095`)
+
+Feito nos painéis pelo responsável, e não pelo código:
+
+- **Verificação em duas etapas (2FA)** em GitHub, Atlas, Render, Vercel, no provedor de e-mail e na conta de e-mail que recupera todas elas;
+- **GitHub:**
+  - proteção da `main` com os checks obrigatórios (Auditoria, Backend, Frontend);
+  - **Secret scanning** e **Push protection** ativos;
+  - alertas do Dependabot ligados;
+- **Atlas:** usuário da aplicação só com `readWrite` no banco `ecobyte`;
+- **Credenciais expostas:** troque a senha do banco e as chaves SMTP se tiverem passado por chat, print ou arquivo fora do painel;
+- **Render:** remova os serviços suspensos que não estão em uso.
 
 ## Riscos conhecidos dos planos gratuitos
 

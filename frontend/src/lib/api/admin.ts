@@ -17,6 +17,8 @@ export type AdminUser = {
   status: RecordStatus;
   // Senha provisória ainda não trocada pelo coletor (DEC-083).
   trocaSenhaObrigatoria: boolean;
+  // Conta excluída pelo titular (DEC-095); null nas demais.
+  excluidoEm: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -78,4 +80,30 @@ export type CreateCollectorPayload = {
 export async function createCollector(payload: CreateCollectorPayload): Promise<AdminUser> {
   const { data } = await apiRequest<{ user: AdminUser }>("/admin/users", { method: "POST", body: payload });
   return data.user;
+}
+
+// ---------------------------------------------------------------------------
+// Auditoria (DEC-094)
+// ---------------------------------------------------------------------------
+
+export type AuditAction =
+  | "ADMIN_INICIAL_CRIADO"
+  | "COLETOR_CADASTRADO"
+  | "USUARIO_ATIVADO"
+  | "USUARIO_DESATIVADO"
+  | "ECOPONTO_ATUALIZADO"
+  | "CONTA_EXCLUIDA";
+
+export type AuditLogEntry = {
+  id: string;
+  acao: AuditAction;
+  ator: { id: string | null; role: UserRole | "SISTEMA"; nome: string | null };
+  alvo: { tipo: "USUARIO" | "ECOPONTO"; id: string };
+  detalhes: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+export async function listAuditLogs(page: number, limit: number, signal?: AbortSignal) {
+  const { data } = await apiRequest<Paginated<AuditLogEntry>>(`/admin/audit?page=${page}&limit=${limit}`, { signal });
+  return data;
 }

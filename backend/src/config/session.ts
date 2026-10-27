@@ -2,6 +2,18 @@ import session, { type Store } from "express-session";
 
 export const SESSION_COOKIE_NAME = "ecobyte.sid";
 
+// Em produção, o prefixo __Host- obriga o navegador a só aceitar o cookie com
+// Secure, Path=/ e sem Domain, impedindo que outro subdomínio o injete ou
+// sobrescreva (DEC-091). Em HTTP local, o prefixo seria recusado.
+export function sessionCookieName(secureCookies: boolean): string {
+  return secureCookies ? `__Host-${SESSION_COOKIE_NAME}` : SESSION_COOKIE_NAME;
+}
+
+// Sessão do administrador: expira após 30 minutos sem uso (DEC-092). Os demais
+// perfis seguem SESSION_MAX_AGE (7 dias, DEC-021). Como a sessão é renovada a
+// cada resposta (rolling), é um limite de inatividade.
+export const ADMIN_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+
 export type SessionOptions = {
   secret: string;
   maxAgeSeconds: number;
@@ -24,7 +36,7 @@ export function sessionCookieOptions(secureCookies: boolean) {
 // - saveUninitialized: nenhuma sessão é criada para visitantes anônimos.
 export function createSessionMiddleware({ secret, maxAgeSeconds, secureCookies, store }: SessionOptions) {
   return session({
-    name: SESSION_COOKIE_NAME,
+    name: sessionCookieName(secureCookies),
     secret,
     store,
     resave: false,

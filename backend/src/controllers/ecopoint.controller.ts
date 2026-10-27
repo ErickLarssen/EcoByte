@@ -11,6 +11,6 @@ export async function getEcopointHandler(_req: Request, res: Response): Promise<
 
 // PATCH /api/v1/ecopoint
 export async function updateEcopointHandler(req: Request, res: Response): Promise<void> {
-  const ecopoint = await updateCentralEcopoint(req.body as UpdateEcopointInput);
+  const ecopoint = await updateCentralEcopoint(req.body as UpdateEcopointInput, req.user!.id);
   sendSuccess(res, 200, "Ecoponto atualizado.", { ecopoint });
 }
