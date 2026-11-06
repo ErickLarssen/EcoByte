@@ -14,6 +14,15 @@ updates:
       # Atualizações menores e de correção juntas, para não lotar a fila de PRs.
       minor-e-patch:
         update-types: [minor, patch]
+    ignore:
+      # Os tipos acompanham o Node.js do .nvmrc (22): tipos de uma versão mais
+      # nova aceitariam APIs que o servidor não tem.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # Versão maior do TypeScript só junto com o suporte do typescript-eslint
+      # (hoje até 6.0) e por decisão registrada, não por PR automático.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Versões das actions usadas no CI.
   - package-ecosystem: github-actions
