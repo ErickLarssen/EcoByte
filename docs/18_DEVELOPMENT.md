@@ -248,6 +248,7 @@ O backend em desenvolvimento é executado com `tsx` em modo watch.
 | `typecheck` | `tsc --noEmit` |
 | `seed` | Seed mínimo (`docs/20_SEED_DATA.md`). Bloqueado em produção |
 | `bootstrap` | Inicialização de um banco novo: primeiro administrador e ecoponto, sem apagar dados (`DEC-087`). Pode rodar em produção |
+| `purge` | Remoção definitiva de perfis listados em `PURGE_EMAILS`, com coletas, notificações e sessões. Só simula, a não ser com `PURGE_CONFIRMAR=APAGAR` (`DEC-096`) |
 | `seed:full` | Seed completo (ainda não implementado; `20_SEED_DATA.md` §41) |
 
 ## 7.3 Frontend

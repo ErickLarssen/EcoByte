@@ -1337,6 +1337,8 @@ A política definitiva ainda não foi estabelecida.
 
 **Status:** RESOLVIDA por `DEC-095` (2026-10-26): o titular exclui a própria conta no perfil, com a senha. A conta é anonimizada (exclusão lógica com remoção dos dados pessoais), e coletas em andamento impedem a exclusão. A conta `ADMIN` não é excluída pelo perfil.
 
+**Complemento (2026-11-06, `DEC-096`):** a remoção física, para perfis de demonstração, é feita pelo responsável na linha de comando (`npm run purge`), e não pela aplicação.
+
 ## Questão
 
 O usuário poderá solicitar exclusão da própria conta?

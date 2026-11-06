@@ -3804,6 +3804,7 @@ A `OQ-056` perguntava se as ações administrativas sensíveis seriam registrada
   - `COLETOR_CADASTRADO`, `USUARIO_ATIVADO` e `USUARIO_DESATIVADO` (só quando o status muda);
   - `ECOPONTO_ATUALIZADO`, com os nomes dos campos alterados;
   - `CONTA_EXCLUIDA` (pelo titular, `DEC-095`);
+  - `USUARIO_REMOVIDO` (remoção definitiva pela linha de comando, `DEC-096`);
 - **conteúdo:** ação, ator (id e papel), alvo (tipo e id), detalhes sem dados pessoais e data. Nomes, e-mails e telefones não são gravados. O nome do ator é lido na consulta, então uma conta excluída não deixa o nome no registro;
 - **consulta:** `GET /api/v1/admin/audit`, paginada e mais recentes primeiro, só para `ADMIN`, na página `/admin/auditoria`, que ganha item na navegação do admin;
 - **gravação:** acontece depois que a ação deu certo. Uma falha ao gravar fica no log e não desfaz a ação;
@@ -3881,7 +3882,41 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 98. Registro Atual de Decisões Pendentes
+# 98. DEC-096 — Remoção Definitiva de Perfis pela Linha de Comando
+
+**Status:** ACEITA
+
+**Data:** 2026-11-06
+
+## Contexto
+
+O responsável pelo projeto criou perfis para uma demonstração em sala de aula e precisa apagá-los de vez. A exclusão pelo titular (`DEC-095`) só anonimiza: o registro continua na lista de usuários. Apagar à mão no Atlas deixaria coletas e notificações sem dono.
+
+## Decisão
+
+- **Comando:** `npm run purge --workspace backend` (`backend/src/database/purge`). Roda na máquina do responsável, com a `MONGODB_URI` do banco-alvo, como a inicialização (`DEC-087`). Não há rota de API nem tela para isso;
+- **entrada:** `PURGE_EMAILS`, com até 50 e-mails separados por vírgula ou ponto e vírgula. Contas já excluídas são encontradas pelo e-mail anonimizado (`excluido-<id>@excluido.invalid`);
+- **simulação por padrão:** sem `PURGE_CONFIRMAR=APAGAR`, o script só mostra o que seria apagado. O resumo sempre mostra o servidor e o banco conectados, sem credenciais;
+- **o que é apagado:**
+  - o usuário e as coletas que ele solicitou;
+  - as notificações dele e as de outros usuários que apontam para essas coletas (ex.: `NOVA_COLETA`);
+  - as sessões abertas e o registro de falhas de login;
+- **bloqueios (nada é apagado):**
+  - a remoção deixaria o sistema sem administrador;
+  - um coletor da lista atendeu coleta de um cliente que não está na lista. A coleta é de outra pessoa e não é apagada;
+- **auditoria:** os registros existentes ficam (`DEC-094`): não têm dados pessoais. Cada remoção gera `USUARIO_REMOVIDO`, com ator `SISTEMA` e o papel do perfil removido.
+
+## Documentos relacionados
+
+```text
+18_DEVELOPMENT.md
+19_DEPLOYMENT.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 99. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3895,7 +3930,7 @@ até serem formalmente decididas.
 
 ---
 
-# 99. Como Adicionar uma Nova Decisão
+# 100. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3933,7 +3968,7 @@ arquivo2.md
 
 ---
 
-# 100. Regra Final
+# 101. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

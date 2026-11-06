@@ -92,7 +92,8 @@ export type AuditAction =
   | "USUARIO_ATIVADO"
   | "USUARIO_DESATIVADO"
   | "ECOPONTO_ATUALIZADO"
-  | "CONTA_EXCLUIDA";
+  | "CONTA_EXCLUIDA"
+  | "USUARIO_REMOVIDO";
 
 export type AuditLogEntry = {
   id: string;
