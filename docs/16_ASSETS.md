@@ -1835,10 +1835,9 @@ Não criar GIFs de loading quando:
 ```text
 CSS
 SVG
-Framer Motion
 ```
 
-forem suficientes.
+forem suficientes (animações em CSS, `DEC-097`).
 
 ---
 

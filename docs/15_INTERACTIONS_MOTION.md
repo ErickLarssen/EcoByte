@@ -122,6 +122,8 @@ prefers-reduced-motion
 
 # 4. Biblioteca principal
 
+> **Atualização (2026-11-06, `DEC-097`):** o projeto não usa biblioteca de motion. As animações são feitas em CSS (transições do Tailwind, `tw-animate-css` e `@keyframes` em `globals.css`). As seções 4 a 6 ficam como referência caso uma biblioteca seja adotada por nova decisão.
+
 A preferência para motion de interface é:
 
 ```text
@@ -2709,6 +2711,8 @@ Framer Motion
 ↓
 GSAP
 ```
+
+No projeto, a primeira opção atende a todos os casos: as animações são feitas só em CSS (`DEC-097`).
 
 utilizando o menor nível suficiente para resolver o problema.
 
