@@ -97,7 +97,9 @@ describe("GET /api/v1/profile/export (DEC-095)", () => {
     const response = await agent.get("/api/v1/profile/export");
 
     expect(response.status).toBe(200);
-    expect(response.headers["content-disposition"]).toContain('attachment; filename="ecobyte-meus-dados.json"');
+    // Com ou sem aspas no nome: as duas formas são válidas (RFC 6266), e o
+    // Express mudou de uma para a outra na versão 5.3.
+    expect(response.headers["content-disposition"]).toMatch(/^attachment; filename="?ecobyte-meus-dados\.json"?$/);
     expect(response.headers["cache-control"]).toBe("no-store");
     const data = response.body.data;
     expect(data.titular).toMatchObject({ email: "cliente@teste.local", telefone: "11999990000" });

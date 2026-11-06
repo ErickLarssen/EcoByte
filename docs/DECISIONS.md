@@ -3668,6 +3668,11 @@ Na auditoria de segurança, o `npm audit` apontou 12 vulnerabilidades em depend�
 - **Atualizações:** Next.js e `eslint-config-next` em 16.4.3 (versão fixa). Correções de `npm audit fix` sem mudança de versão maior. Mínimos de `zod` (`^4.6.7`) e `nodemailer` (`^10.2.1`) elevados, para nenhuma instalação aceitar as versões vulneráveis. Resultado: 0 vulnerabilidades;
 - **`shadcn`:** passa para `devDependencies`. É só um gerador de componentes;
 - **Dependabot (`.github/dependabot.yml`):** PRs semanais de npm e de GitHub Actions, com atualizações menores agrupadas. Alertas de segurança abrem PRs fora do calendário. Todos passam pelo CI;
+- **versões maiores ignoradas pelo Dependabot** (complemento de 2026-11-06):
+  - `@types/node`, que acompanha o Node.js do `.nvmrc` (22);
+  - `typescript`, enquanto o `typescript-eslint` só suportar até a 6.0.
+
+  Essas atualizações exigem decisão registrada;
 - **CI:** novo job "Auditoria de dependências" (`npm audit --omit=dev --audit-level=high`). Uma falha alta ou crítica em produção reprova o CI e, com ele, o deploy do Render (`DEC-089`).
 
 ## Documentos relacionados
