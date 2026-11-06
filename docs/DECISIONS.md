@@ -1120,7 +1120,7 @@ Essas ferramentas devem ser usadas de forma consistente com o design system.
 
 # 30. DEC-028 — Framer Motion como Solução Principal de Motion
 
-**Status:** ACEITA
+**Status:** SUBSTITUÍDA por `DEC-097` (2026-11-06): as animações são feitas em CSS, e o Framer Motion não faz parte da stack.
 
 ## Decisão
 
@@ -2274,7 +2274,7 @@ React
 TypeScript
 Tailwind CSS
 shadcn/ui
-Framer Motion
+tw-animate-css (animações em CSS, DEC-097)
 Lucide React
 ```
 
@@ -3921,7 +3921,44 @@ OPEN_QUESTIONS.md
 
 ---
 
-# 99. Registro Atual de Decisões Pendentes
+# 99. DEC-097 — Motion em CSS (substitui o DEC-028)
+
+**Status:** ACEITA
+
+**Data:** 2026-11-06
+
+## Contexto
+
+O `DEC-028` previa o Framer Motion como solução principal de animação, e o GSAP para casos complexos. Durante o desenvolvimento, todas as animações foram feitas em CSS. Nenhuma das duas bibliotecas foi instalada. O CLAUDE.md e a lista de stack (`DEC-062`) continuavam citando o Framer Motion, divergindo do código.
+
+## Decisão
+
+- **Como o movimento é feito:** só com CSS:
+  - transições do Tailwind;
+  - classes de entrada e saída do `tw-animate-css`;
+  - `@keyframes` próprios em `frontend/src/app/globals.css` (`animate-ken-burns` e `animate-aurora`, `DEC-080`, `DEC-085`);
+- **movimento reduzido:** desativado com `prefers-reduced-motion`, pela regra global e por `motion-reduce:` (15 §98);
+- **bibliotecas fora da stack:** Framer Motion e GSAP. Se uma necessidade futura justificar uma biblioteca de animação, ela entra por nova decisão, que avalie também o efeito sobre a CSP (`DEC-091`).
+
+O `DEC-028` passa a **SUBSTITUÍDA**.
+
+## Motivo
+
+O CSS atende a todas as animações do projeto, sem dependência nova, sem JavaScript extra no navegador e com o movimento reduzido respeitado de forma uniforme. É a primeira opção da própria hierarquia do `DEC-028` (CSS → Framer Motion → GSAP).
+
+## Documentos relacionados
+
+```text
+CLAUDE.md
+10_DESIGN_SYSTEM.md
+11_COMPONENTS.md
+15_INTERACTIONS_MOTION.md
+16_ASSETS.md
+```
+
+---
+
+# 100. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3935,7 +3972,7 @@ até serem formalmente decididas.
 
 ---
 
-# 100. Como Adicionar uma Nova Decisão
+# 101. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -3973,7 +4010,7 @@ arquivo2.md
 
 ---
 
-# 101. Regra Final
+# 102. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

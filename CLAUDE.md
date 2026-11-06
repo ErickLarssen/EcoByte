@@ -132,7 +132,7 @@ Frontend:
 - TypeScript;
 - Tailwind CSS;
 - Shadcn UI;
-- Framer Motion;
+- tw-animate-css (animações em CSS, sem biblioteca de motion — DEC-097);
 - Lucide React.
 
 Backend:

@@ -2300,6 +2300,8 @@ orientação
 
 # 113. Framer Motion / GSAP
 
+> **Atualização (2026-11-06, `DEC-097`):** nenhuma das duas bibliotecas faz parte da stack. As animações são feitas em CSS.
+
 Quando houver necessidade de animação:
 
 ```text
