@@ -137,6 +137,14 @@ describe("AdminAuditLog (DEC-094)", () => {
               createdAt: "2026-10-26T12:00:00.000Z",
             },
             {
+              id: "l4",
+              acao: "USUARIO_REMOVIDO",
+              ator: { id: null, role: "SISTEMA", nome: null },
+              alvo: { tipo: "USUARIO", id: "u9" },
+              detalhes: { role: "CLIENTE" },
+              createdAt: "2026-10-26T11:30:00.000Z",
+            },
+            {
               id: "l3",
               acao: "ADMIN_INICIAL_CRIADO",
               ator: { id: null, role: "SISTEMA", nome: null },
@@ -145,19 +153,22 @@ describe("AdminAuditLog (DEC-094)", () => {
               createdAt: "2026-10-26T11:00:00.000Z",
             },
           ],
-          pagination: { page: 1, limit: 20, total: 3, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+          pagination: { page: 1, limit: 20, total: 4, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
         }),
       },
     ]);
     renderWithQuery(<AdminAuditLog />);
 
     const items = within(await screen.findByRole("list", { name: "Ações registradas" })).getAllByRole("listitem");
-    expect(items).toHaveLength(3);
+    expect(items).toHaveLength(4);
     expect(items[0]).toHaveTextContent("Usuário desativado");
     expect(items[0]).toHaveTextContent("Ana Admin · Administrador");
     expect(within(items[0]!).getByRole("link", { name: "Ver usuário" })).toHaveAttribute("href", "/admin/usuarios/u1");
     expect(items[1]).toHaveTextContent("Campos: nome, horarios");
     expect(within(items[1]!).getByRole("link", { name: "Ecoponto" })).toHaveAttribute("href", "/admin/ecoponto");
-    expect(items[2]).toHaveTextContent("Sistema (inicialização)");
+    expect(items[2]).toHaveTextContent("Perfil removido definitivamente");
+    expect(items[2]).toHaveTextContent("Sistema (remoção pela linha de comando)");
+    expect(within(items[2]!).queryByRole("link")).not.toBeInTheDocument();
+    expect(items[3]).toHaveTextContent("Sistema (inicialização)");
   });
 });

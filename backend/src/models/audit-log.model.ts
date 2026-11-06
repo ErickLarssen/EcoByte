@@ -12,6 +12,8 @@ export const AUDIT_ACTIONS = [
   "USUARIO_DESATIVADO",
   "ECOPONTO_ATUALIZADO",
   "CONTA_EXCLUIDA",
+  // Remoção definitiva pela linha de comando (DEC-096).
+  "USUARIO_REMOVIDO",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

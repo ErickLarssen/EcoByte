@@ -23,15 +23,22 @@ const ACTION_LABEL: Record<AuditAction, string> = {
   USUARIO_DESATIVADO: "Usuário desativado",
   ECOPONTO_ATUALIZADO: "Ecoponto atualizado",
   CONTA_EXCLUIDA: "Conta excluída pelo titular",
+  USUARIO_REMOVIDO: "Perfil removido definitivamente",
 };
 
 // Quem fez: o nome é resolvido pela API na leitura (DEC-094).
-function actorLabel({ ator }: AuditLogEntry): string {
-  if (ator.role === "SISTEMA") return "Sistema (inicialização)";
+function actorLabel(entry: AuditLogEntry): string {
+  const { ator } = entry;
+  if (ator.role === "SISTEMA") {
+    return entry.acao === "USUARIO_REMOVIDO" ? "Sistema (remoção pela linha de comando)" : "Sistema (inicialização)";
+  }
   return `${ator.nome ?? "Usuário removido"} · ${ROLE_LABEL[ator.role]}`;
 }
 
 function Target({ entry }: { entry: AuditLogEntry }) {
+  // Perfil removido do banco (DEC-096): não há mais página para abrir.
+  if (entry.acao === "USUARIO_REMOVIDO") return <span className="text-muted-foreground">Perfil removido</span>;
+
   const href = entry.alvo.tipo === "ECOPONTO" ? "/admin/ecoponto" : `/admin/usuarios/${entry.alvo.id}`;
   const label = entry.alvo.tipo === "ECOPONTO" ? "Ecoponto" : "Ver usuário";
   return (

@@ -581,6 +581,22 @@ npm run bootstrap --workspace backend
 
 O seed **nunca** é executado nesse banco (§36).
 
+## 4.1 Remover perfis de demonstração (`DEC-096`)
+
+Na máquina do responsável, com a mesma `MONGODB_URI` da etapa 4:
+
+```bash
+# 1) Simulação: mostra o que seria apagado e não altera nada.
+MONGODB_URI="mongodb+srv://..." PURGE_EMAILS="demo1@...,demo2@..." \
+npm run purge --workspace backend
+
+# 2) Conferido o resumo (servidor, banco e perfis), apague de fato.
+MONGODB_URI="mongodb+srv://..." PURGE_EMAILS="demo1@...,demo2@..." PURGE_CONFIRMAR=APAGAR \
+npm run purge --workspace backend
+```
+
+O script para, sem apagar nada, se a remoção deixar o sistema sem administrador ou se um coletor da lista tiver atendido coleta de cliente de fora da lista.
+
 ## 5. Teste de fumaça (§78, §79)
 
 1. `/api/v1/health` pela Vercel: `https://<projeto>.vercel.app/api/v1/health`.
