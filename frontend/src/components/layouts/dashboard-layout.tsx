@@ -50,7 +50,7 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
       </a>
 
       <header className="sticky top-0 z-10 border-b border-border/70 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-6">
             <Link
               href={user ? ROLE_HOME[user.role] : "/"}
@@ -76,9 +76,9 @@ export function DashboardLayout({ area, children }: { area: Area; children: Reac
       <main
         id="conteudo"
         className={cn(
-          "mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:py-8",
+          "mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8",
           // Espaço para a barra inferior no celular.
-          items.length > 0 && "pb-28 md:pb-8",
+          items.length > 0 && "pb-28 lg:pb-8",
         )}
       >
         {children}

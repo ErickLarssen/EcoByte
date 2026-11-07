@@ -23,7 +23,7 @@ export function NotificationBell({ href }: { href: string }) {
       aria-label={unreadLabel(count)}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative inline-flex size-11 items-center justify-center rounded-lg outline-none transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 md:size-10",
+        "relative inline-flex size-11 items-center justify-center rounded-lg outline-none transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 lg:size-10",
         active && "bg-accent text-accent-foreground",
       )}
     >

@@ -6,6 +6,7 @@ import {
   listAuditLogsHandler,
   listCollectionsHandler,
   listUsersHandler,
+  reportsHandler,
   updateUserStatusHandler,
 } from "../controllers/admin.controller.js";
 import { requireAuth } from "../middlewares/authenticate.js";
@@ -27,6 +28,9 @@ export function createAdminRouter(): Router {
 
   router.get("/collections", listCollectionsHandler);
   router.get("/collections/:id", getCollectionHandler);
+
+  // Relatórios por agregação (RF-046, DEC-098).
+  router.get("/reports", reportsHandler);
 
   // Registro de auditoria, somente leitura (DEC-094).
   router.get("/audit", listAuditLogsHandler);

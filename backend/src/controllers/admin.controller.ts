@@ -9,9 +9,11 @@ import {
   updateUserStatus,
 } from "../services/admin.service.js";
 import { listAuditLogs } from "../services/audit.service.js";
+import { buildReports } from "../services/reports.service.js";
 import { sendSuccess } from "../utils/api-response.js";
 import {
   adminCollectionsQuerySchema,
+  reportsQuerySchema,
   type CreateCollectorInput,
   type UpdateUserStatusInput,
 } from "../validators/admin.validators.js";
@@ -58,4 +60,10 @@ export async function getCollectionHandler(req: Request<{ id: string }>, res: Re
 export async function listAuditLogsHandler(req: Request, res: Response): Promise<void> {
   const page = await listAuditLogs(parseInput(paginationQuerySchema, req.query));
   sendSuccess(res, 200, "Registro de auditoria.", page);
+}
+
+// GET /api/v1/admin/reports — relatórios por agregação no MongoDB (RF-046, DEC-098).
+export async function reportsHandler(req: Request, res: Response): Promise<void> {
+  const reports = await buildReports(parseInput(reportsQuerySchema, req.query));
+  sendSuccess(res, 200, "Relatórios gerados.", reports);
 }

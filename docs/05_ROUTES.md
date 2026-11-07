@@ -1596,7 +1596,7 @@ A escolha deve representar corretamente o motivo da falha.
 | GET | `/api/v1/admin/collections/:id` | ADMIN | Detalhes administrativos |
 | GET | `/api/v1/notifications` | Autenticado | Listar notificações |
 | PATCH | `/api/v1/notifications/:id/read` | Autenticado | Marcar como lida |
-| GET | `/api/v1/admin/reports` | ADMIN | Relatórios |
+| GET | `/api/v1/admin/reports` | ADMIN | Relatórios por agregação (`DEC-098`) |
 
 ---
 

@@ -35,3 +35,24 @@ export const createCollectorSchema = z
   });
 
 export type CreateCollectorInput = z.infer<typeof createCollectorSchema>;
+
+// GET /api/v1/admin/reports (RF-046, DEC-098): período opcional pela data da
+// solicitação, em AAAA-MM-DD; `fim` é inclusivo.
+const reportDate = (label: string) =>
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, `${label} deve estar no formato AAAA-MM-DD.`)
+    .refine((value) => {
+      const date = new Date(`${value}T00:00:00Z`);
+      return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+    }, `${label} não é uma data válida.`)
+    .optional();
+
+export const reportsQuerySchema = z
+  .object({ inicio: reportDate("inicio"), fim: reportDate("fim") })
+  .refine((query) => !query.inicio || !query.fim || query.inicio <= query.fim, {
+    path: ["fim"],
+    message: "fim deve ser igual ou posterior a inicio.",
+  });
+
+export type ReportsQuery = z.infer<typeof reportsQuerySchema>;

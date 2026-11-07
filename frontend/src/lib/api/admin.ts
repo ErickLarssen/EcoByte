@@ -108,3 +108,40 @@ export async function listAuditLogs(page: number, limit: number, signal?: AbortS
   const { data } = await apiRequest<Paginated<AuditLogEntry>>(`/admin/audit?page=${page}&limit=${limit}`, { signal });
   return data;
 }
+
+// ---------------------------------------------------------------------------
+// Relatórios (RF-046, DEC-098)
+// ---------------------------------------------------------------------------
+
+export type ReportPeriod = { inicio: string | null; fim: string | null };
+
+export type ReportStage = { horas: number | null; coletas: number };
+
+export type AdminReports = {
+  periodo: ReportPeriod;
+  resumo: {
+    totalColetas: number;
+    concluidas: number;
+    emAndamento: number;
+    pendentes: number;
+    itensSolicitados: number;
+    itensRecolhidos: number;
+    clientesAtendidos: number;
+  };
+  porStatus: Array<{ status: CollectionStatus; total: number }>;
+  porMes: Array<{ ano: number; mes: number; solicitadas: number; concluidas: number }>;
+  porCategoria: Array<{ categoria: string; quantidade: number; coletas: number }>;
+  porCondicao: Array<{ condicao: string; quantidade: number }>;
+  porBairro: Array<{ bairro: string; total: number }>;
+  porColetor: Array<{ coletor: { id: string; nome: string }; atendidas: number; concluidas: number }>;
+  temposMedios: { ateAceite: ReportStage; ateRecolhimento: ReportStage; ateEntrega: ReportStage; total: ReportStage };
+};
+
+export async function getAdminReports(period: ReportPeriod, signal?: AbortSignal): Promise<AdminReports> {
+  const params = new URLSearchParams();
+  if (period.inicio) params.set("inicio", period.inicio);
+  if (period.fim) params.set("fim", period.fim);
+  const query = params.toString();
+  const { data } = await apiRequest<AdminReports>(`/admin/reports${query ? `?${query}` : ""}`, { signal });
+  return data;
+}
