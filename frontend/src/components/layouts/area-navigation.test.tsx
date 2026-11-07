@@ -75,12 +75,13 @@ describe("navegação da área administrativa (DEC-075)", () => {
     ["/admin/coletas/k1", "/admin/coletas"],
     ["/admin/ecoponto", "/admin/ecoponto"],
     ["/admin/auditoria", "/admin/auditoria"],
+    ["/admin/relatorios", "/admin/relatorios"],
     ["/admin/qualquer", undefined],
   ])("em %s o item ativo é %s", (pathname, expected) => {
     expect(activeHref(adminItems, pathname)).toBe(expected);
   });
 
-  it("lista Início, Usuários, Coletas, Ecoponto e Auditoria (DEC-094)", () => {
-    expect(adminItems.map((item) => item.label)).toEqual(["Início", "Usuários", "Coletas", "Ecoponto", "Auditoria"]);
+  it("lista Início, Usuários, Coletas, Ecoponto, Relatórios e Auditoria (DEC-094, DEC-098)", () => {
+    expect(adminItems.map((item) => item.label)).toEqual(["Início", "Usuários", "Coletas", "Ecoponto", "Relatórios", "Auditoria"]);
   });
 });

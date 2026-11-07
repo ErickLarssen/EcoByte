@@ -32,6 +32,10 @@ Projeto acadêmico full-stack, construído com documentação primeiro: regras, 
 - Painel com totais, usuários e coletas.
 - Cadastro de coletores com senha provisória, que deve ser trocada no primeiro acesso.
 - Ativação e desativação de usuários, edição do ecoponto e registro de auditoria das ações sensíveis.
+- **Relatórios** com agregações do MongoDB (`$facet`, `$unwind`, `$lookup`, `$group`):
+  - coletas por status, mês, bairro e coletor;
+  - itens por categoria e condição;
+  - tempo médio de cada etapa, com filtro de período.
 
 **Site institucional**
 - Páginas Sobre o Projeto, Ecoponto, Solicitar Coleta, Como Funciona e Política de Privacidade.

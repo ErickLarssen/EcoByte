@@ -711,7 +711,9 @@ Token invalidado
 
 # 20. OQ-016 — Relatórios Administrativos
 
-**Status:** ABERTA
+**Status:** ABERTA (parcialmente decidida)
+
+**Decidido em `DEC-098` (2026-11-06):** coletas por status, por mês (solicitadas e concluídas), itens por categoria e condição, coletas por bairro e por coletor e tempo médio de cada etapa, com filtro opcional de período. Continuam em aberto: exportação, gráficos adicionais e relatório por cliente.
 
 **Diagrama de navegação (2026-10-03):** o diagrama de navegação (`public/images/diagrama-navegacao.png`, `DEC-079`) prevê "Relatórios" no painel administrativo, sem detalhar quais.
 

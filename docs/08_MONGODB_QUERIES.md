@@ -1138,6 +1138,8 @@ Não utilizar uma atualização genérica sem verificar o estado de origem.
 
 ---
 
+> **Implementação (`DEC-098`):** as consultas §34 a §49 rodam juntas numa aggregation com `$facet`, em `backend/src/services/reports.service.ts` (`GET /api/v1/admin/reports`), com meses no fuso `America/Sao_Paulo`. As consultas geográficas (§54, §55) ainda não, porque as coletas não guardam coordenadas (`OQ-011`).
+
 # 34. Contagem de coletas por status
 
 Aggregation:

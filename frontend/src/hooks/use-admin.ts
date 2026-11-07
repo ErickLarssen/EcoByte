@@ -4,12 +4,14 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import {
   createCollector,
   getAdminCollection,
+  getAdminReports,
   getUser,
   listAdminCollections,
   listAuditLogs,
   listUsers,
   updateUserStatus,
   type CreateCollectorPayload,
+  type ReportPeriod,
   type RecordStatus,
 } from "@/lib/api/admin";
 import type { CollectionStatus } from "@/lib/collection-status";
@@ -25,6 +27,7 @@ export const adminKeys = {
     [...adminKeys.collections(), "list", page, limit, status] as const,
   collection: (id: string) => [...adminKeys.collections(), "detail", id] as const,
   audit: (page: number, limit: number) => [...adminKeys.all, "audit", page, limit] as const,
+  reports: (period: ReportPeriod) => [...adminKeys.all, "reports", period.inicio, period.fim] as const,
 };
 
 export function useAdminUsers(page: number, limit = 10) {
@@ -83,6 +86,16 @@ export function useAuditLogs(page: number, limit = 20) {
   return useQuery({
     queryKey: adminKeys.audit(page, limit),
     queryFn: ({ signal }) => listAuditLogs(page, limit, signal),
+    placeholderData: keepPreviousData,
+  });
+}
+
+// Relatórios por agregação (RF-046, DEC-098). Mantém os dados anteriores na
+// troca de período, para a tela não piscar.
+export function useAdminReports(period: ReportPeriod) {
+  return useQuery({
+    queryKey: adminKeys.reports(period),
+    queryFn: ({ signal }) => getAdminReports(period, signal),
     placeholderData: keepPreviousData,
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, House, Inbox, MapPin, PlusCircle, ScrollText, Users, type LucideIcon } from "lucide-react";
+import { ChartColumn, ClipboardList, House, Inbox, MapPin, PlusCircle, ScrollText, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ export type NavItem = {
 
 export type Area = "cliente" | "coletor" | "admin";
 
-// Destinos de cada área (DEC-073 a DEC-076, DEC-084, DEC-094, 10 §58, §62).
+// Destinos de cada área (DEC-073 a DEC-076, DEC-084, DEC-094, DEC-098, 10 §58, §62).
 export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
   cliente: [
     { href: "/cliente", label: "Início", icon: House, exact: true },
@@ -34,6 +34,7 @@ export const AREA_NAVIGATION: Record<Area, NavItem[]> = {
     { href: "/admin/usuarios", label: "Usuários", icon: Users },
     { href: "/admin/coletas", label: "Coletas", icon: ClipboardList },
     { href: "/admin/ecoponto", label: "Ecoponto", icon: MapPin },
+    { href: "/admin/relatorios", label: "Relatórios", icon: ChartColumn },
     { href: "/admin/auditoria", label: "Auditoria", icon: ScrollText },
   ],
 };
@@ -51,13 +52,14 @@ function useActiveHref(items: NavItem[]) {
   return activeHref(items, usePathname());
 }
 
-// Links no cabeçalho, a partir de md.
+// Links no cabeçalho, a partir de lg (1024px): com até 6 destinos (admin),
+// o cabeçalho não cabe em telas menores, que usam a barra inferior.
 export function DesktopNavigation({ items }: { items: NavItem[] }) {
   const active = useActiveHref(items);
   if (items.length === 0) return null;
 
   return (
-    <nav aria-label="Navegação principal" className="hidden md:block">
+    <nav aria-label="Navegação principal" className="hidden lg:block">
       <ul className="flex items-center gap-1">
         {items.map((item) => (
           <li key={item.href}>
@@ -81,7 +83,7 @@ export function DesktopNavigation({ items }: { items: NavItem[] }) {
   );
 }
 
-// Barra inferior fixa no celular (DEC-073), ao alcance do polegar, em vidro e
+// Barra inferior fixa no celular e no tablet (DEC-073), ao alcance do polegar, em vidro e
 // com o ícone do item ativo sobre uma pílula (DEC-085).
 export function MobileNavigation({ items }: { items: NavItem[] }) {
   const active = useActiveHref(items);
@@ -90,7 +92,7 @@ export function MobileNavigation({ items }: { items: NavItem[] }) {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/85 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgb(30_42_51/0.12)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/85 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgb(30_42_51/0.12)] backdrop-blur-xl lg:hidden"
     >
       <ul className="grid" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => {

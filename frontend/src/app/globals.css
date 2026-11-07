@@ -104,7 +104,12 @@
   --error: #c0392b;
   --error-surface: #fbeae8;
 
-  --chart-1: #226891;
+  /* Gráficos (DEC-098): chart-1 e chart-2 validados juntos sobre fundo claro
+     (saturação, separação para daltonismo e visão normal). O #226891 da marca
+     lê acinzentado em gráfico; o #2f7fb5 é o mesmo matiz, mais vivo. O verde
+     tem contraste baixo com o fundo: todo gráfico mostra os valores em texto.
+     chart-3 a chart-5 não foram validados para uso conjunto. */
+  --chart-1: #2f7fb5;
   --chart-2: #47b298;
   --chart-3: #75aa8a;
   --chart-4: #588cb7;

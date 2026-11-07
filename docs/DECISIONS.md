@@ -2825,6 +2825,8 @@ Complemento (2026-10-06, `DEC-088`): `/esqueci-senha` (visitantes) e `/redefinir
 
 Complemento (2026-10-26, `DEC-094`, `DEC-095`): `/privacidade` (pública) e `/admin/auditoria` (`ADMIN`).
 
+Complemento (2026-11-06, `DEC-098`): `/admin/relatorios` (`ADMIN`).
+
 ## Regras
 
 - após login ou cadastro, o usuário é direcionado à área do seu perfil;
@@ -2857,7 +2859,7 @@ A Fase 6 implementa as telas do cliente (`DEC-072`). O fluxo de solicitação pr
 ### Navegação
 
 - no celular, barra inferior fixa com os destinos do perfil, ao alcance do polegar;
-- a partir de `md`, os mesmos destinos no cabeçalho;
+- a partir de `md`, os mesmos destinos no cabeçalho. Desde o `DEC-098`, a partir de `lg`, e a barra inferior vale também no tablet;
 - item ativo indicado por `aria-current="page"` e por estilo, não apenas por cor;
 - destinos atuais do cliente: **Início** (`/cliente`), **Minhas coletas** (`/cliente/coletas`) e **Solicitar** (`/cliente/coletas/nova`). Ecoponto, Notificações e Perfil (10 §58) entram quando essas telas existirem.
 
@@ -3958,7 +3960,59 @@ CLAUDE.md
 
 ---
 
-# 100. Registro Atual de Decisões Pendentes
+# 100. DEC-098 — Relatórios Administrativos por Agregação no MongoDB
+
+**Status:** ACEITA
+
+**Data:** 2026-11-06
+
+## Contexto
+
+O RF-046 previa relatórios administrativos, e o `08_MONGODB_QUERIES.md` já descrevia as agregações (§34–§49), mas nenhuma estava implementada. A disciplina de Banco de Dados Não Relacional exige consultas complexas integradas à interface. O responsável pelo projeto priorizou esta entrega.
+
+## Decisão
+
+- **Rota:** `GET /api/v1/admin/reports` (prevista em 05 §13), só para `ADMIN`, com período opcional pela data da solicitação: `inicio` e `fim` em `AAAA-MM-DD`, com `fim` inclusivo;
+- **uma única aggregation com `$facet`** (§48), com um ramo por indicador:
+  - coletas por status (§34) e resumo: totais, itens solicitados e recolhidos, clientes distintos com `$addToSet`;
+  - coletas solicitadas e concluídas por mês (§35, §36), **no fuso de Diadema** (`America/Sao_Paulo`), para uma coleta das 23h do último dia não cair no mês seguinte;
+  - itens por categoria e por condição, desmembrando o array com `$unwind` (§37, §38);
+  - coletas por bairro, agrupando um campo do endereço embutido (07 §18), sem junção;
+  - coletas por coletor, com o nome via `$lookup` em `users` (§40, §42);
+  - tempo médio de cada etapa (§49): solicitação → aceite, aceite → recolhimento, recolhimento → entrega e solicitação → conclusão;
+- **na aplicação,** só converter unidades e completar status e meses sem dados. Os cálculos ficam no banco;
+- **tela `/admin/relatorios`:**
+  - filtro de período na URL;
+  - indicadores em cartões e barras horizontais com o valor escrito ao lado;
+  - tabela de coletores e tempos médios em horas ou dias;
+- **cores dos gráficos:** `--chart-1` (`#2f7fb5`) e `--chart-2` (`#47b298`), validadas para daltonismo e visão normal. O `#226891` da marca lê acinzentado em gráfico. Valores sempre em texto, nunca só pela cor.
+
+### Navegação (complemento ao `DEC-073`)
+
+Com "Relatórios", o admin passa a ter 6 destinos, e o cabeçalho deixa de caber abaixo de 1024px. Para todas as áreas:
+
+- **navegação no cabeçalho a partir de `lg`.** Abaixo disso, inclusive no tablet, fica a barra inferior;
+- **conteúdo e cabeçalho com `max-w-6xl`,** a mesma largura do site institucional;
+- **nome do usuário no cabeçalho a partir de `xl`,** truncado;
+- **botões de sino e perfil** com 44px até `lg` (alvo de toque).
+
+### Fora desta decisão
+
+A consulta geográfica (`$geoNear`, §55) não foi implementada. As coletas não guardam coordenadas, porque o formulário não captura localização (`OQ-011`), e só o ecoponto tem índice `2dsphere`.
+
+## Documentos relacionados
+
+```text
+05_ROUTES.md
+06_API.md
+08_MONGODB_QUERIES.md
+11_COMPONENTS.md
+OPEN_QUESTIONS.md
+```
+
+---
+
+# 101. Registro Atual de Decisões Pendentes
 
 Nenhuma decisão permanece explicitamente aberta: o `DEC-023` foi resolvido pelo `DEC-082` (2026-10-05).
 
@@ -3972,7 +4026,7 @@ até serem formalmente decididas.
 
 ---
 
-# 101. Como Adicionar uma Nova Decisão
+# 102. Como Adicionar uma Nova Decisão
 
 Utilizar o seguinte modelo:
 
@@ -4010,7 +4064,7 @@ arquivo2.md
 
 ---
 
-# 102. Regra Final
+# 103. Regra Final
 
 As decisões registradas neste documento representam o estado atual conhecido do projeto.
 

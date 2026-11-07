@@ -1555,7 +1555,29 @@ ADMIN
 
 Os dados devem ser produzidos por consultas adequadas ao MongoDB, incluindo agregações quando necessário.
 
-Os relatórios definitivos ainda dependem das decisões do projeto.
+### Implementação (`DEC-098`)
+
+Parâmetros opcionais: `inicio` e `fim` (`AAAA-MM-DD`, pela data da solicitação, com `fim` inclusivo). Uma data inválida, um formato errado ou `fim` anterior a `inicio` respondem `400 VALIDATION_ERROR` no campo.
+
+Resposta `200`, com `data`:
+
+```json
+{
+  "periodo": { "inicio": "2026-10-01", "fim": "2026-10-31" },
+  "resumo": { "totalColetas": 4, "concluidas": 2, "emAndamento": 1, "pendentes": 1, "itensSolicitados": 11, "itensRecolhidos": 6, "clientesAtendidos": 2 },
+  "porStatus": [{ "status": "PENDENTE", "total": 1 }],
+  "porMes": [{ "ano": 2026, "mes": 10, "solicitadas": 2, "concluidas": 1 }],
+  "porCategoria": [{ "categoria": "INFORMATICA", "quantidade": 7, "coletas": 2 }],
+  "porCondicao": [{ "condicao": "USADO", "quantidade": 4 }],
+  "porBairro": [{ "bairro": "Centro", "total": 2 }],
+  "porColetor": [{ "coletor": { "id": "USER_ID", "nome": "Carlos" }, "atendidas": 2, "concluidas": 2 }],
+  "temposMedios": { "ateAceite": { "horas": 2.3, "coletas": 3 }, "ateRecolhimento": { "horas": 4, "coletas": 2 }, "ateEntrega": { "horas": 4, "coletas": 2 }, "total": { "horas": 14, "coletas": 2 } }
+}
+```
+
+- `porStatus` traz todos os status, inclusive com zero, na ordem do ciclo de vida;
+- meses no fuso `America/Sao_Paulo`;
+- `horas` é `null` quando nenhuma coleta passou pela etapa.
 
 ---
 
