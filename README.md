@@ -189,6 +189,7 @@ EcoByte/
 | [17 Testes](docs/17_TESTING.md) · [18 Desenvolvimento](docs/18_DEVELOPMENT.md) · [19 Deploy](docs/19_DEPLOYMENT.md) · [20 Seed](docs/20_SEED_DATA.md) | Operação do projeto |
 | [Decisões](docs/DECISIONS.md) · [Questões em aberto](docs/OPEN_QUESTIONS.md) | Registro de decisões (DEC) e pontos sem definição (OQ) |
 | [Avaliação heurística (IHC)](docs/entregas/IHC_AVALIACAO_HEURISTICA.md) | Diagnóstico de usabilidade com as 10 heurísticas de Nielsen |
+| [Arquitetura e HTTP (Web III)](docs/entregas/WEB3_ARQUITETURA_HTTP.md) | Por que Express em camadas, o HTTP na prática e os fluxos de request/response, com [trocas reais](docs/entregas/web3/trocas-http.md) |
 
 ## Autoria
 
