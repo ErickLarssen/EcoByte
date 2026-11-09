@@ -188,6 +188,7 @@ EcoByte/
 | [15 Interações](docs/15_INTERACTIONS_MOTION.md) · [16 Assets](docs/16_ASSETS.md) | Movimento e recursos visuais |
 | [17 Testes](docs/17_TESTING.md) · [18 Desenvolvimento](docs/18_DEVELOPMENT.md) · [19 Deploy](docs/19_DEPLOYMENT.md) · [20 Seed](docs/20_SEED_DATA.md) | Operação do projeto |
 | [Decisões](docs/DECISIONS.md) · [Questões em aberto](docs/OPEN_QUESTIONS.md) | Registro de decisões (DEC) e pontos sem definição (OQ) |
+| [Avaliação heurística (IHC)](docs/entregas/IHC_AVALIACAO_HEURISTICA.md) | Diagnóstico de usabilidade com as 10 heurísticas de Nielsen |
 
 ## Autoria
 
